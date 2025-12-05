@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Atributos personalizados do projeto ReStock -->
+    <attr name="productCardCornerRadius" format="dimension"/>
+    <attr name="productCardElevation" format="dimension"/>
+
+</resources>
