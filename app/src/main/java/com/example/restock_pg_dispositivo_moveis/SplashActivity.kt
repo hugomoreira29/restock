@@ -1,34 +1,35 @@
 package com.example.restock_pg_dispositivo_moveis
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.auth.FirebaseAuth
 
+@SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtils.applySavedTheme(this)
+        // Instala o ecrã de splash. Tem de ser chamado antes de super.onCreate().
+        installSplashScreen()
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
 
-        // Delay de 2.5 segundos (2500 ms)
-        Handler(Looper.getMainLooper()).postDelayed({
-            val user = FirebaseAuth.getInstance().currentUser
+        // A nova API de Splash Screen gere a exibição do ecrã de splash.
+        // A transição de temas é gerida pelo `postSplashScreenTheme`.
+        // Apenas precisamos de verificar o estado de login e redirecionar.
 
-            if (user == null) {
-                // Não está logado → login
-                startActivity(Intent(this, LoginActivity::class.java))
-            } else {
-                // Já está logado → home
-                startActivity(Intent(this, HomeActivity::class.java))
-            }
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            // O utilizador não está logado, redireciona para a LoginActivity
+            startActivity(Intent(this, LoginActivity::class.java))
+        } else {
+            // O utilizador está logado, redireciona para a HomeActivity
+            startActivity(Intent(this, HomeActivity::class.java))
+        }
 
-            finish()
-
-        }, 2500)
+        // Finaliza a SplashActivity para impedir que o utilizador volte para ela
+        finish()
     }
 }

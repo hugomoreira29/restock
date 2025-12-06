@@ -21,4 +21,17 @@
     </style>
 
     <style name="Theme.ReStock_PG_Dispositivo_Moveis" parent="Base.Theme.ReStock_PG_Dispositivo_Moveis" />
+
+    <!-- Splash Screen Theme -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Set the splash screen background, animated icon, and animation duration. -->
+        <item name="windowSplashScreenBackground">@color/blue</item>
+
+        <!-- Use windowSplashScreenAnimatedIcon to add either a drawable or an
+             animated drawable. One of these is required. -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_restock_logo</item>
+
+        <!-- Set the theme of the Activity that follows your splash screen. -->
+        <item name="postSplashScreenTheme">@style/Theme.ReStock_PG_Dispositivo_Moveis</item>
+    </style>
 </resources>

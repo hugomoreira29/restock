@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/inventoryFragment">
+
+    <fragment
+        android:id="@+id/inventoryFragment"
+        android:name="com.example.restock_pg_dispositivo_moveis.ui.inventario.InventoryFragment"
+        android:label="Inventário"
+        tools:layout="@layout/fragment_inventario">
+        <action
+            android:id="@+id/action_inventoryFragment_to_adicionarProdutoFragment"
+            app:destination="@id/adicionarProdutoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/adicionarProdutoFragment"
+        android:name="com.example.restock_pg_dispositivo_moveis.ui.adicionarproduto.AdicionarProdutoFragment"
+        android:label="Adicionar/Editar Produto"
+        tools:layout="@layout/fragment_adicionar_produto">
+        <argument
+            android:name="produtoId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+</navigation>
