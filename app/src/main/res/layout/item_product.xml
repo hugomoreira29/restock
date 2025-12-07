@@ -1,63 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/product_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:background="?attr/colorSurface"
-    android:layout_marginBottom="8dp"
-    android:elevation="2dp">
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="4dp">
 
-    <TextView
-        android:id="@+id/text_product_name"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/editContainer" 
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nome do Produto"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:maxLines="1"
-        android:ellipsize="end"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn_delete"
-        android:layout_marginEnd="8dp"
-        tools:text="Pão de forma integral - Pingo Doce"/>
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/text_product_quantity_price"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Qtd: 2 | 2.49€"
-        android:textSize="14sp"
-        android:textColor="?android:attr/textColorSecondary"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_product_name"
-        android:layout_marginTop="4dp"
-        tools:text="Qtd: 2 | 2.49€"/>
+        <ImageView
+            android:id="@+id/productImageView"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_restock_logo" />
 
-    <TextView
-        android:id="@+id/text_product_validade"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Expira a: 30/12/2025"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_product_quantity_price"
-        android:layout_marginTop="4dp"
-        tools:text="Expira a: 30/12/2025"/>
+        <TextView
+            android:id="@+id/productNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/deleteButton"
+            app:layout_constraintStart_toEndOf="@id/productImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Leite" />
 
-    <ImageButton
-        android:id="@+id/btn_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_delete_24"
-        android:contentDescription="Apagar produto"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/text_product_validade"
-        app:tint="@android:color/darker_gray"/>
+        <TextView
+            android:id="@+id/productQuantityTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/deleteButton"
+            app:layout_constraintStart_toStartOf="@id/productNameTextView"
+            app:layout_constraintTop_toBottomOf="@id/productNameTextView"
+            tools:text="Qtd: 1 | 0,99€" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/productExpiryTextView" 
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@+id/deleteButton"
+            app:layout_constraintStart_toStartOf="@id/productNameTextView"
+            app:layout_constraintTop_toBottomOf="@id/productQuantityTextView"
+            tools:text="Expira a: 24/12/2024" />
+
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_delete"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

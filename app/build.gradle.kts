@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -58,7 +59,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.2")
 
     // Splash Screen
-    implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -67,9 +68,12 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage) // Dependência para o Firebase Storage
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-}
 
-apply(plugin = "androidx.navigation.safeargs.kotlin")
+    // UI libs for Profile Screen
+    implementation("de.hdodenhof:circleimageview:3.1.0") // Imagens Circulares
+    implementation("com.github.bumptech.glide:glide:4.16.0") // Carregar Imagens
+}

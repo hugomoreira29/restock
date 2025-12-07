@@ -3,27 +3,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/inventoryFragment">
+    app:startDestination="@id/navigation_home">
+
+    <!-- Ecrãs da Barra de Navegação -->
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.restock_pg_dispositivo_moveis.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_account"
+            app:destination="@id/accountFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/inventoryFragment"
         android:name="com.example.restock_pg_dispositivo_moveis.ui.inventario.InventoryFragment"
-        android:label="Inventário"
+        android:label="InventoryFragment"
         tools:layout="@layout/fragment_inventario">
         <action
             android:id="@+id/action_inventoryFragment_to_adicionarProdutoFragment"
             app:destination="@id/adicionarProdutoFragment" />
+        <action
+            android:id="@+id/action_inventoryFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
     </fragment>
 
     <fragment
+        android:id="@+id/navigation_list"
+        android:name="com.example.restock_pg_dispositivo_moveis.ListFragment"
+        android:label="fragment_list"
+        tools:layout="@layout/fragment_list" />
+
+    <fragment
+        android:id="@+id/navigation_budget"
+        android:name="com.example.restock_pg_dispositivo_moveis.BudgetFragment"
+        android:label="fragment_budget"
+        tools:layout="@layout/fragment_budget" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.restock_pg_dispositivo_moveis.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_settings_to_account"
+            app:destination="@id/accountFragment" />
+    </fragment>
+
+    <!-- Ecrãs de Detalhe -->
+    <fragment
+        android:id="@+id/accountFragment"
+        android:name="com.example.restock_pg_dispositivo_moveis.ui.account.AccountFragment"
+        android:label="fragment_account"
+        tools:layout="@layout/fragment_account" />
+
+    <fragment
         android:id="@+id/adicionarProdutoFragment"
-        android:name="com.example.restock_pg_dispositivo_moveis.ui.adicionarproduto.AdicionarProdutoFragment"
-        android:label="Adicionar/Editar Produto"
+        android:name="com.example.restock_pg_dispositivo_moveis.ui.inventario.AdicionarProdutoFragment"
+        android:label="fragment_adicionar_produto"
         tools:layout="@layout/fragment_adicionar_produto">
         <argument
             android:name="produtoId"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 
 </navigation>

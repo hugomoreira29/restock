@@ -1,4 +1,4 @@
-package com.example.restock_pg_dispositivo_moveis.ui
+package com.example.restock_pg_dispositivo_moveis.ui.inventario
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -33,13 +33,13 @@ class ProductAdapter(
     inner class ProductViewHolder(private val binding: ItemProductBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.deleteButton.setOnClickListener {
-                val position = adapterPosition
+                val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onDelete(getItem(position))
                 }
             }
             binding.editContainer.setOnClickListener {
-                val position = adapterPosition
+                val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onEdit(getItem(position))
                 }
@@ -53,7 +53,7 @@ class ProductAdapter(
                 productQuantityTextView.text = "Qtd: ${product.quantidade} | $precoFormatado"
 
                 if (product.validade != null) {
-                    val date = Date(product.validade)
+                    val date = Date(product.validade!!)
                     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     productExpiryTextView.text = "Expira a: ${dateFormat.format(date)}"
                     setValidadeAlert(productExpiryTextView, date)

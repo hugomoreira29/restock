@@ -7,25 +7,33 @@
     android:gravity="center">
 
     <EditText
-        android:id="@+id/regEmail"
+        android:id="@+id/nameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nome Completo"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/emailInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Email"
-        android:inputType="textEmailAddress" />
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="12dp"/>
 
     <EditText
-        android:id="@+id/regPassword"
+        android:id="@+id/passwordInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Password"
         android:inputType="textPassword"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="12dp"/>
 
     <Button
         android:id="@+id/registerBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Criar Conta"
+        android:text="Registar"
         android:layout_marginTop="20dp"/>
 
 </LinearLayout>
