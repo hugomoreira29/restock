@@ -1,35 +1,41 @@
 package com.example.restock_pg_dispositivo_moveis
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.auth.FirebaseAuth
 
-@SuppressLint("CustomSplashScreen")
+/**
+ * A primeira Activity a ser aberta quando a aplicação inicia.
+ * É responsável por exibir o ecrã de "splash" e decidir qual será o próximo ecrã a ser mostrado,
+ * com base no estado de autenticação do utilizador.
+ */
 class SplashActivity : AppCompatActivity() {
 
+    // Instância do Firebase Auth para verificar o utilizador.
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Instala o ecrã de splash. Tem de ser chamado antes de super.onCreate().
+        // Instala e configura o splash screen da aplicação.
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
 
-        // A nova API de Splash Screen gere a exibição do ecrã de splash.
-        // A transição de temas é gerida pelo `postSplashScreenTheme`.
-        // Apenas precisamos de verificar o estado de login e redirecionar.
+        // Inicializa o Firebase Auth.
+        auth = FirebaseAuth.getInstance()
 
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            // O utilizador não está logado, redireciona para a LoginActivity
-            startActivity(Intent(this, LoginActivity::class.java))
+        // Verifica se há um utilizador atualmente autenticado.
+        if (auth.currentUser != null) {
+            // Se houver, navega diretamente para a HomeActivity.
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
         } else {
-            // O utilizador está logado, redireciona para a HomeActivity
-            startActivity(Intent(this, HomeActivity::class.java))
+            // Se não houver, navega para a LoginActivity para que o utilizador possa fazer login.
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
         }
-
-        // Finaliza a SplashActivity para impedir que o utilizador volte para ela
+        // Finaliza a SplashActivity para que o utilizador não possa voltar a ela com o botão "back".
         finish()
     }
 }

@@ -35,7 +35,7 @@
             android:id="@+id/greetingTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Olá, Utilizador 👋"
+            android:text="@string/greeting_user"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp"/>
@@ -43,7 +43,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Aqui está o resumo da sua despensa"/>
+            android:text="@string/home_summary"/>
 
         <!-- Inventory Card -->
         <androidx.cardview.widget.CardView
@@ -64,19 +64,19 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="INVENTÁRIO"/>
+                        android:text="@string/inventory"/>
                     <TextView
                         android:id="@+id/inventorySummaryTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 itens no inventário"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        tools:text="0 itens no inventário"/>
                     <TextView
                         android:id="@+id/expiringSummaryTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 produtos prestes a expirar"/>
+                        tools:text="0 produtos prestes a expirar"/>
                 </LinearLayout>
                 <ProgressBar
                     android:layout_width="60dp"
@@ -100,10 +100,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="LISTA DE COMPRAS SUGERIDA"/>
-                <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Leite"/>
-                <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Arroz"/>
-                <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Farinha"/>
+                    android:text="@string/suggested_list"/>
+                <CheckBox android:id="@+id/check_leite"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/suggested_milk"/>
+                <CheckBox android:id="@+id/check_arroz"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/suggested_rice"/>
+                <CheckBox android:id="@+id/check_farinha"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/suggested_flour"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -121,11 +124,12 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ORÇAMENTO E POUPANÇA"/>
+                    android:text="@string/budget_title"/>
                 <TextView
+                    android:id="@+id/budgetSummaryTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Orçamento mensal: 0€ / 0€"/>
+                    tools:text="Orçamento mensal: 0€ / 0€"/>
                 <ProgressBar
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

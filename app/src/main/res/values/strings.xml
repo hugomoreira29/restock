@@ -1,3 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ReStock_PG_Dispositivo_Moveis</string>
+    <!-- Geral -->
+    <string name="app_name">ReStock</string>
+    <string name="ok">OK</string>
+    <string name="save">Guardar</string>
+    <string name="close">Fechar</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="fill_all_fields">Por favor, preencha todos os campos.</string>
+    <string name="fill_required_fields">Preencha os campos obrigatórios.</string>
+
+    <!-- Login & Register -->
+    <string name="login">Login</string>
+    <string name="register">Registar</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="full_name">Nome Completo</string>
+    <string name="invite_code_optional">Código de Convite (Opcional)</string>
+    <string name="go_to_register">Ainda não tem conta? Crie uma aqui.</string>
+    <string name="login_success">Login bem-sucedido.</string>
+    <string name="login_fail">Falha na autenticação.</string>
+    <string name="register_success">Registo bem-sucedido!</string>
+    <string name="register_fail">Falha no registo: %s</string>
+    <string name="error_saving_data">Erro ao guardar dados: %s</string>
+    <string name="invalid_invite_code">Código de convite inválido.</string>
+
+    <!-- Home Screen -->
+    <string name="greeting_hello">Olá, %s 👋</string>
+    <string name="greeting_user">Olá, Utilizador 👋</string>
+    <string name="home_summary">Aqui está o resumo da sua despensa</string>
+    <string name="inventory">INVENTÁRIO</string>
+    <string name="suggested_list">LISTA DE COMPRAS SUGERIDA</string>
+    <string name="suggested_milk">Leite</string>
+    <string name="suggested_rice">Arroz</string>
+    <string name="suggested_flour">Farinha</string>
+    <string name="item_added_to_list">\'%s\' adicionado à lista de compras!</string>
+    <string name="budget_title">ORÇAMENTO E POUPANÇA</string>
+    <string name="budget_summary">Orçamento mensal: %s / %s</string>
+
+    <!-- Plurals -->
+    <plurals name="inventory_summary_plural">
+        <item quantity="one">%d item no inventário</item>
+        <item quantity="other">%d itens no inventário</item>
+    </plurals>
+    <plurals name="expiring_summary_plural">
+        <item quantity="one">%d produto prestes a expirar</item>
+        <item quantity="other">%d produtos prestes a expirar</item>
+    </plurals>
+
+    <!-- Navigation & Action Buttons -->
+    <string name="nav_home">Início</string>
+    <string name="nav_inventory">Inventário</string>
+    <string name="nav_list">Lista</string>
+    <string name="nav_budget">Orçamento</string>
+    <string name="nav_settings">Definições</string>
+    <string name="add_to_inventory">Adicionar ao Inventário</string>
+    <string name="add_to_shopping_list">Adicionar à Lista de Compras</string>
+
+    <!-- Inventory Screen -->
+    <string name="inventory_family">INVENTÁRIO FAMÍLIA %s</string>
+    <string name="view_details">Ver Detalhes</string>
+    <string name="add_product">+ Adicionar Produto</string>
+
+    <!-- Shopping List Screen -->
+    <string name="shopping_list_title">LISTA DE COMPRAS</string>
+    <string name="add_item_to_list">+ Adicionar Item</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">DEFINIÇÕES</string>
+    <string name="settings_account">Conta</string>
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_gamification">Gamificação</string>
+    <string name="settings_family_friends">Família / Amigos</string>
+
+    <!-- Account Screen -->
+    <string name="account_title">CONTA</string>
+    <string name="edit">Editar</string>
+    <string name="logout">Logout</string>
+    <string name="profile_not_found">Perfil não encontrado.</string>
+    <string name="error_loading_profile">Erro ao carregar perfil: %s</string>
+    <string name="profile_image_updated">Imagem de perfil atualizada.</string>
+    <string name="image_upload_fail">Falha no upload da imagem.</string>
+    <string name="edit_name_title">Editar Nome</string>
+    <string name="name_updated_success">Nome atualizado com sucesso!</string>
+    <string name="db_save_fail">Falha ao guardar na base de dados.</string>
+    <string name="profile_update_fail">Falha ao atualizar o perfil.</string>
+    <string name="edit_password_title">Alterar Password</string>
+    <string name="old_password">Password Antiga</string>
+    <string name="new_password">Nova Password</string>
+    <string name="password_updated_success">Password atualizada com sucesso!</string>
+    <string name="password_update_fail">Erro ao atualizar a password.</string>
+    <string name="old_password_incorrect">A password antiga está incorreta.</string>
+
+    <!-- Add/Edit Screens -->
+    <string name="add_product_title">ADICIONAR PRODUTO</string>
+    <string name="edit_product_title">EDITAR PRODUTO</string>
+    <string name="product_name">Nome do Produto</string>
+    <string name="quantity">Quantidade</string>
+    <string name="expiry_date">Data de Validade</string>
+    <string name="category">Categoria</string>
+    <string name="add_image">Adicionar Imagem</string>
+    <string name="price_optional">Preço (opcional)</string>
+    <string name="update_product_button">Atualizar Produto</string>
+    <string name="add_shopping_item_title">Adicionar à Lista de Compras</string>
+    <string name="item_name">Nome do Item</string>
+    <string name="quantity_example">Quantidade (ex: 6 unidades, 1kg)</string>
+
+    <!-- Dialogs -->
+    <string name="delete_product_title">Apagar Produto</string>
+    <string name="delete_product_message">Tem a certeza que quer apagar \'%s\'?</string>
+    <string name="invite_code_title">Código de Convite</string>
+    <string name="invite_code_message">Partilhe este código com quem quer convidar para a sua família:\n\n%s</string>
+
+    <!-- Other -->
+    <string name="item_quantity_price">Qtd: %s | %.2f€</string>
+    <string name="item_expires_on">Expira a: %s</string>
+    <string name="item_no_expiry">Sem data de validade</string>
+    <string name="member">Membro</string>
+    <string name="family_title">Família/Amigos</string>
+    <string name="family_subtitle">Partilha o teu inventário e lista de compras com quem quiseres</string>
+    <string name="add_member">Adicionar Membro</string>
+    <string name="invite_people">Convidar Pessoas</string>
+    <string name="invite_code_hint">E-Mail ou código</string>
+    <string name="send_invite">Enviar Convite</string>
 </resources>

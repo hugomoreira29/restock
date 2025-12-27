@@ -11,11 +11,12 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.example.restock_pg_dispositivo_moveis.R
 import com.example.restock_pg_dispositivo_moveis.databinding.FragmentAdicionarProdutoBinding
 import com.example.restock_pg_dispositivo_moveis.model.Product
 import com.google.firebase.storage.FirebaseStorage
@@ -32,7 +33,8 @@ class AdicionarProdutoFragment : Fragment() {
     private var _binding: FragmentAdicionarProdutoBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: InventarioViewModel by viewModels()
+    // Usa activityViewModels() para partilhar o ViewModel com outros fragmentos.
+    private val viewModel: InventarioViewModel by activityViewModels()
     private val args: AdicionarProdutoFragmentArgs by navArgs()
     private var isEditMode = false
 
@@ -51,7 +53,7 @@ class AdicionarProdutoFragment : Fragment() {
         if (isGranted) {
             launchCamera()
         } else {
-            Toast.makeText(context, "Permissão da câmara negada.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Camera permission denied.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -71,14 +73,14 @@ class AdicionarProdutoFragment : Fragment() {
         val productId = args.produtoId
         if (productId != null) {
             isEditMode = true
-            binding.toolbar.title = "EDITAR PRODUTO"
-            binding.addProductButton.text = "Atualizar Produto"
+            binding.toolbar.title = getString(R.string.edit_product_title)
+            binding.addProductButton.text = getString(R.string.update_product_button)
             viewModel.loadProduct(productId)
             observeSelectedProduct()
         } else {
             isEditMode = false
-            binding.toolbar.title = "ADICIONAR PRODUTO"
-            binding.addProductButton.text = "+ Adicionar Produto"
+            binding.toolbar.title = getString(R.string.add_product_title)
+            binding.addProductButton.text = getString(R.string.add_product)
         }
     }
 
@@ -108,7 +110,7 @@ class AdicionarProdutoFragment : Fragment() {
     }
 
     private fun setupUI() {
-        val categories = listOf("Mercearia", "Lacticínios", "Frutas", "Legumes", "Bebidas", "Limpeza")
+        val categories = resources.getStringArray(R.array.product_categories) 
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, categories)
         binding.categoryAutoCompleteTextView.setAdapter(adapter)
     }
@@ -127,11 +129,11 @@ class AdicionarProdutoFragment : Fragment() {
         val price = binding.priceEditText.text.toString().toDoubleOrNull() ?: 0.0
 
         if (name.isEmpty() || quantity <= 0 || category.isEmpty()) {
-            Toast.makeText(context, "Preencha os campos obrigatórios.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.fill_required_fields), Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (imageUri != null && !imageUri.toString().startsWith("http")) { // Apenas faz upload de novas imagens
+        if (imageUri != null && !imageUri.toString().startsWith("http")) { 
             uploadImageAndSaveProduct(name, quantity, category, price, selectedDate)
         } else {
             val existingImageUrl = if (isEditMode) viewModel.selectedProduct.value?.imagemUrl else null
@@ -146,7 +148,7 @@ class AdicionarProdutoFragment : Fragment() {
                 saveProduct(name, quantity, category, price, expiryDate, downloadUrl.toString())
             }
         }.addOnFailureListener {
-            Toast.makeText(context, "Falha no upload da imagem.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.image_upload_fail), Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -19,4 +19,19 @@
     <item name="productCardCornerRadius">12dp</item>
     <item name="productCardElevation">1dp</item>
     </style>
+
+    <!-- Splash Screen Theme (Night) -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Fundo geral do ecrã -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+        
+        <!-- O nosso logo, envolvido pelo inset para não cortar -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+
+        <!-- A linha crucial para remover o círculo -->
+        <item name="windowSplashScreenIconBackgroundColor" tools:targetApi="23">@android:color/transparent</item>
+
+        <!-- Tema da app após o splash screen -->
+        <item name="postSplashScreenTheme">@style/Theme.ReStock_PG_Dispositivo_Moveis</item>
+    </style>
 </resources>

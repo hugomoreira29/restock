@@ -8,6 +8,7 @@ data class User(
     var name: String = "",
     var email: String = "",
     var photoUrl: String? = null,
+    var familyId: String? = null, // ID da família a que o utilizador pertence
     @ServerTimestamp
     var createdAt: Date? = null
 )

@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="DEFINIÇÕES"
+            android:text="@string/settings_title"
             android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -66,7 +66,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/iconAccount"
-                    android:text="Conta" />
+                    android:text="@string/settings_account" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -95,7 +95,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/iconNotifications"
-                    android:text="Notificações" />
+                    android:text="@string/settings_notifications" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:layout_width="wrap_content"
@@ -127,7 +127,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/iconLanguage"
-                    android:text="Idioma" />
+                    android:text="@string/settings_language" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -160,7 +160,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/iconGamification"
-                    android:text="Gamificação" />
+                    android:text="@string/settings_gamification" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -193,7 +193,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/iconFamily"
-                    android:text="Família / Amigos" />
+                    android:text="@string/settings_family_friends" />
 
                 <ImageView
                     android:layout_width="wrap_content"

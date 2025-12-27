@@ -5,6 +5,14 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/navigation_home">
 
+    <!-- Ações Globais -->
+    <action
+        android:id="@+id/action_global_to_adicionarProdutoFragment"
+        app:destination="@id/adicionarProdutoFragment" />
+    <action
+        android:id="@+id/action_global_to_addShoppingItemFragment"
+        app:destination="@id/addShoppingItemFragment" />
+
     <!-- Ecrãs da Barra de Navegação -->
     <fragment
         android:id="@+id/navigation_home"
@@ -33,7 +41,14 @@
         android:id="@+id/navigation_list"
         android:name="com.example.restock_pg_dispositivo_moveis.ListFragment"
         android:label="fragment_list"
-        tools:layout="@layout/fragment_list" />
+        tools:layout="@layout/fragment_list" >
+        <action
+            android:id="@+id/action_listFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+        <action
+            android:id="@+id/action_listFragment_to_addShoppingItemFragment"
+            app:destination="@id/addShoppingItemFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_budget"
@@ -49,6 +64,9 @@
         <action
             android:id="@+id/action_settings_to_account"
             app:destination="@id/accountFragment" />
+        <action
+            android:id="@+id/action_settings_to_familyFragment"
+            app:destination="@id/familyFragment" />
     </fragment>
 
     <!-- Ecrãs de Detalhe -->
@@ -69,5 +87,18 @@
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>
+    
+    <fragment
+        android:id="@+id/addShoppingItemFragment"
+        android:name="com.example.restock_pg_dispositivo_moveis.ui.lista.AddShoppingItemFragment"
+        android:label="fragment_add_shopping_item"
+        tools:layout="@layout/fragment_add_shopping_item" />
+
+    <!-- NOVO ECRÃ DE FAMÍLIA -->
+    <fragment
+        android:id="@+id/familyFragment"
+        android:name="com.example.restock_pg_dispositivo_moveis.ui.family.FamilyFragment"
+        android:label="fragment_family"
+        tools:layout="@layout/fragment_family" />
 
 </navigation>

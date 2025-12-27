@@ -24,14 +24,16 @@
 
     <!-- Splash Screen Theme -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Set the splash screen background, animated icon, and animation duration. -->
-        <item name="windowSplashScreenBackground">@color/blue</item>
-
-        <!-- Use windowSplashScreenAnimatedIcon to add either a drawable or an
-             animated drawable. One of these is required. -->
+        <!-- Fundo geral do ecrã -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+        
+        <!-- O nosso logo, envolvido pelo inset para não cortar -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_restock_logo</item>
+        
+        <!-- A linha crucial para remover o círculo -->
+        <item name="windowSplashScreenIconBackgroundColor" tools:targetApi="23">@android:color/transparent</item>
 
-        <!-- Set the theme of the Activity that follows your splash screen. -->
+        <!-- Tema da app após o splash screen -->
         <item name="postSplashScreenTheme">@style/Theme.ReStock_PG_Dispositivo_Moveis</item>
     </style>
 </resources>

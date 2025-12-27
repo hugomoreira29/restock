@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Usamos um item com margens grandes para forçar a imagem a ficar pequena no centro -->
+    <item
+        android:left="60dp"
+        android:right="60dp"
+        android:top="60dp"
+        android:bottom="60dp"
+        android:gravity="center">
+        
+        <bitmap
+            android:src="@drawable/ic_restock_logo"
+            android:gravity="center" />
+    </item>
+</layer-list>

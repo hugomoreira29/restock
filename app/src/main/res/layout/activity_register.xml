@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:padding="24dp">
 
     <EditText
         android:id="@+id/nameInput"
@@ -17,23 +17,32 @@
         android:id="@+id/emailInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:layout_marginTop="12dp"/>
+        android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/passwordInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:hint="Password"
-        android:inputType="textPassword"
-        android:layout_marginTop="12dp"/>
+        android:inputType="textPassword" />
+
+    <!-- NOVO CAMPO: Código de Convite (Opcional) -->
+    <EditText
+        android:id="@+id/inviteCodeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Código de Convite (Opcional)"
+        android:inputType="text" />
 
     <Button
         android:id="@+id/registerBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Registar"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="20dp"
+        android:text="Registar" />
 
 </LinearLayout>

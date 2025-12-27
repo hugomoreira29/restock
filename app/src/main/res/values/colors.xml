@@ -2,16 +2,18 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="blue">#2962FF</color>
-    <color name="blue_dark">#0039CB</color>
+    
+    <color name="blue">#007AFF</color>
+    <color name="purple">#AF52DE</color>
+    <color name="gray_lighter">#F2F2F7</color>
 
-    <color name="purple">#AA00FF</color>
-    <color name="purple_dark">#7200CA</color>
-
-    <!-- Fundo claro -->
-    <color name="gray_lighter">#F5F5F5</color>
-
-    <!-- Fundo escuro -->
-    <color name="dark_surface">#121212</color>
+    <color name="blue_dark">#0A84FF</color>
+    <color name="purple_dark">#BF5AF2</color>
+    <color name="dark_surface">#1C1C1E</color>
     <color name="dark_bg">#000000</color>
+
+    <!-- Cores para o Gráfico -->
+    <color name="green">#34C759</color>
+    <color name="yellow">#FFCC00</color>
+    <color name="red">#FF3B30</color>
 </resources>
