@@ -66,6 +66,9 @@ dependencies {
     // Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
+    // DataStore (para guardar definições)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
@@ -75,6 +78,9 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+
+    // WorkManager (Para notificações em background)
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
 
     // UI libs
     implementation("de.hdodenhof:circleimageview:3.1.0")

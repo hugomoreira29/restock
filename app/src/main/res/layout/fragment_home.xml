@@ -101,11 +101,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/suggested_list"/>
-                <CheckBox android:id="@+id/check_leite"
+                <CheckBox android:id="@+id/checkLeite"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/suggested_milk"/>
-                <CheckBox android:id="@+id/check_arroz"
+                <CheckBox android:id="@+id/checkArroz"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/suggested_rice"/>
-                <CheckBox android:id="@+id/check_farinha"
+                <CheckBox android:id="@+id/checkFarinha"
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/suggested_flour"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -131,14 +131,12 @@
                     android:layout_height="wrap_content"
                     tools:text="Orçamento mensal: 0€ / 0€"/>
                 <ProgressBar
+                    android:id="@+id/budgetProgressBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_marginTop="8dp"
                     android:progress="0"/>
-                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

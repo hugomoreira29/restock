@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis.ui.inventario
 
+// HUGO MOREIRA - a22402246
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +16,6 @@ import com.bumptech.glide.Glide
 import com.example.restock_pg_dispositivo_moveis.R
 import com.example.restock_pg_dispositivo_moveis.databinding.FragmentInventarioBinding
 import com.example.restock_pg_dispositivo_moveis.model.Product
-import com.example.restock_pg_dispositivo_moveis.ui.ProductAdapter
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -67,9 +68,7 @@ class InventoryFragment : Fragment() {
     private fun loadUserData(){
         val user = auth.currentUser
         user?.let{
-            val userName = it.displayName ?: ""
-            binding.inventoryTitleTextView.text = getString(R.string.inventory_family, userName.uppercase())
-            
+            // Carrega apenas a imagem de perfil aqui. O título agora é gerido pelo observeViewModel
             Glide.with(this)
                 .load(it.photoUrl)
                 .placeholder(R.drawable.ic_avatar)
@@ -124,6 +123,20 @@ class InventoryFragment : Fragment() {
                 binding.totalItemsTextView.text = resources.getQuantityString(R.plurals.inventory_summary_plural, totalItems, totalItems)
 
                 updatePieChartData(productList)
+            }
+        }
+
+        // Observa o nome da família para atualizar o título
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.familyName.collect { name ->
+                if (name.isNotEmpty()) {
+                    binding.inventoryTitleTextView.text = "INVENTÁRIO ${name.uppercase()}"
+                } else {
+                    // Fallback para o nome do utilizador se o nome da família ainda não estiver carregado
+                     val user = auth.currentUser
+                     val userName = user?.displayName ?: ""
+                     binding.inventoryTitleTextView.text = getString(R.string.inventory_family, userName.uppercase())
+                }
             }
         }
     }

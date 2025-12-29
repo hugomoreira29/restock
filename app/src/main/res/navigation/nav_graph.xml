@@ -52,7 +52,7 @@
 
     <fragment
         android:id="@+id/navigation_budget"
-        android:name="com.example.restock_pg_dispositivo_moveis.BudgetFragment"
+        android:name="com.example.restock_pg_dispositivo_moveis.ui.budget.BudgetFragment"
         android:label="fragment_budget"
         tools:layout="@layout/fragment_budget" />
 

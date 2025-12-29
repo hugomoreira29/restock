@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis.ui.account
 
+// HUGO MOREIRA - a22402246
+
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri

@@ -1,12 +1,14 @@
 package com.example.restock_pg_dispositivo_moveis.ui.lista
 
+// HUGO MOREIRA - a22402246
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels // ALTERADO AQUI
 import androidx.navigation.fragment.findNavController
 import com.example.restock_pg_dispositivo_moveis.R
 import com.example.restock_pg_dispositivo_moveis.databinding.FragmentAddShoppingItemBinding
@@ -18,7 +20,8 @@ class AddShoppingItemFragment : Fragment() {
     private var _binding: FragmentAddShoppingItemBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: ShoppingListViewModel by viewModels()
+    // ALTERADO para usar a instância partilhada da Activity
+    private val viewModel: ShoppingListViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

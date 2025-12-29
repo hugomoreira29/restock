@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:text="Partilha o teu inventário e lista de compras com quem quiseres"/>
 
-        <!-- Card da Família -->
+        <!-- Card da Família Atual -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,13 +37,31 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/familyNameTextView"
-                    android:layout_width="wrap_content"
+                <!-- Container para Nome e Botão de Editar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    tools:text="Casa Moreira" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/familyNameTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        tools:text="Casa Moreira" />
+
+                    <ImageButton
+                        android:id="@+id/editFamilyNameButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_edit"
+                        android:padding="8dp"
+                        android:contentDescription="Editar Nome da Família" />
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/familyMembersRecyclerView"
@@ -59,12 +77,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Adicionar Membro" />
+                    android:text="Convidar / Gerar Código" />
+
+                <!-- NOVO: Botão para Sair da Família -->
+                <Button
+                    android:id="@+id/leaveFamilyButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/red"
+                    app:strokeColor="@color/red"
+                    android:text="Sair da Família" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Card de Convidar Pessoas -->
+        <!-- Card Entrar noutra Família -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -80,28 +109,35 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Convidar Pessoas"
+                    android:text="Entrar noutra Família"
                     android:textSize="16sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Se receber um código de convite, insira-o aqui para mudar de família."
+                    android:textSize="12sp"
+                    android:alpha="0.7"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="E-Mail ou código">
+                    android:hint="Código da Família">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inviteCodeEditText"
+                        android:id="@+id/joinFamilyCodeEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
-                    android:id="@+id/sendInviteButton"
+                    android:id="@+id/joinFamilyButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Enviar Convite" />
+                    android:text="Entrar na Família" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

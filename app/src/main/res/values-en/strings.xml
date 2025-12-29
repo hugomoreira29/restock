@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- General -->
+    <!-- Geral -->
     <string name="app_name">ReStock</string>
     <string name="ok">OK</string>
     <string name="save">Save</string>
@@ -10,14 +10,14 @@
     <string name="fill_all_fields">Please fill in all fields.</string>
     <string name="fill_required_fields">Please fill in the required fields.</string>
 
-    <!-- Login & Register Screens -->
+    <!-- Login & Register -->
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="full_name">Full Name</string>
     <string name="invite_code_optional">Invite Code (Optional)</string>
-    <string name="go_to_register">Don\'t have an account? Create one here.</string>
+    <string name="go_to_register">Don\'t have an account? Sign up here.</string>
     <string name="login_success">Login successful.</string>
     <string name="login_fail">Authentication failed.</string>
     <string name="register_success">Registration successful!</string>
@@ -28,16 +28,16 @@
     <!-- Home Screen -->
     <string name="greeting_hello">Hello, %s 👋</string>
     <string name="greeting_user">Hello, User 👋</string>
-    <string name="home_summary">Here is your pantry summary</string>
+    <string name="home_summary">Here\'s a summary of your pantry</string>
     <string name="inventory">INVENTORY</string>
     <string name="suggested_list">SUGGESTED SHOPPING LIST</string>
     <string name="suggested_milk">Milk</string>
     <string name="suggested_rice">Rice</string>
     <string name="suggested_flour">Flour</string>
     <string name="item_added_to_list">\'%s\' added to shopping list!</string>
-    <string name="budget_title">BUDGET AND SAVINGS</string>
+    <string name="budget_title">BUDGET &amp; SAVINGS</string>
     <string name="budget_summary">Monthly budget: %s / %s</string>
-    
+
     <!-- Plurals -->
     <plurals name="inventory_summary_plural">
         <item quantity="one">%d item in inventory</item>
@@ -58,7 +58,7 @@
     <string name="add_to_shopping_list">Add to Shopping List</string>
 
     <!-- Inventory Screen -->
-    <string name="inventory_family">%s\'s FAMILY INVENTORY</string>
+    <string name="inventory_family">%s\'S FAMILY INVENTORY</string>
     <string name="view_details">View Details</string>
     <string name="add_product">+ Add Product</string>
 
@@ -91,7 +91,7 @@
     <string name="new_password">New Password</string>
     <string name="password_updated_success">Password updated successfully!</string>
     <string name="password_update_fail">Error updating password.</string>
-    <string name="old_password_incorrect">The old password is incorrect.</string>
+    <string name="old_password_incorrect">Old password is incorrect.</string>
 
     <!-- Add/Edit Screens -->
     <string name="add_product_title">ADD PRODUCT</string>
@@ -111,18 +111,23 @@
     <string name="delete_product_title">Delete Product</string>
     <string name="delete_product_message">Are you sure you want to delete \'%s\'?</string>
     <string name="invite_code_title">Invite Code</string>
-    <string name="invite_code_message">Share this code with who you want to invite to your family:\n\n%s</string>
+    <string name="invite_code_message">Share this code to invite someone to your family:\n\n%s</string>
 
-    <!-- Other -->
-    <string name="item_quantity_price">Qty: %s | %.2f€</string>
-    <string name="item_expires_on">Expires on: %s</string>
-    <string name="item_no_expiry">No expiry date</string>
-    <string name="member">Member</string>
+    <!-- Family Screen -->
     <string name="family_title">Family/Friends</string>
-    <string name="family_subtitle">Share your inventory and shopping list with whoever you want</string>
+    <string name="family_subtitle">Share your inventory and shopping list with whomever you want</string>
     <string name="add_member">Add Member</string>
     <string name="invite_people">Invite People</string>
-    <string name="invite_code_hint">E-Mail or code</string>
+    <string name="invite_code_hint">Email or code</string>
     <string name="send_invite">Send Invite</string>
 
+    <!-- Budget Screen -->
+    <string name="budget_screen_title">BUDGET</string>
+    <string name="monthly_budget_label">MONTHLY BUDGET</string>
+    <string name="edit_budget_button">Change Budget</string>
+    <string name="spending_categories_title">Spending Categories</string>
+    <string name="edit_budget_dialog_title">Change Monthly Budget</string>
+    <string name="new_budget_hint">New budget</string>
+    <string name="invalid_value">Invalid value.</string>
+    <string name="budget_updated">Budget updated!</string>
 </resources>

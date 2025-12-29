@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis.ui.inventario
 
+// HUGO MOREIRA - a22402246
+
 import android.app.DatePickerDialog
 import android.net.Uri
 import android.os.Bundle

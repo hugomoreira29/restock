@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis.model
 
+// HUGO MOREIRA - a22402246
+
 data class HistoryItem(
     val id: String = "",
     val produto: String = "",

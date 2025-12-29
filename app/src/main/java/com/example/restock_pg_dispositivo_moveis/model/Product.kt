@@ -1,6 +1,10 @@
 package com.example.restock_pg_dispositivo_moveis.model
 
+// HUGO MOREIRA - a22402246
+
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.ServerTimestamp
+import java.util.Date
 
 /**
  * Data class que representa um Produto no inventário.
@@ -18,5 +22,9 @@ data class Product(
     val validade: Long? = null, // Data de validade, guardada como um timestamp (Long).
     val codigoBarras: String? = null, // Código de barras do produto.
     val imagemUrl: String? = null, // URL da imagem do produto guardada no Firebase Storage.
-    val familiaId: String? = null // ID da família a que o inventário pertence.
+    val familiaId: String? = null, // ID da família a que o inventário pertence.
+
+    // NOVO: Data de criação, preenchida automaticamente pelo servidor.
+    @ServerTimestamp
+    var createdAt: Date? = null
 )

@@ -113,15 +113,21 @@
     <string name="invite_code_title">Código de Convite</string>
     <string name="invite_code_message">Partilhe este código com quem quer convidar para a sua família:\n\n%s</string>
 
-    <!-- Other -->
-    <string name="item_quantity_price">Qtd: %s | %.2f€</string>
-    <string name="item_expires_on">Expira a: %s</string>
-    <string name="item_no_expiry">Sem data de validade</string>
-    <string name="member">Membro</string>
+    <!-- Family Screen -->
     <string name="family_title">Família/Amigos</string>
     <string name="family_subtitle">Partilha o teu inventário e lista de compras com quem quiseres</string>
     <string name="add_member">Adicionar Membro</string>
     <string name="invite_people">Convidar Pessoas</string>
     <string name="invite_code_hint">E-Mail ou código</string>
     <string name="send_invite">Enviar Convite</string>
+
+    <!-- Budget Screen -->
+    <string name="budget_screen_title">ORÇAMENTO</string>
+    <string name="monthly_budget_label">ORÇAMENTO MENSAL</string>
+    <string name="edit_budget_button">Alterar Orçamento</string>
+    <string name="spending_categories_title">Categorias de Despesas</string>
+    <string name="edit_budget_dialog_title">Alterar Orçamento Mensal</string>
+    <string name="new_budget_hint">Novo orçamento</string>
+    <string name="invalid_value">Valor inválido.</string>
+    <string name="budget_updated">Orçamento atualizado!</string>
 </resources>

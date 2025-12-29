@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis
 
+// HUGO MOREIRA - a22402246
+
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -41,11 +43,21 @@ class LoginActivity : AppCompatActivity() {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
-                            // Se o login for bem-sucedido, mostra uma mensagem e navega para a HomeActivity.
-                            Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, HomeActivity::class.java)
-                            startActivity(intent)
-                            finish() // Finaliza a LoginActivity para não se poder voltar a ela.
+                            val user = auth.currentUser
+                            
+                            // Verifica se o email foi validado (opcional, mas recomendado para o seu caso).
+                            if (user != null && user.isEmailVerified) {
+                                // Se o login for bem-sucedido e o email verificado.
+                                Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show()
+                                navigateToHome()
+                            } else {
+                                // Se o email não estiver verificado, avisa o utilizador.
+                                // Nota: Para testar mais facilmente, pode comentar este bloco 'else' e chamar navigateToHome() diretamente.
+                                Toast.makeText(this, "Por favor verifique o seu email antes de entrar.", Toast.LENGTH_LONG).show()
+                                user?.sendEmailVerification() // Reenvia o email se necessário.
+                                auth.signOut() // Impede o login até verificar.
+                            }
+
                         } else {
                             // Se o login falhar, mostra uma mensagem de erro ao utilizador.
                             Toast.makeText(baseContext, getString(R.string.login_fail),
@@ -63,5 +75,11 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun navigateToHome() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish() // Finaliza a LoginActivity para não se poder voltar a ela.
     }
 }

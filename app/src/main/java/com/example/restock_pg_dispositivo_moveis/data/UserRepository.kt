@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis.data
 
+// HUGO MOREIRA - a22402246
+
 import com.example.restock_pg_dispositivo_moveis.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

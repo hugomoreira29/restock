@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis.model
 
+// HUGO MOREIRA - a22402246
+
 import com.google.firebase.firestore.DocumentId
 
 /**
@@ -12,6 +14,10 @@ data class Family(
     val name: String = "",
     // Lista dos IDs (UIDs) dos utilizadores que pertencem a esta família.
     val members: List<String> = emptyList(),
+    // Mapa de cargos: userId -> role ("Admin", "Editor", "Leitor")
+    val roles: Map<String, String> = emptyMap(),
+    // Orçamento mensal definido para a família.
+    val monthlyBudget: Double = 0.0, 
     // Código de convite único para esta família.
     val inviteCode: String? = null 
 )

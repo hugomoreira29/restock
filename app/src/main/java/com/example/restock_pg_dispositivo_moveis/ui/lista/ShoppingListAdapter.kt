@@ -1,5 +1,7 @@
 package com.example.restock_pg_dispositivo_moveis.ui.lista
 
+// HUGO MOREIRA - a22402246
+
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.ViewGroup
