@@ -93,6 +93,12 @@
     <string name="password_update_fail">Error updating password.</string>
     <string name="old_password_incorrect">Old password is incorrect.</string>
 
+    <!-- Edit Password Bottom Sheet -->
+    <string name="title_edit_password_sheet">Change Password</string>
+    <string name="description_edit_password_sheet">For your security, please confirm your email below. We will send a link to reset your password.</string>
+    <string name="hint_confirm_email">Confirm your Email</string>
+    <string name="button_send_reset_email">Send Email</string>
+
     <!-- Add/Edit Screens -->
     <string name="add_product_title">ADD PRODUCT</string>
     <string name="edit_product_title">EDIT PRODUCT</string>
@@ -114,12 +120,16 @@
     <string name="invite_code_message">Share this code to invite someone to your family:\n\n%s</string>
 
     <!-- Family Screen -->
-    <string name="family_title">Family/Friends</string>
-    <string name="family_subtitle">Share your inventory and shopping list with whomever you want</string>
-    <string name="add_member">Add Member</string>
-    <string name="invite_people">Invite People</string>
-    <string name="invite_code_hint">Email or code</string>
-    <string name="send_invite">Send Invite</string>
+    <string name="family_fragment_title">Family/Friends</string>
+    <string name="family_fragment_subtitle">Share your inventory and shopping list with anyone you want</string>
+    <string name="family_edit_name_description">Edit Family Name</string>
+    <string name="family_invite_button">Invite / Generate Code</string>
+    <string name="family_leave_button">Leave Family</string>
+    <string name="family_join_another_title">Join another Family</string>
+    <string name="family_join_another_subtitle">If you received an invitation code, enter it here to switch families.</string>
+    <string name="family_join_code_hint">Family Code</string>
+    <string name="family_join_button">Join Family</string>
+    <string name="family_pending_requests_title">Pending Join Requests</string>
 
     <!-- Budget Screen -->
     <string name="budget_screen_title">BUDGET</string>

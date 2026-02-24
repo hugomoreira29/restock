@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
@@ -12,18 +13,21 @@
         android:id="@+id/memberNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:textSize="16sp"
         android:textStyle="bold"
         tools:text="Hugo Moreira" />
 
-    <!-- Container para Cargo e Seta -->
+    <!-- Container para Cargo (para membros existentes) -->
     <LinearLayout
         android:id="@+id/roleContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/memberNameTextView"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/memberRoleTextView"
@@ -37,12 +41,12 @@
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginStart="4dp"
-            android:src="@android:drawable/arrow_down_float" 
+            android:src="@android:drawable/arrow_down_float"
             android:visibility="gone"
             tools:visibility="visible" />
     </LinearLayout>
 
-    <!-- Botão para remover membro -->
+    <!-- Botão para remover membro (para membros existentes) -->
     <ImageButton
         android:id="@+id/removeMemberButton"
         android:layout_width="40dp"
@@ -54,5 +58,36 @@
         android:contentDescription="Remover Membro"
         android:visibility="gone"
         tools:visibility="visible"/>
+
+    <!-- Container para Ações Pendentes (Aceitar/Rejeitar) -->
+    <LinearLayout
+        android:id="@+id/pendingActionsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/acceptButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_check"
+            android:contentDescription="Aceitar Pedido"
+            app:tint="@android:color/holo_green_dark" />
+
+        <ImageButton
+            android:id="@+id/rejectButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            android:contentDescription="Rejeitar Pedido"
+            app:tint="@color/red" />
+    </LinearLayout>
 
 </RelativeLayout>

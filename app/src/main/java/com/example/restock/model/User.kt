@@ -1,0 +1,16 @@
+package com.example.restock.model
+
+// HUGO MOREIRA - a22402246
+
+import com.google.firebase.firestore.ServerTimestamp
+import java.util.Date
+
+data class User(
+    var uid: String = "",
+    var name: String = "",
+    var email: String = "",
+    var photoUrl: String? = null,
+    var familyId: String? = null, // ID da família a que o utilizador pertence
+    @ServerTimestamp
+    var createdAt: Date? = null
+)

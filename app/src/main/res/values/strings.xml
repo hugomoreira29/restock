@@ -93,6 +93,12 @@
     <string name="password_update_fail">Erro ao atualizar a password.</string>
     <string name="old_password_incorrect">A password antiga está incorreta.</string>
 
+    <!-- Edit Password Bottom Sheet -->
+    <string name="title_edit_password_sheet">Alterar Palavra-passe</string>
+    <string name="description_edit_password_sheet">Para sua segurança, confirme o seu email abaixo. Enviaremos um link para redefinir a sua palavra-passe.</string>
+    <string name="hint_confirm_email">Confirme o seu Email</string>
+    <string name="button_send_reset_email">Enviar Email</string>
+
     <!-- Add/Edit Screens -->
     <string name="add_product_title">ADICIONAR PRODUTO</string>
     <string name="edit_product_title">EDITAR PRODUTO</string>
@@ -114,12 +120,16 @@
     <string name="invite_code_message">Partilhe este código com quem quer convidar para a sua família:\n\n%s</string>
 
     <!-- Family Screen -->
-    <string name="family_title">Família/Amigos</string>
-    <string name="family_subtitle">Partilha o teu inventário e lista de compras com quem quiseres</string>
-    <string name="add_member">Adicionar Membro</string>
-    <string name="invite_people">Convidar Pessoas</string>
-    <string name="invite_code_hint">E-Mail ou código</string>
-    <string name="send_invite">Enviar Convite</string>
+    <string name="family_fragment_title">Família/Amigos</string>
+    <string name="family_fragment_subtitle">Partilha o teu inventário e lista de compras com quem quiseres</string>
+    <string name="family_edit_name_description">Editar Nome da Família</string>
+    <string name="family_invite_button">Convidar / Gerar Código</string>
+    <string name="family_leave_button">Sair da Família</string>
+    <string name="family_join_another_title">Entrar noutra Família</string>
+    <string name="family_join_another_subtitle">Se receber um código de convite, insira-o aqui para mudar de família.</string>
+    <string name="family_join_code_hint">Código da Família</string>
+    <string name="family_join_button">Entrar na Família</string>
+    <string name="family_pending_requests_title">Pedidos de Adesão Pendentes</string>
 
     <!-- Budget Screen -->
     <string name="budget_screen_title">ORÇAMENTO</string>

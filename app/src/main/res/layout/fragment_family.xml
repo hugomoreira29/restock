@@ -1,106 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".ui.family.FamilyFragment">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/family_fragment_title" />
+
+    <TextView
+        android:id="@+id/familySubtitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/family_fragment_subtitle" />
+
+    <!-- Container para quando o utilizador TEM uma família -->
+    <ScrollView
+        android:id="@+id/family_details_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/pendingRequestsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pedidos Pendentes"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/pendingMembersRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        tools:listitem="@layout/item_family_member" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/currentFamilyCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <TextView
+                            android:id="@+id/familyNameTextView"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="Nome da Família"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                        <ImageButton
+                            android:id="@+id/editFamilyNameButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_edit" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Membros"
+                        android:layout_marginTop="16dp"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/familyMembersRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        tools:listitem="@layout/item_family_member"/>
+
+                    <Button
+                        android:id="@+id/addMemberButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Adicionar Membro"/>
+                    <Button
+                        android:id="@+id/leaveFamilyButton"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Sair da Família"
+                        android:textColor="?attr/colorError" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Container para quando o utilizador NÃO TEM uma família -->
     <LinearLayout
+        android:id="@+id/empty_state_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Família/Amigos" />
+        android:gravity="center"
+        android:layout_marginTop="32dp"
+        android:visibility="gone"
+        tools:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Partilha o teu inventário e lista de compras com quem quiseres"/>
+            android:text="Você ainda não pertence a nenhuma família."
+            android:gravity="center"
+            android:textSize="18sp"/>
 
-        <!-- Card da Família Atual -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Container para Nome e Botão de Editar -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/familyNameTextView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        tools:text="Casa Moreira" />
-
-                    <ImageButton
-                        android:id="@+id/editFamilyNameButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_edit"
-                        android:padding="8dp"
-                        android:contentDescription="Editar Nome da Família" />
-                </LinearLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/familyMembersRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:itemCount="3"
-                    tools:listitem="@layout/item_family_member" />
-
-                <Button
-                    android:id="@+id/addMemberButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Convidar / Gerar Código" />
-
-                <!-- NOVO: Botão para Sair da Família -->
-                <Button
-                    android:id="@+id/leaveFamilyButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/red"
-                    app:strokeColor="@color/red"
-                    android:text="Sair da Família" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Card Entrar noutra Família -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/createFamilyButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:cardCornerRadius="8dp">
+            android.text="Criar Nova Família"/>
 
-            <LinearLayout
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OU"
+            android:layout_marginTop="16dp"/>
+        
+        <!-- Card para Entrar noutra Família (movido para aqui) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/joinFamilyCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -109,14 +173,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Entrar noutra Família"
+                    android:text="@string/family_join_another_title"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Se receber um código de convite, insira-o aqui para mudar de família."
+                    android:text="@string/family_join_another_subtitle"
                     android:textSize="12sp"
                     android:alpha="0.7"/>
 
@@ -124,7 +188,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="Código da Família">
+                    android:hint="@string/family_join_code_hint">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/joinFamilyCodeEditText"
@@ -137,10 +201,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Entrar na Família" />
+                    android:text="@string/family_join_button" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-        
+
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

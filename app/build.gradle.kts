@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.restock_pg_dispositivo_moveis"
+    namespace = "com.example.restock"
     compileSdk = 36
 
     defaultConfig {
