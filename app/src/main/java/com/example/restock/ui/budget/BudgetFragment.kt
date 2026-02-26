@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.restock.R
 import com.example.restock.databinding.FragmentBudgetBinding
 import com.github.mikephil.charting.data.PieData
@@ -21,6 +23,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class BudgetFragment : Fragment() {
@@ -29,6 +32,7 @@ class BudgetFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: BudgetViewModel by activityViewModels()
+    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +47,22 @@ class BudgetFragment : Fragment() {
         setupPieChart()
         observeViewModel()
         setupClickListeners()
+        loadUserData()
+    }
+
+    private fun loadUserData() {
+        val user = auth.currentUser
+        user?.let {
+            if (it.photoUrl != null) {
+                Glide.with(this)
+                    .load(it.photoUrl)
+                    .placeholder(R.drawable.ic_avatar)
+                    .circleCrop()
+                    .into(binding.profileImageView)
+            } else {
+                binding.profileImageView.setImageResource(R.drawable.ic_avatar)
+            }
+        }
     }
 
     private fun setupPieChart() {
@@ -113,6 +133,9 @@ class BudgetFragment : Fragment() {
     private fun setupClickListeners() {
         binding.editBudgetButton.setOnClickListener {
             showEditBudgetDialog()
+        }
+        binding.profileImageView.setOnClickListener {
+            findNavController().navigate(BudgetFragmentDirections.actionBudgetFragmentToAccountFragment())
         }
     }
 

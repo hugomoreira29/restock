@@ -37,6 +37,7 @@
     <string name="item_added_to_list">\'%s\' adicionado à lista de compras!</string>
     <string name="budget_title">ORÇAMENTO E POUPANÇA</string>
     <string name="budget_summary">Orçamento mensal: %s / %s</string>
+    <string name="expiration_check_periodic_work_name">ExpirationCheckPeriodic</string>
 
     <!-- Plurals -->
     <plurals name="inventory_summary_plural">

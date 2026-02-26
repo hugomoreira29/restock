@@ -54,7 +54,11 @@
         android:id="@+id/navigation_budget"
         android:name="com.example.restock.ui.budget.BudgetFragment"
         android:label="fragment_budget"
-        tools:layout="@layout/fragment_budget" />
+        tools:layout="@layout/fragment_budget">
+        <action
+            android:id="@+id/action_budgetFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_settings"

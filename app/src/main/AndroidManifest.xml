@@ -46,11 +46,6 @@
             android:name=".HomeActivity"
             android:exported="false" />
 
-        <activity android:name=".ProductDetailsActivity" />
-
-        <!-- MainActivity agora é apenas uma activity normal ou pode até ser apagado -->
-        <activity android:name=".MainActivity" android:exported="false"/>
-
         <!-- Provider para partilhar ficheiros com a câmara de forma segura -->
         <provider
             android:name="androidx.core.content.FileProvider"

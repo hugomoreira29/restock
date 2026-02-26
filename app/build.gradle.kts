@@ -74,13 +74,15 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    // Biblioteca do Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
     // WorkManager (Para notificações em background)
-    implementation("androidx.work:work-runtime-ktx:2.10.0")
+    implementation("androidx.work:work-runtime-ktx:2.11.1")
 
     // UI libs
     implementation("de.hdodenhof:circleimageview:3.1.0")

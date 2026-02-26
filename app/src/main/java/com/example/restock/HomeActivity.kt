@@ -95,7 +95,7 @@ class HomeActivity : AppCompatActivity() {
 
         // Usa enqueueUniquePeriodicWork para garantir que a tarefa não é agendada múltiplas vezes.
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-            "ExpirationCheckPeriodic",
+            getString(R.string.expiration_check_periodic_work_name),
             ExistingPeriodicWorkPolicy.KEEP, // Mantém a tarefa agendada se já existir.
             periodicWorkRequest
         )

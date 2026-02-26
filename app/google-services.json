@@ -12,7 +12,20 @@
           "package_name": "com.example.restock_pg_dispositivo_moveis"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.restock_pg_dispositivo_moveis",
+            "certificate_hash": "83f8eac72f6e1720135a0b71eb9ee171d9d1f5a6"
+          }
+        },
+        {
+          "client_id": "559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB7ao3Idrp2KLKhaTkxV3hB9dHH_ykoo1A"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -3,8 +3,6 @@ package com.example.restock
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.restock.data.SettingsManager
@@ -23,7 +21,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Define o layout personalizado (com o logo e a barra de progresso) imediatamente.
+        // Mostra o Loading screen
         setContentView(R.layout.activity_splash)
 
         // Inicia a lógica de fundo para carregar e aplicar o idioma guardado.
@@ -36,17 +34,12 @@ class SplashActivity : AppCompatActivity() {
             if (languageCode.isNotEmpty()) {
                 ThemeUtils.applyAndSaveLocale(this@SplashActivity, languageCode)
             }
-        }
-
-        // Adiciona um atraso de 2.5 segundos para exibir o splash screen e depois navega.
-        // O Handler garante que a execução continua na Thread Principal.
-        Handler(Looper.getMainLooper()).postDelayed({
             decideNextScreen()
-        }, 2000)
+        }
     }
 
     /**
-     * Decide qual o próximo ecrã a apresentar com base no estado de autenticação.
+     * Decide o proximo ecra
      */
     private fun decideNextScreen() {
         // Verifica se a activity ainda está válida antes de tentar navegar.
@@ -55,8 +48,8 @@ class SplashActivity : AppCompatActivity() {
         }
 
         val auth = FirebaseAuth.getInstance()
-        // Se houver um utilizador logado, vai para a HomeActivity.
-        // Caso contrário, vai para a LoginActivity.
+        // Se houver um utilizador logado, vai para o Home.
+        // Caso contrário, vai para a Login.
         val intent = if (auth.currentUser != null) {
             Intent(this, HomeActivity::class.java)
         } else {

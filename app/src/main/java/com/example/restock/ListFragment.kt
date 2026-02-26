@@ -75,8 +75,7 @@ class ListFragment : Fragment() {
             onDelete = { item ->
                 shoppingListViewModel.deleteItem(item.id)
             },
-            onItemClick = { 
-                // Ação principal foi movida para o CheckBox
+            onItemClick = {
             }
         )
 
@@ -90,7 +89,7 @@ class ListFragment : Fragment() {
         val newProduct = Product(
             id = UUID.randomUUID().toString(),
             nome = item.name,
-            quantidade = 1.0, 
+            quantidade = 1.0,
             unidade = "un"
         )
 
