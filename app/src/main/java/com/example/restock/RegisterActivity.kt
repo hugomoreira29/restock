@@ -1,13 +1,11 @@
 package com.example.restock
 
-// HUGO MOREIRA - a22402246
-
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.restock.databinding.ActivityRegisterBinding
 import com.example.restock.model.Family
 import com.example.restock.model.User
 import com.google.firebase.auth.FirebaseAuth
@@ -16,41 +14,30 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.WriteBatch
 
-/**
- * Activity responsável pelo registo de novos utilizadores.
- * Lida com a criação da conta no Firebase Authentication e com a criação ou adesão a uma família no Firestore.
- */
 class RegisterActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityRegisterBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        val nameInput = findViewById<EditText>(R.id.nameInput)
-        val emailInput = findViewById<EditText>(R.id.emailInput)
-        val confirmEmailInput = findViewById<EditText>(R.id.confirmEmailInput)
-        val passwordInput = findViewById<EditText>(R.id.passwordInput)
-        val inviteCodeInput = findViewById<EditText>(R.id.inviteCodeInput)
-        val registerBtn = findViewById<Button>(R.id.registerBtn)
-
-        // Listener para o botão de registo.
-        registerBtn.setOnClickListener {
-            val name = nameInput.text.toString().trim()
-            val email = emailInput.text.toString().trim()
-            val confirmEmail = confirmEmailInput.text.toString().trim()
-            val password = passwordInput.text.toString().trim()
-            val inviteCode = inviteCodeInput.text.toString().trim()
+        binding.registerBtn.setOnClickListener {
+            val name = binding.nameInput.text.toString().trim()
+            val email = binding.emailInput.text.toString().trim()
+            val confirmEmail = binding.confirmEmailInput.text.toString().trim()
+            val password = binding.passwordInput.text.toString().trim()
+            val inviteCode = binding.inviteCodeInput.text.toString().trim()
 
             if (name.isNotEmpty() && email.isNotEmpty() && confirmEmail.isNotEmpty() && password.isNotEmpty()) {
-                
                 if (email == confirmEmail) {
-                    // 1. Cria o utilizador no Firebase Authentication.
+                    showLoading()
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
                             if (task.isSuccessful) {
@@ -58,23 +45,21 @@ class RegisterActivity : AppCompatActivity() {
                                 val profileUpdates = UserProfileChangeRequest.Builder().setDisplayName(name).build()
                                 firebaseUser.updateProfile(profileUpdates)
 
-                                // ENVIA O EMAIL DE VERIFICAÇÃO DO FIREBASE
                                 firebaseUser.sendEmailVerification()
                                     .addOnSuccessListener {
                                         Toast.makeText(baseContext, "Email de verificação enviado para $email", Toast.LENGTH_LONG).show()
                                     }
                                     .addOnFailureListener { e ->
-                                        // Apenas loga o erro, não impede o registo pois pode ser reenviado.
                                         Toast.makeText(baseContext, "Erro ao enviar email de verificação: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
 
-                                // 2. Decide se cria uma nova família ou se junta a uma existente.
                                 if (inviteCode.isNotEmpty()) {
                                     joinFamily(inviteCode, firebaseUser.uid, name, email)
                                 } else {
                                     createNewFamily(firebaseUser.uid, name, email)
                                 }
                             } else {
+                                hideLoading()
                                 Toast.makeText(baseContext, getString(R.string.register_fail, task.exception?.message), Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -85,58 +70,52 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.fill_all_fields), Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding.goLoginBtn.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
     }
 
-    /**
-     * Adiciona o utilizador a uma família existente, usando um código de convite.
-     */
     private fun joinFamily(inviteCode: String, userId: String, name: String, email: String) {
-        // Procura a família pelo código de convite.
         firestore.collection("families").whereEqualTo("inviteCode", inviteCode).get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {
-                    // SE FALHAR (Código Inválido): Apaga a conta criada e mostra erro.
                     deleteAccountAndShowError(getString(R.string.invalid_invite_code))
                     return@addOnSuccessListener
                 }
-                
+
                 val familyDoc = documents.first()
                 val familyId = familyDoc.id
 
                 val batch = firestore.batch()
 
-                // Cria o documento do utilizador no Firestore.
                 val userRef = firestore.collection("users").document(userId)
                 val user = User(uid = userId, name = name, email = email, familyId = familyId)
                 batch.set(userRef, user)
 
-                // Adiciona o novo membro à família e define-o como "Membro".
                 val familyRef = firestore.collection("families").document(familyId)
                 batch.update(familyRef, "members", FieldValue.arrayUnion(userId))
                 batch.update(familyRef, "roles.$userId", "Membro")
-                batch.update(familyRef, "inviteCode", null) // Invalida o código após o uso.
+                batch.update(familyRef, "inviteCode", null)
 
                 commitBatch(batch)
             }
             .addOnFailureListener {
-                 // SE FALHAR (Erro Database): Apaga a conta criada e mostra erro.
-                 deleteAccountAndShowError("Erro ao procurar família. Tente novamente.")
+                deleteAccountAndShowError("Erro ao procurar família. Tente novamente.")
             }
     }
 
-    /**
-     * Cria uma nova família para o utilizador, definindo-o como "Admin".
-     */
     private fun createNewFamily(userId: String, name: String, email: String) {
         val batch = firestore.batch()
 
         val newFamilyRef = firestore.collection("families").document()
-        
+
         val newFamily = Family(
-            id = newFamilyRef.id, 
-            name = "Família $name", 
+            id = newFamilyRef.id,
+            name = "Família $name",
             members = listOf(userId),
-            roles = mapOf(userId to "Admin") // O criador é sempre o Admin.
+            roles = mapOf(userId to "Admin")
         )
         batch.set(newFamilyRef, newFamily)
 
@@ -147,29 +126,46 @@ class RegisterActivity : AppCompatActivity() {
         commitBatch(batch)
     }
 
-    /**
-     * Executa as operações em batch no Firestore e navega para a HomeActivity.
-     */
     private fun commitBatch(batch: WriteBatch) {
         batch.commit().addOnCompleteListener { batchTask ->
+            hideLoading()
             if (batchTask.isSuccessful) {
                 Toast.makeText(this, getString(R.string.register_success), Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, HomeActivity::class.java))
                 finish()
             } else {
-                // SE FALHAR (Erro Database): Apaga a conta criada e mostra erro.
                 deleteAccountAndShowError(getString(R.string.error_saving_data, batchTask.exception?.message))
             }
         }
     }
 
-    /**
-     * Helper para apagar o utilizador atual em caso de erro no processo de registo.
-     */
     private fun deleteAccountAndShowError(errorMessage: String) {
         val user = auth.currentUser
         user?.delete()?.addOnCompleteListener { 
+            hideLoading()
             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.nameInputLayout.isEnabled = false
+        binding.emailInputLayout.isEnabled = false
+        binding.confirmEmailInputLayout.isEnabled = false
+        binding.passwordInputLayout.isEnabled = false
+        binding.inviteCodeInputLayout.isEnabled = false
+        binding.registerBtn.isEnabled = false
+        binding.goLoginBtn.isEnabled = false
+    }
+
+    private fun hideLoading() {
+        binding.progressBar.visibility = View.GONE
+        binding.nameInputLayout.isEnabled = true
+        binding.emailInputLayout.isEnabled = true
+        binding.confirmEmailInputLayout.isEnabled = true
+        binding.passwordInputLayout.isEnabled = true
+        binding.inviteCodeInputLayout.isEnabled = true
+        binding.registerBtn.isEnabled = true
+        binding.goLoginBtn.isEnabled = true
     }
 }

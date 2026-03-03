@@ -17,13 +17,17 @@
     <string name="password">Password</string>
     <string name="full_name">Full Name</string>
     <string name="invite_code_optional">Invite Code (Optional)</string>
-    <string name="go_to_register">Don\'t have an account? Sign up here.</string>
+    <string name="go_to_register">Don\'t have an account?\nSign up here.</string>
     <string name="login_success">Login successful.</string>
     <string name="login_fail">Authentication failed.</string>
     <string name="register_success">Registration successful!</string>
     <string name="register_fail">Registration failed: %s</string>
     <string name="error_saving_data">Error saving data: %s</string>
     <string name="invalid_invite_code">Invalid invite code.</string>
+    <string name="restock_logo">ReStock Logo</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="confirm_email">Confirm your Email</string>
+    <string name="go_to_login">Already have an account? Login here.</string>
 
     <!-- Home Screen -->
     <string name="greeting_hello">Hello, %s 👋</string>

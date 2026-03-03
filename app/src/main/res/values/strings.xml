@@ -17,13 +17,17 @@
     <string name="password">Password</string>
     <string name="full_name">Nome Completo</string>
     <string name="invite_code_optional">Código de Convite (Opcional)</string>
-    <string name="go_to_register">Ainda não tem conta? Crie uma aqui.</string>
+    <string name="go_to_register">Ainda não tem conta?\nCrie uma aqui.</string>
     <string name="login_success">Login bem-sucedido.</string>
     <string name="login_fail">Falha na autenticação.</string>
     <string name="register_success">Registo bem-sucedido!</string>
     <string name="register_fail">Falha no registo: %s</string>
     <string name="error_saving_data">Erro ao guardar dados: %s</string>
     <string name="invalid_invite_code">Código de convite inválido.</string>
+    <string name="restock_logo">ReStock Logo</string>
+    <string name="sign_in_with_google">Entrar com o Google</string>
+    <string name="confirm_email">Confirme o seu Email</string>
+    <string name="go_to_login">Já tem conta? Entre aqui.</string>
 
     <!-- Home Screen -->
     <string name="greeting_hello">Olá, %s 👋</string>

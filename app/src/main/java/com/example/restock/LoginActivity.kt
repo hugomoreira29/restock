@@ -32,9 +32,11 @@ class LoginActivity : AppCompatActivity() {
             val account = task.getResult(ApiException::class.java)
             if (account != null) {
                 firebaseAuthWithGoogle(account.idToken!!)
+            } else {
+                hideLoading()
             }
         } catch (e: ApiException) {
-            binding.progressBar.visibility = View.GONE
+            hideLoading()
             Toast.makeText(this, "Google Sign-In failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -58,10 +60,10 @@ class LoginActivity : AppCompatActivity() {
             val password = binding.passwordInput.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                binding.progressBar.visibility = View.VISIBLE
+                showLoading()
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this) { task ->
-                        binding.progressBar.visibility = View.GONE
+                        hideLoading()
                         if (task.isSuccessful) {
                             val user = auth.currentUser
                             if (user != null && user.isEmailVerified) {
@@ -87,7 +89,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.googleSignInButton.setOnClickListener {
-            binding.progressBar.visibility = View.VISIBLE
+            showLoading()
             val signInIntent = googleSignInClient.signInIntent
             googleSignInLauncher.launch(signInIntent)
         }
@@ -104,11 +106,11 @@ class LoginActivity : AppCompatActivity() {
                     if (isNewUser) {
                         createNewFamilyForGoogleUser(firebaseUser)
                     } else {
-                        binding.progressBar.visibility = View.GONE
+                        hideLoading()
                         navigateToHome()
                     }
                 } else {
-                    binding.progressBar.visibility = View.GONE
+                    hideLoading()
                     Toast.makeText(baseContext, getString(R.string.login_fail), Toast.LENGTH_SHORT).show()
                 }
             }
@@ -141,7 +143,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun commitBatch(batch: WriteBatch) {
         batch.commit().addOnCompleteListener { batchTask ->
-            binding.progressBar.visibility = View.GONE
+            hideLoading()
             if (batchTask.isSuccessful) {
                 Toast.makeText(this, getString(R.string.register_success), Toast.LENGTH_SHORT).show()
                 navigateToHome()
@@ -150,6 +152,24 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(baseContext, getString(R.string.error_saving_data, batchTask.exception?.message), Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.emailInputLayout.isEnabled = false
+        binding.passwordInputLayout.isEnabled = false
+        binding.loginBtn.isEnabled = false
+        binding.goRegisterBtn.isEnabled = false
+        binding.googleSignInButton.isEnabled = false
+    }
+
+    private fun hideLoading() {
+        binding.progressBar.visibility = View.GONE
+        binding.emailInputLayout.isEnabled = true
+        binding.passwordInputLayout.isEnabled = true
+        binding.loginBtn.isEnabled = true
+        binding.goRegisterBtn.isEnabled = true
+        binding.googleSignInButton.isEnabled = true
     }
 
     private fun navigateToHome() {
