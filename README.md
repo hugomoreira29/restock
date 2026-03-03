@@ -1,78 +1,84 @@
-# ReStock 🍏📦
+# ReStock - Sistema Inteligente de Gestão de Despensa 🍏📦
 
-**ReStock** é uma aplicação Android moderna desenvolvida para ajudar utilizadores e famílias a gerir o inventário da sua despensa de forma eficiente, evitando o desperdício alimentar e otimizando as compras.
-
-Este projeto foi desenvolvido no âmbito da unidade curricular de **Projeto de Dispositivos Móveis**.
-
----
-
-## 🚀 Funcionalidades Principal
-
-- **Autenticação Segura:** Registo e Login via Email/Password ou **Google Sign-In**.
-- **Gestão de Famílias:** Cria ou junta-te a uma "Família" através de um código de convite para partilhar o inventário em tempo real.
-- **Inventário Inteligente:** Adiciona produtos com nome, categoria, quantidade e data de validade.
-- **Lista de Compras:** Geração de listas de compras sugeridas com base no que falta na despensa.
-- **Controlo de Validades:** Notificações e avisos visuais para produtos prestes a expirar.
-- **Orçamento e Poupança:** Gráficos e resumos (via MPAndroidChart) para controlar os gastos mensais.
-- **Perfil Personalizado:** Edição de dados e foto de perfil (armazenada no Firebase Storage).
+**Projeto Final de Curso (PFC)**
+**Licenciatura em Engenharia Informática**
+**Autor:** Hugo Moreira (a22402246)
 
 ---
 
-## 🛠 Tech Stack & Bibliotecas
+## 📑 Resumo do Projeto
 
-- **Linguagem:** [Kotlin](https://kotlinlang.org/)
-- **Arquitetura:** MVVM (Model-View-ViewModel) com View Binding.
-- **Base de Dados & Auth:** [Firebase](https://firebase.google.com/) (Firestore, Auth, Storage).
-- **UI/UX:** Material Design 3, Google Fonts, ConstraintLayout e Lottie Animations.
-- **Gráficos:** [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart).
-- **Imagens:** [Glide](https://github.com/bumptech/glide) & CircleImageView.
-- **Background Tasks:** [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager) (para verificação de validades).
-- **Local Storage:** [DataStore Preferences](https://developer.android.com/topic/libraries/architecture/datastore).
+O **ReStock** é uma solução móvel desenvolvida para mitigar o problema do desperdício alimentar doméstico e otimizar a gestão de recursos em ambientes familiares. A aplicação permite o controlo rigoroso de inventários, monitorização de prazos de validade e a colaboração em tempo real entre múltiplos utilizadores (família/amigos) através de uma infraestrutura em nuvem.
+
+Este projeto foca-se na aplicabilidade de conceitos de **Sincronização em Tempo Real**, **Arquitetura Reativa** e **Persistência de Dados Híbrida**.
 
 ---
 
-## ⚙️ Configuração do Projeto
+## 🚀 Funcionalidades Implementadas
 
-Para correr este projeto localmente, segue estes passos:
+### 🔐 Segurança e Acesso
+- **Autenticação Multi-Fator:** Integração com **Firebase Authentication** permitindo login via e-mail/password e **Google Sign-In**.
+- **Segurança de Dados:** Implementação de *Security Rules* no Firestore para garantir que apenas membros de uma família acedam aos seus dados.
 
-1. **Clonar o repositório:**
-   ```bash
-   git clone https://github.com/seu-utilizador/project_dispositivos_moveis.git
-   ```
+### 🏠 Gestão Colaborativa (Sistema de Famílias)
+- **Protocolo de Convite:** Sistema baseado em códigos únicos para adesão a grupos.
+- **Hierarquia de Permissões:** Diferenciação entre administradores (criadores da família) e membros.
+- **Sincronização:** Atualizações em tempo real em todos os dispositivos ligados à mesma família.
 
-2. **Configuração do Firebase:**
-   - Cria um projeto na [Firebase Console](https://console.firebase.google.com/).
-   - Adiciona uma App Android com o package name `com.example.restock_pg_dispositivo_moveis`.
-   - Faz o download do ficheiro `google-services.json` e coloca-o na pasta `app/`.
-   - Ativa o **Email/Password** e o **Google** no Authentication.
-   - Ativa o **Firestore** e o **Storage**.
+### 📦 Inventário e Logística
+- **CRUD de Produtos:** Gestão completa de itens com metadados (nome, categoria, validade, quantidade).
+- **Lista de Compras Dinâmica:** Algoritmo que sugere compras baseado nos níveis críticos de stock.
+- **Notificações Push:** Alertas agendados via **WorkManager** para avisar sobre produtos próximos do fim da validade.
 
-3. **Google Sign-In (Erro 10):**
-   - Para que o Login com Google funcione, precisas de adicionar o teu **SHA-1** local às configurações do projeto no Firebase.
-   - No Android Studio, abre o terminal e corre:
-     ```bash
-     ./gradlew signingReport
-     ```
-   - Copia o SHA-1 e cola-o na consola do Firebase (Project Settings > Your Apps).
+### 📊 Análise e Estatística
+- **Dashboard Financeiro:** Visualização de gastos e orçamentos mensais utilizando a biblioteca **MPAndroidChart**.
+- **Gestão de Perfil:** Upload de imagens e persistência de preferências do utilizador via **Firebase Storage** e **DataStore**.
 
 ---
 
-## 📱 Ecrãs da Aplicação
+## 🛠 Arquitetura e Engenharia de Software
 
-- **Splash Screen:** Introdução animada com a marca.
-- **Login/Registo:** Design moderno e responsivo com Material Cards.
-- **Home:** Resumo estatístico do inventário e orçamento.
-- **Inventário:** Lista detalhada de produtos com filtros por categoria.
-- **Definições:** Gestão de conta, família e preferências de idioma.
+O projeto segue os princípios de **Clean Architecture** e o padrão de desenho **MVVM (Model-View-ViewModel)**:
+
+- **View:** Atividades e Fragmentos utilizando **View Binding** para uma interação segura com o layout.
+- **ViewModel:** Gestão do estado da UI e persistência de dados durante mudanças de configuração (usando `LiveData` e `StateFlow`).
+- **Model/Repository:** Camada de dados que abstrai as fontes de informação (Firestore para dados remotos e DataStore para configurações locais).
+- **Padrões Adicionais:** Singleton (para instâncias Firebase) e Factory.
+
+---
+
+## 📚 Tecnologias Utilizadas
+
+- **Linguagem:** Kotlin 1.9+
+- **Asincronismo:** Kotlin Coroutines & Flow (para operações não bloqueantes).
+- **Jetpack Components:** Navigation Component, WorkManager, DataStore, Lifecycle.
+- **Backend as a Service (BaaS):** Firebase (Firestore, Auth, Storage).
+- **UI:** Material Components (Material 3), ConstraintLayout, Glide (processamento de imagem).
+
+---
+
+## ⚙️ Configuração e Instalação
+
+### Pré-requisitos
+- Android Studio Jellyfish ou superior.
+- SDK Android 30 (Android 11) ou superior.
+
+### Configuração do Firebase
+1. Criar projeto na [Firebase Console](https://console.firebase.google.com/).
+2. Adicionar app com o package `com.example.restock`.
+3. Inserir o ficheiro `google-services.json` na pasta `/app`.
+4. **Importante (Google Sign-In):** No terminal do Android Studio, execute `./gradlew signingReport` e registe o seu **SHA-1** local nas configurações do Firebase para evitar o **Erro 10**.
+
+---
+
+## 🎓 Contexto Académico
+
+Este software foi desenvolvido e submetido como **Projeto Final de Curso (PFC)** para a obtenção do grau de Licenciado em **Engenharia Informática**, demonstrando competências avançadas em desenvolvimento nativo Android, arquitetura de sistemas escaláveis e integração de serviços cloud de última geração.
 
 ---
 
 ## 👤 Autor
-
-- **Hugo Moreira** - (a22402246)
+- **Hugo Moreira** - [GitHub](https://github.com/hmoreira) (Link opcional)
 
 ---
-
-## 📄 Licença
-
-Este projeto é para fins académicos. Todos os direitos reservados.
+*Este projeto foi desenvolvido com fins exclusivamente académicos.*
