@@ -1,14 +1,17 @@
 package com.example.restock.model
 
-// HUGO MOREIRA - a22402246
-
+// Firebase - para mapear o ID do documento e a data de criação automática do servidor
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.ServerTimestamp
+
+// Java - para representar a data de criação do produto
 import java.util.Date
 
-/**
- * Data class que representa um Produto no inventário.
- * Esta é a estrutura de dados que é guardada na sub-coleção "products" no Firestore.
+/** HUGO MOREIRA - a22402246
+ * Modelo de dados que representa um produto no inventário.
+ * Contém todas as informações do produto como nome, categoria,
+ * quantidade, preço, validade e código de barras, sendo guardado
+ * na sub-coleção "products" do Firestore.
  */
 data class Product(
     // @DocumentId diz ao Firestore para mapear automaticamente o ID do documento para este campo.
@@ -24,7 +27,6 @@ data class Product(
     val imagemUrl: String? = null, // URL da imagem do produto guardada no Firebase Storage.
     val familiaId: String? = null, // ID da família a que o inventário pertence.
 
-    // NOVO: Data de criação, preenchida automaticamente pelo servidor.
     @ServerTimestamp
-    var createdAt: Date? = null
+    var createdAt: Date? = null // Data de criação do produto, preenchida automaticamente pelo servidor
 )

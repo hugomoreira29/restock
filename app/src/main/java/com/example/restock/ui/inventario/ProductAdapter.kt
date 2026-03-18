@@ -1,22 +1,34 @@
 package com.example.restock.ui.inventario
 
-// HUGO MOREIRA - a22402246
-
+// Android - para cores e vistas de cada item da lista
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+
+// AndroidX - para o RecyclerView e cálculo eficiente de diferenças na lista
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+
+// Glide - para carregar a imagem do produto de forma eficiente
 import com.bumptech.glide.Glide
+
+// Classes internas da aplicação - recursos, binding e modelo do produto
 import com.example.restock.R
 import com.example.restock.databinding.ItemProductBinding
 import com.example.restock.model.Product
+
+// Java - para formatar e comparar datas de validade
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/** HUGO MOREIRA - a22402246
+ * Adaptador para a lista de produtos do inventário familiar.
+ * Apresenta cada produto com nome, quantidade, preço total e validade,
+ * aplicando um alerta visual a vermelho ou amarelo consoante o estado de validade.
+ */
 class ProductAdapter(
     private val onEdit: (Product) -> Unit,
     private val onDelete: (Product) -> Unit
@@ -28,42 +40,56 @@ class ProductAdapter(
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        val currentItem = getItem(position)
-        holder.bind(currentItem)
+        holder.bind(getItem(position))
     }
 
+    /**
+     * ViewHolder responsável por apresentar os dados de cada produto.
+     * Configura os listeners de edição e eliminação no bloco init.
+     */
     inner class ProductViewHolder(private val binding: ItemProductBinding) : RecyclerView.ViewHolder(binding.root) {
+
         init {
+            // Configura o botão de eliminar com verificação de posição válida
             binding.deleteButton.setOnClickListener {
                 val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onDelete(getItem(position))
-                }
+                if (position != RecyclerView.NO_POSITION) onDelete(getItem(position))
             }
+
+            // Configura o contentor de edição com verificação de posição válida
             binding.editContainer.setOnClickListener {
                 val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onEdit(getItem(position))
-                }
+                if (position != RecyclerView.NO_POSITION) onEdit(getItem(position))
             }
         }
 
         fun bind(product: Product) {
             binding.apply {
                 productNameTextView.text = product.nome
-                val precoFormatado = String.format(Locale.getDefault(), "%.2f€", product.preco)
-                productQuantityTextView.text = "Qtd: ${product.quantidade} | $precoFormatado"
 
+                // Para unidades inteiras, apresenta sem casas decimais
+                val qtdTexto = if (product.unidade == "un") {
+                    "${product.quantidade.toInt()} ${product.unidade}"
+                } else {
+                    String.format(Locale.getDefault(), "%.2f %s", product.quantidade, product.unidade)
+                }
+
+                // Calcula e formata o preço total (quantidade × preço unitário)
+                val precoTotal = product.quantidade * product.preco
+                val precoFormatado = String.format(Locale.getDefault(), "%.2f€", precoTotal)
+                productQuantityTextView.text = "Qtd: $qtdTexto | Total: $precoFormatado"
+
+                // Apresenta a data de validade ou uma mensagem alternativa caso não exista
                 if (product.validade != null) {
                     val date = Date(product.validade!!)
-                    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                    productExpiryTextView.text = "Expira a: ${dateFormat.format(date)}"
+                    productExpiryTextView.text = "Expira a: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)}"
                     setValidadeAlert(productExpiryTextView, date)
                 } else {
                     productExpiryTextView.text = "Sem data de validade"
                     productExpiryTextView.setTextColor(Color.GRAY)
                 }
 
+                // Carrega a imagem do produto com o logótipo como placeholder
                 Glide.with(itemView.context)
                     .load(product.imagemUrl)
                     .placeholder(R.drawable.ic_restock_logo)
@@ -72,24 +98,32 @@ class ProductAdapter(
         }
     }
 
+    /**
+     * Define a cor do texto da validade consoante os dias restantes até expirar.
+     * Vermelho: já expirado | Amarelo: expira em 7 dias ou menos | Preto: válido.
+     */
     private fun setValidadeAlert(textView: TextView, validade: Date) {
-        val today = Date()
-        val diffTime = validade.time - today.time
-        val daysUntilExpiration = diffTime / (1000 * 60 * 60 * 24)
+        val daysUntilExpiration = (validade.time - Date().time) / (1000 * 60 * 60 * 24)
 
-        if (daysUntilExpiration <= 0) {
-            textView.setTextColor(Color.RED)
-        } else if (daysUntilExpiration <= 7) {
-            textView.setTextColor(Color.parseColor("#FFC107")) // Amarelo/Âmbar
-        } else {
-            textView.setTextColor(Color.BLACK)
-        }
+        textView.setTextColor(
+            when {
+                daysUntilExpiration <= 0 -> Color.RED
+                daysUntilExpiration <= 7 -> Color.parseColor("#FFC107") // Amarelo/Âmbar
+                else -> Color.BLACK
+            }
+        )
     }
 
+    /**
+     * Calcula as diferenças entre produtos para atualizar apenas
+     * os itens que realmente mudaram, melhorando a performance.
+     */
     class DiffCallback : DiffUtil.ItemCallback<Product>() {
+        // Verifica se dois itens representam o mesmo produto pelo ID
         override fun areItemsTheSame(oldItem: Product, newItem: Product) =
             oldItem.id == newItem.id
 
+        // Verifica se o conteúdo do produto mudou
         override fun areContentsTheSame(oldItem: Product, newItem: Product) =
             oldItem == newItem
     }

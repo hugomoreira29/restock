@@ -138,6 +138,39 @@
                     android:src="@drawable/ic_arrow_forward" />
             </RelativeLayout>
 
+            <!-- Item Tema -->
+            <RelativeLayout
+                android:id="@+id/themeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/iconTheme"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_theme" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@id/iconTheme"
+                    android:text="Tema" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_arrow_forward" />
+            </RelativeLayout>
+
             <!-- Item Gamificação -->
             <RelativeLayout
                 android:id="@+id/gamificationButton"
@@ -171,7 +204,7 @@
                     android:src="@drawable/ic_arrow_forward" />
             </RelativeLayout>
 
-            <!-- Item Familia / Amigos -->
+            <!-- Item Família / Amigos -->
             <RelativeLayout
                 android:id="@+id/familyButton"
                 android:layout_width="match_parent"
@@ -203,6 +236,7 @@
                     android:layout_centerVertical="true"
                     android:src="@drawable/ic_arrow_forward" />
             </RelativeLayout>
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

@@ -1,35 +1,56 @@
 package com.example.restock.ui.inventario
 
-// HUGO MOREIRA - a22402246
-
+// Android - para gerir o ciclo de vida e vistas do fragmento
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+
+// AndroidX - para cores, ViewModel, coroutines, navegação e RecyclerView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+
+// Glide - para carregar a fotografia de perfil do utilizador
 import com.bumptech.glide.Glide
+
+// Classes internas da aplicação - recursos, binding e modelo do produto
 import com.example.restock.R
 import com.example.restock.databinding.FragmentInventarioBinding
 import com.example.restock.model.Product
+
+// MPAndroidChart - para construir o gráfico circular de validade
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+
+// Material Design - para o diálogo de confirmação de eliminação
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
+// Firebase - autenticação para obter os dados do utilizador atual
 import com.google.firebase.auth.FirebaseAuth
+
+// Coroutines - para observar os fluxos de dados do ViewModel
 import kotlinx.coroutines.launch
+
+// Java - para calcular o intervalo de sete dias em milissegundos
 import java.util.concurrent.TimeUnit
 
+/** HUGO MOREIRA - a22402246
+ * Fragmento principal do inventário familiar.
+ * Apresenta a lista de produtos com opções de edição e eliminação,
+ * um gráfico circular com o estado de validade dos produtos
+ * e o nome da família como título do ecrã.
+ */
 class InventoryFragment : Fragment() {
 
     private var _binding: FragmentInventarioBinding? = null
     private val binding get() = _binding!!
 
-    // Usa activityViewModels() para partilhar a instância do ViewModel.
+    // ViewModel partilhado com o fragmento de adição de produto
     private val viewModel: InventarioViewModel by activityViewModels()
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private lateinit var productAdapter: ProductAdapter
@@ -44,7 +65,6 @@ class InventoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupPieChart()
         setupRecyclerView()
         setupClickListeners()
@@ -52,6 +72,10 @@ class InventoryFragment : Fragment() {
         loadUserData()
     }
 
+    /**
+     * Configura as propriedades visuais do gráfico circular.
+     * Define o furo central e desativa interações e legendas desnecessárias.
+     */
     private fun setupPieChart() {
         binding.pieChart.apply {
             isDrawHoleEnabled = true
@@ -64,10 +88,11 @@ class InventoryFragment : Fragment() {
         }
     }
 
-    private fun loadUserData(){
-        val user = auth.currentUser
-        user?.let{
-            // Carrega apenas a imagem de perfil aqui. O título agora é gerido pelo observeViewModel
+    /**
+     * Carrega a fotografia de perfil do utilizador autenticado.
+     */
+    private fun loadUserData() {
+        auth.currentUser?.let {
             Glide.with(this)
                 .load(it.photoUrl)
                 .placeholder(R.drawable.ic_avatar)
@@ -76,13 +101,16 @@ class InventoryFragment : Fragment() {
         }
     }
 
+    /**
+     * Inicializa o adaptador de produtos com as ações de edição e eliminação,
+     * e configura o RecyclerView com um layout linear.
+     */
     private fun setupRecyclerView() {
         productAdapter = ProductAdapter(
-            onDelete = { product ->
-                showDeleteConfirmationDialog(product)
-            },
+            onDelete = { product -> showDeleteConfirmationDialog(product) },
             onEdit = { product ->
-                val action = InventoryFragmentDirections.actionInventoryFragmentToAdicionarProdutoFragment(produtoId = product.id)
+                val action = InventoryFragmentDirections
+                    .actionInventoryFragmentToAdicionarProdutoFragment(produtoId = product.id)
                 findNavController().navigate(action)
             }
         )
@@ -92,6 +120,9 @@ class InventoryFragment : Fragment() {
         }
     }
 
+    /**
+     * Apresenta um diálogo de confirmação antes de eliminar um produto do inventário.
+     */
     private fun showDeleteConfirmationDialog(product: Product) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.delete_product_title))
@@ -103,47 +134,68 @@ class InventoryFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Configura os listeners de clique para adicionar produtos
+     * e navegar para o ecrã de conta ao clicar na fotografia de perfil.
+     */
     private fun setupClickListeners() {
-        binding.addProductButton.setOnClickListener { 
-            val action = InventoryFragmentDirections.actionInventoryFragmentToAdicionarProdutoFragment(null)
+        binding.addProductButton.setOnClickListener {
+            val action = InventoryFragmentDirections
+                .actionInventoryFragmentToAdicionarProdutoFragment(null)
             findNavController().navigate(action)
         }
-        binding.profileImageView.setOnClickListener{
-             findNavController().navigate(InventoryFragmentDirections.actionInventoryFragmentToAccountFragment())
+        binding.profileImageView.setOnClickListener {
+            findNavController().navigate(
+                InventoryFragmentDirections.actionInventoryFragmentToAccountFragment()
+            )
         }
     }
 
+    /**
+     * Observa os fluxos de dados do ViewModel e atualiza a interface
+     * com a lista de produtos, o título da família e o gráfico de validade.
+     */
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.produtos.collect { productList ->
                 productAdapter.submitList(productList)
 
+                // Atualiza o resumo do total de itens em stock
                 val totalItems = productList.sumOf { it.quantidade }.toInt()
-                binding.totalItemsTextView.text = resources.getQuantityString(R.plurals.inventory_summary_plural, totalItems, totalItems)
+                binding.totalItemsTextView.text = resources.getQuantityString(
+                    R.plurals.inventory_summary_plural, totalItems, totalItems
+                )
 
                 updatePieChartData(productList)
             }
         }
 
-        // Observa o nome da família para atualizar o título
+        // Observa o nome da família para atualizar o título do inventário
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.familyName.collect { name ->
                 if (name.isNotEmpty()) {
                     binding.inventoryTitleTextView.text = "INVENTÁRIO ${name.uppercase()}"
                 } else {
-                    // Fallback para o nome do utilizador se o nome da família ainda não estiver carregado
-                     val user = auth.currentUser
-                     val userName = user?.displayName ?: ""
-                     binding.inventoryTitleTextView.text = getString(R.string.inventory_family, userName.uppercase())
+                    // Usa o nome do utilizador como alternativa enquanto o nome da família não carrega
+                    val userName = auth.currentUser?.displayName ?: ""
+                    binding.inventoryTitleTextView.text = getString(
+                        R.string.inventory_family, userName.uppercase()
+                    )
                 }
             }
         }
     }
 
+    /**
+     * Atualiza o gráfico circular com o estado de validade dos produtos.
+     * Divide os produtos em três categorias: válidos, a expirar em breve e expirados.
+     */
     private fun updatePieChartData(productList: List<Product>) {
         if (productList.isEmpty()) {
             binding.pieChart.visibility = View.INVISIBLE
-            binding.expiringItemsTextView.text = resources.getQuantityString(R.plurals.expiring_summary_plural, 0, 0)
+            binding.expiringItemsTextView.text = resources.getQuantityString(
+                R.plurals.expiring_summary_plural, 0, 0
+            )
             return
         }
         binding.pieChart.visibility = View.VISIBLE
@@ -151,31 +203,48 @@ class InventoryFragment : Fragment() {
         val currentTime = System.currentTimeMillis()
         val sevenDaysInMillis = TimeUnit.DAYS.toMillis(7)
 
-        val expiredCount = productList.count { it.validade != null && it.validade < currentTime }.toFloat()
-        val expiringSoonCount = productList.count { it.validade != null && it.validade >= currentTime && (it.validade - currentTime) <= sevenDaysInMillis }.toFloat()
+        // Conta os produtos em cada estado de validade
+        val expiredCount = productList.count {
+            it.validade != null && it.validade < currentTime
+        }.toFloat()
+
+        val expiringSoonCount = productList.count {
+            it.validade != null &&
+                    it.validade >= currentTime &&
+                    (it.validade - currentTime) <= sevenDaysInMillis
+        }.toFloat()
+
         val goodCount = (productList.size - expiredCount - expiringSoonCount).toFloat()
 
+        // Atualiza o texto com o total de produtos a expirar ou já expirados
         val totalExpiring = (expiringSoonCount + expiredCount).toInt()
-        binding.expiringItemsTextView.text = resources.getQuantityString(R.plurals.expiring_summary_plural, totalExpiring, totalExpiring)
+        binding.expiringItemsTextView.text = resources.getQuantityString(
+            R.plurals.expiring_summary_plural, totalExpiring, totalExpiring
+        )
 
+        // Cria as fatias do gráfico apenas para categorias com produtos
         val entries = ArrayList<PieEntry>()
         if (goodCount > 0) entries.add(PieEntry(goodCount))
         if (expiringSoonCount > 0) entries.add(PieEntry(expiringSoonCount))
         if (expiredCount > 0) entries.add(PieEntry(expiredCount))
 
-        val dataSet = PieDataSet(entries, "Inventory Status")
-        dataSet.colors = listOf(
-            ContextCompat.getColor(requireContext(), R.color.green),
-            ContextCompat.getColor(requireContext(), R.color.yellow),
-            ContextCompat.getColor(requireContext(), R.color.red)
-        )
-        dataSet.setDrawValues(false)
+        // Verde: válidos | Amarelo: a expirar em breve | Vermelho: expirados
+        val dataSet = PieDataSet(entries, "Inventory Status").apply {
+            colors = listOf(
+                ContextCompat.getColor(requireContext(), R.color.green),
+                ContextCompat.getColor(requireContext(), R.color.yellow),
+                ContextCompat.getColor(requireContext(), R.color.red)
+            )
+            setDrawValues(false)
+        }
 
-        val data = PieData(dataSet)
-        binding.pieChart.data = data
+        binding.pieChart.data = PieData(dataSet)
         binding.pieChart.invalidate()
     }
 
+    /**
+     * Limpa o binding quando a vista é destruída para evitar fugas de memória.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

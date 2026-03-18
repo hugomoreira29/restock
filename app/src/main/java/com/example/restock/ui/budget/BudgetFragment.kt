@@ -1,7 +1,6 @@
 package com.example.restock.ui.budget
 
-// HUGO MOREIRA - a22402246
-
+// Android - para gerir o ciclo de vida, cores e vistas do fragmento
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
@@ -10,27 +9,47 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+
+// AndroidX - para aceder ao ViewModel, coroutines e navegação
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+
+// Glide - para carregar a fotografia de perfil do utilizador
 import com.bumptech.glide.Glide
+
+// Classes internas da aplicação - recursos e binding
 import com.example.restock.R
 import com.example.restock.databinding.FragmentBudgetBinding
+
+// MPAndroidChart - para construir e apresentar o gráfico circular de gastos
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
+
+// Material Design - para apresentar o diálogo de edição do orçamento
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
+// Firebase - autenticação para obter os dados do utilizador atual
 import com.google.firebase.auth.FirebaseAuth
+
+// Coroutines - para observar os fluxos de dados do ViewModel de forma assíncrona
 import kotlinx.coroutines.launch
 
+/** HUGO MOREIRA - a22402246
+ * Fragmento responsável pela gestão do orçamento familiar.
+ * Apresenta o total gasto, a barra de progresso do orçamento mensal
+ * e um gráfico circular com os gastos distribuídos por categoria.
+ */
 class BudgetFragment : Fragment() {
 
     private var _binding: FragmentBudgetBinding? = null
     private val binding get() = _binding!!
 
+    // ViewModel partilhado entre fragmentos para gerir os dados do orçamento
     private val viewModel: BudgetViewModel by activityViewModels()
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
@@ -50,6 +69,10 @@ class BudgetFragment : Fragment() {
         loadUserData()
     }
 
+    /**
+     * Carrega a fotografia de perfil do utilizador autenticado.
+     * Caso não tenha fotografia, apresenta o avatar por defeito.
+     */
     private fun loadUserData() {
         val user = auth.currentUser
         user?.let {
@@ -65,6 +88,10 @@ class BudgetFragment : Fragment() {
         }
     }
 
+    /**
+     * Configura as propriedades visuais do gráfico circular.
+     * Define o furo central, percentagens e oculta a legenda e descrição.
+     */
     private fun setupPieChart() {
         binding.spendingPieChart.apply {
             isDrawHoleEnabled = true
@@ -77,6 +104,10 @@ class BudgetFragment : Fragment() {
         }
     }
 
+    /**
+     * Observa os fluxos de dados do ViewModel e atualiza a interface
+     * sempre que os dados da família, gastos totais ou gastos por categoria mudam.
+     */
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.family.collect { family ->
@@ -95,15 +126,27 @@ class BudgetFragment : Fragment() {
         }
     }
 
+    /**
+     * Atualiza o texto e a barra de progresso do orçamento mensal.
+     * Calcula a percentagem gasta em relação ao orçamento definido.
+     */
     private fun updateBudgetUI(budget: Double, spent: Double) {
-        binding.budgetTextView.text = getString(R.string.budget_summary, String.format("%.2f€", spent), String.format("%.2f€", budget))
-        if (budget > 0) {
-            binding.budgetProgressBar.progress = ((spent / budget) * 100).toInt()
+        binding.budgetTextView.text = getString(R.string.budget_summary,
+            String.format("%.2f€", spent),
+            String.format("%.2f€", budget)
+        )
+        // Calcula a percentagem gasta, evitando divisão por zero
+        binding.budgetProgressBar.progress = if (budget > 0) {
+            ((spent / budget) * 100).toInt()
         } else {
-            binding.budgetProgressBar.progress = 0
+            0
         }
     }
 
+    /**
+     * Atualiza os dados do gráfico circular com os gastos por categoria.
+     * Oculta o gráfico caso não existam dados para apresentar.
+     */
     private fun updatePieChartData(spendings: List<CategorySpending>) {
         if (spendings.isEmpty()) {
             binding.spendingPieChart.visibility = View.GONE
@@ -111,9 +154,11 @@ class BudgetFragment : Fragment() {
         }
         binding.spendingPieChart.visibility = View.VISIBLE
 
+        // Cria as entradas do gráfico com o total gasto por categoria
         val entries = spendings.map { PieEntry(it.total.toFloat(), it.category) }
         val dataSet = PieDataSet(entries, getString(R.string.spending_categories_title))
 
+        // Define as cores de cada fatia do gráfico
         dataSet.colors = listOf(
             ContextCompat.getColor(requireContext(), R.color.blue),
             ContextCompat.getColor(requireContext(), R.color.green),
@@ -125,20 +170,28 @@ class BudgetFragment : Fragment() {
         dataSet.valueTextSize = 12f
         dataSet.valueTextColor = Color.BLACK
 
-        val data = PieData(dataSet)
-        binding.spendingPieChart.data = data
+        // Atualiza o gráfico com os novos dados
+        binding.spendingPieChart.data = PieData(dataSet)
         binding.spendingPieChart.invalidate()
     }
 
+    /**
+     * Configura os listeners de clique do fragmento.
+     * Trata da edição do orçamento e da navegação para o perfil.
+     */
     private fun setupClickListeners() {
-        binding.editBudgetButton.setOnClickListener {
-            showEditBudgetDialog()
-        }
+        binding.editBudgetButton.setOnClickListener { showEditBudgetDialog() }
+
+        // Navega para o ecrã de conta ao clicar na fotografia de perfil
         binding.profileImageView.setOnClickListener {
             findNavController().navigate(BudgetFragmentDirections.actionBudgetFragmentToAccountFragment())
         }
     }
 
+    /**
+     * Apresenta um diálogo para o utilizador definir um novo orçamento mensal.
+     * Valida o valor introduzido antes de o guardar no ViewModel.
+     */
     private fun showEditBudgetDialog() {
         val input = EditText(context).apply {
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -161,6 +214,9 @@ class BudgetFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Limpa o binding quando a vista é destruída para evitar fugas de memória.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

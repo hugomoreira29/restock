@@ -38,6 +38,7 @@
     <string name="suggested_milk">Leite</string>
     <string name="suggested_rice">Arroz</string>
     <string name="suggested_flour">Farinha</string>
+    <string name="no_suggestions">Sem sugestões de momento.</string>
     <string name="item_added_to_list">\'%s\' adicionado à lista de compras!</string>
     <string name="budget_title">ORÇAMENTO E POUPANÇA</string>
     <string name="budget_summary">Orçamento mensal: %s / %s</string>
@@ -145,4 +146,19 @@
     <string name="new_budget_hint">Novo orçamento</string>
     <string name="invalid_value">Valor inválido.</string>
     <string name="budget_updated">Orçamento atualizado!</string>
+
+    <!-- Gamification -->
+    <string name="gamification_title">GAMIFICAÇÃO</string>
+    <string name="your_level">Nível %d</string>
+    <string name="points_total">%d Pontos</string>
+    <string name="next_level_progress">Progresso para o próximo nível</string>
+    <string name="badges_title">Medalhas</string>
+    <string name="points_earned_toast">+%d pontos ganhos!</string>
+    <string name="level_up_toast">Subiu de nível! Parabéns!</string>
+    <string name="badge_inventory_master">Mestre da Despensa</string>
+    <string name="badge_inventory_master_desc">Adicionou 50 produtos ao inventário.</string>
+    <string name="badge_shopper_pro">Comprador Pro</string>
+    <string name="badge_shopper_pro_desc">Completou 20 itens da lista de compras.</string>
+    <string name="badge_budget_king">Rei da Poupança</string>
+    <string name="badge_budget_king_desc">Manteve-se dentro do orçamento um mês inteiro.</string>
 </resources>

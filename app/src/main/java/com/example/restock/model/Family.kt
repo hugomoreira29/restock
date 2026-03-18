@@ -1,25 +1,20 @@
 package com.example.restock.model
 
-// HUGO MOREIRA - a224022- HUGO MOREIRA - a22402246
-
+// Permite ler automaticamente o ID do documento Firestore e mapeá-lo para o campo id
 import com.google.firebase.firestore.DocumentId
 
-/**
- * Data class que representa uma Família.
- * Cada documento nesta coleção conterá um inventário e uma lista de compras partilhados.
+/** HUGO MOREIRA - a22402246
+ * Modelo de dados que representa uma família na aplicação.
+ * Contém informações como membros, cargos, orçamento mensal
+ * e código de convite para partilha do inventário e lista de compras.
  */
 data class Family(
     @DocumentId
-    val id: String = "",
-    val name: String = "",
-    // Lista dos IDs (UIDs) dos utilizadores que pertencem a esta família.
-    val members: List<String> = emptyList(),
-    // Lista dos IDs (UIDs) dos utilizadores que pediram para entrar e aguardam aprovação.
-    val pendingMembers: List<String> = emptyList(),
-    // Mapa de cargos: userId -> role ("Admin", "Editor", "Leitor")
-    val roles: Map<String, String> = emptyMap(),
-    // Orçamento mensal definido para a família.
-    val monthlyBudget: Double = 0.0, 
-    // Código de convite único para esta família.
-    val inviteCode: String? = null 
+    val id: String = "",    // Identificador único do documento no Firestore
+    val name: String = "",  // Nome da família
+    val members: List<String> = emptyList(),    // Lista dos IDs (UIDs) dos utilizadores que pertencem a esta família.
+    val pendingMembers: List<String> = emptyList(), // Lista dos UIDs dos utilizadores à espera de aprovação
+    val roles: Map<String, String> = emptyMap(),    // Mapa de cargos: userId -> "Admin", "Editor" ou "Leitor"
+    val monthlyBudget: Double = 0.0,        // Orçamento mensal definido para a família.
+    val inviteCode: String? = null  // Código de convite único para entrar na família
 )

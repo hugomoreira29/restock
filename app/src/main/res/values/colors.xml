@@ -16,4 +16,8 @@
     <color name="green">#34C759</color>
     <color name="yellow">#FFCC00</color>
     <color name="red">#FF3B30</color>
+
+    <!-- Gamification Colors -->
+    <color name="grey_400">#BDBDBD</color>
+    <color name="green_500">#4CAF50</color>
 </resources>

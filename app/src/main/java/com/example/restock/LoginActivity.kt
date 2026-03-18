@@ -1,24 +1,41 @@
 package com.example.restock
 
+// Android - para navegação entre activities e mensagens ao utilizador
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+
+// AndroidX - para o lançador de resultados e a Activity base
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+
+// Binding - para aceder às vistas do layout de forma segura
 import com.example.restock.databinding.ActivityLoginBinding
+
+// Modelos internos da aplicação
 import com.example.restock.model.Family
 import com.example.restock.model.User
+
+// Google Sign-In - para autenticação com conta Google
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+
+// Firebase - autenticação, base de dados e operações em lote
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.WriteBatch
 
+/** HUGO MOREIRA - a22402246
+ * Activity responsável pelo ecrã de login da aplicação.
+ * Suporta autenticação com email/palavra-passe e com conta Google.
+ * No login com email, verifica se o endereço foi confirmado antes de permitir o acesso.
+ * No primeiro login com Google, cria automaticamente uma família e o perfil do utilizador.
+ */
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -26,7 +43,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    // Lançador para o fluxo de autenticação com Google
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
@@ -49,12 +69,14 @@ class LoginActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
+        // Configura o cliente de autenticação Google com o ID do projeto Firebase
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com")
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
+        // Login com email e palavra-passe
         binding.loginBtn.setOnClickListener {
             val email = binding.emailInput.text.toString()
             val password = binding.passwordInput.text.toString()
@@ -70,6 +92,7 @@ class LoginActivity : AppCompatActivity() {
                                 Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show()
                                 navigateToHome()
                             } else {
+                                // Envia novo email de verificação e impede o acesso até ser confirmado
                                 Toast.makeText(this, "Por favor verifique o seu email antes de entrar.", Toast.LENGTH_LONG).show()
                                 user?.sendEmailVerification()
                                 auth.signOut()
@@ -83,18 +106,22 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // Navega para o ecrã de registo
         binding.goRegisterBtn.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
 
+        // Inicia o fluxo de autenticação com Google
         binding.googleSignInButton.setOnClickListener {
             showLoading()
-            val signInIntent = googleSignInClient.signInIntent
-            googleSignInLauncher.launch(signInIntent)
+            googleSignInLauncher.launch(googleSignInClient.signInIntent)
         }
     }
 
+    /**
+     * Conclui a autenticação com o token do Google no Firebase.
+     * Se for um novo utilizador, cria automaticamente a família e o perfil.
+     */
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
@@ -104,6 +131,7 @@ class LoginActivity : AppCompatActivity() {
                     val isNewUser = task.result.additionalUserInfo?.isNewUser ?: false
 
                     if (isNewUser) {
+                        // Primeiro login com Google: cria família e perfil do utilizador
                         createNewFamilyForGoogleUser(firebaseUser)
                     } else {
                         hideLoading()
@@ -116,10 +144,15 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Cria uma nova família e o perfil do utilizador no Firestore usando um batch.
+     * O utilizador é definido automaticamente como administrador da família criada.
+     */
     private fun createNewFamilyForGoogleUser(firebaseUser: FirebaseUser) {
         val batch = firestore.batch()
         val newFamilyRef = firestore.collection("families").document()
 
+        // Cria a família com o utilizador como único membro e administrador
         val newFamily = Family(
             id = newFamilyRef.id,
             name = "Família ${firebaseUser.displayName}",
@@ -128,6 +161,7 @@ class LoginActivity : AppCompatActivity() {
         )
         batch.set(newFamilyRef, newFamily)
 
+        // Cria o documento do utilizador associado à família criada
         val userRef = firestore.collection("users").document(firebaseUser.uid)
         val user = User(
             uid = firebaseUser.uid,
@@ -141,6 +175,10 @@ class LoginActivity : AppCompatActivity() {
         commitBatch(batch)
     }
 
+    /**
+     * Executa o batch de operações no Firestore.
+     * Em caso de falha, elimina a conta criada para evitar dados inconsistentes.
+     */
     private fun commitBatch(batch: WriteBatch) {
         batch.commit().addOnCompleteListener { batchTask ->
             hideLoading()
@@ -148,12 +186,21 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.register_success), Toast.LENGTH_SHORT).show()
                 navigateToHome()
             } else {
+                // Elimina a conta do Firebase Authentication se os dados não forem guardados
                 auth.currentUser?.delete()
-                Toast.makeText(baseContext, getString(R.string.error_saving_data, batchTask.exception?.message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    baseContext,
+                    getString(R.string.error_saving_data, batchTask.exception?.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
+    /**
+     * Mostra o indicador de carregamento e desativa todos os controlos de interação
+     * para evitar ações duplicadas durante a autenticação.
+     */
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
         binding.emailInputLayout.isEnabled = false
@@ -163,6 +210,9 @@ class LoginActivity : AppCompatActivity() {
         binding.googleSignInButton.isEnabled = false
     }
 
+    /**
+     * Oculta o indicador de carregamento e reativa todos os controlos de interação.
+     */
     private fun hideLoading() {
         binding.progressBar.visibility = View.GONE
         binding.emailInputLayout.isEnabled = true
@@ -172,9 +222,14 @@ class LoginActivity : AppCompatActivity() {
         binding.googleSignInButton.isEnabled = true
     }
 
+    /**
+     * Navega para a HomeActivity após o login bem-sucedido.
+     * Limpa a pilha de activities para impedir o regresso ao ecrã de login.
+     */
     private fun navigateToHome() {
-        val intent = Intent(this, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val intent = Intent(this, HomeActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
         finish()
     }

@@ -1,12 +1,13 @@
 package com.example.restock
 
-// HUGO MOREIRA - a22402246
-
+// Android - para permissões, versão do sistema e vistas da activity
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+
+// AndroidX - para permissões, navegação e WorkManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
@@ -17,93 +18,104 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+
+// Worker de verificação de validade dos produtos
 import com.example.restock.workers.ExpirationWorker
+
+// Material Design - barra de navegação inferior e botão flutuante
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+
+// Java - para definir o intervalo diário do worker
 import java.util.concurrent.TimeUnit
 
-/**
- * Activity principal após o login do utilizador.
- * É responsável por albergar o NavHostFragment (onde os fragmentos são exibidos) e configurar
- * a navegação da barra inferior (BottomNavigationView).
+/** HUGO MOREIRA - a22402246
+ * Activity principal da aplicação após o login do utilizador.
+ * Alberga o NavHostFragment para a navegação entre fragmentos,
+ * configura a barra de navegação inferior, gere o botão de ação
+ * flutuante e agenda o worker de verificação de validade dos produtos.
  */
 class HomeActivity : AppCompatActivity() {
 
-    // Controlador que gere a navegação entre os diferentes ecrãs (fragmentos).
+    // Controlador que gere a navegação entre os diferentes ecrãs
     private lateinit var navController: NavController
-    // Botão de Ação Flutuante (FAB) para ações rápidas como adicionar itens.
+
+    // Botão de ação flutuante para adicionar itens rapidamente
     private lateinit var fab: FloatingActionButton
 
-    // Launcher que lida com o pedido de permissão para enviar notificações
+    // Lançador para solicitar a permissão de envio de notificações
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted) {
-            // A permissão foi concedida pelo utilizador.
-        } else {
-            // A permissão foi negada. As notificações não serão exibidas.
-        }
+        // A permissão foi concedida: as notificações serão enviadas normalmente
+        // A permissão foi negada: as notificações não serão apresentadas ao utilizador
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // Encontra o NavHostFragment, que é o contentor onde os fragmentos são carregados.
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        // Obtém o NavHostFragment e o NavController para gerir a navegação
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Liga a barra de navegação inferior ao NavController.
+        // Liga a barra de navegação inferior ao NavController
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setupWithNavController(navController)
 
-        // Configura o FAB e o seu listener de clique.
-        fab = findViewById<FloatingActionButton>(R.id.fab_add)
+        // Configura o FAB e o seu menu flutuante de opções
+        fab = findViewById(R.id.fab_add)
         fab.setOnClickListener { showAddPopupMenu(it) }
 
-        // Listener que observa as mudanças de ecrã para mostrar ou esconder o FAB.
+        // Mostra o FAB apenas no ecrã principal e oculta-o nos restantes
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            // O FAB só é visível no ecrã principal (Home).
             fab.visibility = if (destination.id == R.id.navigation_home) View.VISIBLE else View.GONE
         }
-        
-        // Pede a permissão de notificação (se necessário) e agenda a tarefa de fundo.
+
+        // Solicita a permissão de notificações e agenda o worker de verificação de validade
         askNotificationPermission()
         scheduleExpirationWorker()
     }
 
     /**
-     * Verifica se a app tem permissão para enviar notificações e, se não tiver, pede-a.
-     * Esta verificação só é relevante para o Android 13 (API 33) e superior.
+     * Verifica se a aplicação tem permissão para enviar notificações.
+     * Solicita a permissão caso ainda não tenha sido concedida.
+     * Apenas relevante para Android 13 (API 33) ou superior.
      */
     private fun askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
 
     /**
-     * Agenda uma tarefa de fundo (worker) que corre periodicamente para verificar a validade dos produtos.
+     * Agenda o worker de verificação de validade dos produtos para correr uma vez por dia.
+     * Usa um trabalho único periódico para evitar agendamentos duplicados.
      */
     private fun scheduleExpirationWorker() {
-        // --- TRABALHO PERIÓDICO (PARA PRODUÇÃO) ---
         val periodicWorkRequest = PeriodicWorkRequestBuilder<ExpirationWorker>(
-            1, TimeUnit.DAYS // Corre aproximadamente uma vez por dia.
+            1, TimeUnit.DAYS
         ).build()
 
-        // Usa enqueueUniquePeriodicWork para garantir que a tarefa não é agendada múltiplas vezes.
+        // KEEP mantém o worker já agendado caso exista, evitando duplicados
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
             getString(R.string.expiration_check_periodic_work_name),
-            ExistingPeriodicWorkPolicy.KEEP, // Mantém a tarefa agendada se já existir.
+            ExistingPeriodicWorkPolicy.KEEP,
             periodicWorkRequest
         )
     }
 
     /**
-     * Mostra um menu flutuante (PopupMenu) quando o FAB é clicado.
-     * @param anchorView A View a que o menu ficará "ancorado" (o FAB).
+     * Apresenta um menu flutuante ancorado ao FAB com as opções de adição disponíveis.
+     * Permite navegar para adicionar um produto ao inventário ou à lista de compras.
+     *
+     * @param anchorView A vista à qual o menu ficará ancorado (o FAB).
      */
     private fun showAddPopupMenu(anchorView: View) {
         val popupMenu = PopupMenu(this, anchorView)
