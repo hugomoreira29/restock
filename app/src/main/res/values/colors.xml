@@ -16,6 +16,8 @@
     <color name="green">#34C759</color>
     <color name="yellow">#FFCC00</color>
     <color name="red">#FF3B30</color>
+    <color name="expired_gray">#8E8E93</color>
+    <color name="expired_card_bg">#F8D7DA</color>
 
     <!-- Gamification Colors -->
     <color name="grey_400">#BDBDBD</color>

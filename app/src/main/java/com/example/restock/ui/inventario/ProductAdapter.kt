@@ -5,6 +5,8 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.google.android.material.card.MaterialCardView
 
 // AndroidX - para o RecyclerView e cálculo eficiente de diferenças na lista
 import androidx.recyclerview.widget.DiffUtil
@@ -82,11 +84,18 @@ class ProductAdapter(
                 // Apresenta a data de validade ou uma mensagem alternativa caso não exista
                 if (product.validade != null) {
                     val date = Date(product.validade!!)
-                    productExpiryTextView.text = "Expira a: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)}"
-                    setValidadeAlert(productExpiryTextView, date)
+                    val daysUntilExpiration = (date.time - Date().time) / (1000 * 60 * 60 * 24)
+                    
+                    // Altera o prefixo conforme o produto já expirou ou não
+                    val prefix = if (daysUntilExpiration < 0) "Expirou a: " else "Expira a: "
+                    val dateFormatted = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)
+                    
+                    productExpiryTextView.text = "$prefix$dateFormatted"
+                    setValidadeAlert(binding.root as MaterialCardView, productExpiryTextView, date)
                 } else {
                     productExpiryTextView.text = "Sem data de validade"
                     productExpiryTextView.setTextColor(Color.GRAY)
+                    (binding.root as MaterialCardView).setCardBackgroundColor(Color.WHITE)
                 }
 
                 // Carrega a imagem do produto com o logótipo como placeholder
@@ -99,19 +108,31 @@ class ProductAdapter(
     }
 
     /**
-     * Define a cor do texto da validade consoante os dias restantes até expirar.
-     * Vermelho: já expirado | Amarelo: expira em 7 dias ou menos | Preto: válido.
+     * Define a cor do texto da validade e o fundo do card.
+     * Expirado: Card avermelhado | Hoje: Texto Vermelho | Em breve: Texto Amarelo.
      */
-    private fun setValidadeAlert(textView: TextView, validade: Date) {
+    private fun setValidadeAlert(card: MaterialCardView, textView: TextView, validade: Date) {
         val daysUntilExpiration = (validade.time - Date().time) / (1000 * 60 * 60 * 24)
 
-        textView.setTextColor(
-            when {
-                daysUntilExpiration <= 0 -> Color.RED
-                daysUntilExpiration <= 7 -> Color.parseColor("#FFC107") // Amarelo/Âmbar
-                else -> Color.BLACK
+        when {
+            daysUntilExpiration < 0 -> {
+                // Para produtos expirados, usamos a cor cinzenta no texto sobre o fundo avermelhado
+                textView.setTextColor(ContextCompat.getColor(textView.context, R.color.expired_gray))
+                card.setCardBackgroundColor(ContextCompat.getColor(card.context, R.color.expired_card_bg))
             }
-        )
+            daysUntilExpiration == 0L -> {
+                textView.setTextColor(Color.RED)
+                card.setCardBackgroundColor(Color.WHITE)
+            }
+            daysUntilExpiration <= 7 -> {
+                textView.setTextColor(Color.parseColor("#FFC107"))
+                card.setCardBackgroundColor(Color.WHITE)
+            }
+            else -> {
+                textView.setTextColor(Color.BLACK)
+                card.setCardBackgroundColor(Color.WHITE)
+            }
+        }
     }
 
     /**

@@ -23,6 +23,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ReStock_PG_Dispositivo_Moveis"
+rootProject.name = "ReStock"
 include(":app")
  

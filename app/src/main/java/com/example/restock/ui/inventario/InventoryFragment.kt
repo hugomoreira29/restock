@@ -188,7 +188,7 @@ class InventoryFragment : Fragment() {
 
     /**
      * Atualiza o gráfico circular com o estado de validade dos produtos.
-     * Divide os produtos em três categorias: válidos, a expirar em breve e expirados.
+     * Divide os produtos em quatro categorias: válidos, a expirar em breve, hoje e expirados.
      */
     private fun updatePieChartData(productList: List<Product>) {
         if (productList.isEmpty()) {
@@ -201,40 +201,59 @@ class InventoryFragment : Fragment() {
         binding.pieChart.visibility = View.VISIBLE
 
         val currentTime = System.currentTimeMillis()
-        val sevenDaysInMillis = TimeUnit.DAYS.toMillis(7)
+        val dayInMillis = TimeUnit.DAYS.toMillis(1)
 
         // Conta os produtos em cada estado de validade
-        val expiredCount = productList.count {
-            it.validade != null && it.validade < currentTime
-        }.toFloat()
+        var expiredCount = 0f
+        var expiresTodayCount = 0f
+        var expiringSoonCount = 0f
+        var goodCount = 0f
 
-        val expiringSoonCount = productList.count {
-            it.validade != null &&
-                    it.validade >= currentTime &&
-                    (it.validade - currentTime) <= sevenDaysInMillis
-        }.toFloat()
+        productList.forEach { product ->
+            if (product.validade == null) {
+                goodCount++
+            } else {
+                val diff = product.validade - currentTime
+                val days = diff / dayInMillis
+                
+                when {
+                    days < 0 -> expiredCount++
+                    days == 0L -> expiresTodayCount++
+                    days <= 7 -> expiringSoonCount++
+                    else -> goodCount++
+                }
+            }
+        }
 
-        val goodCount = (productList.size - expiredCount - expiringSoonCount).toFloat()
-
-        // Atualiza o texto com o total de produtos a expirar ou já expirados
-        val totalExpiring = (expiringSoonCount + expiredCount).toInt()
+        // Atualiza o texto com o total de produtos com atenção necessária (expirados ou próximos)
+        val totalAlerts = (expiredCount + expiresTodayCount + expiringSoonCount).toInt()
         binding.expiringItemsTextView.text = resources.getQuantityString(
-            R.plurals.expiring_summary_plural, totalExpiring, totalExpiring
+            R.plurals.expiring_summary_plural, totalAlerts, totalAlerts
         )
 
-        // Cria as fatias do gráfico apenas para categorias com produtos
+        // Cria as fatias do gráfico e as cores correspondentes
         val entries = ArrayList<PieEntry>()
-        if (goodCount > 0) entries.add(PieEntry(goodCount))
-        if (expiringSoonCount > 0) entries.add(PieEntry(expiringSoonCount))
-        if (expiredCount > 0) entries.add(PieEntry(expiredCount))
+        val sliceColors = ArrayList<Int>()
 
-        // Verde: válidos | Amarelo: a expirar em breve | Vermelho: expirados
+        if (goodCount > 0) {
+            entries.add(PieEntry(goodCount))
+            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.green))
+        }
+        if (expiringSoonCount > 0) {
+            entries.add(PieEntry(expiringSoonCount))
+            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.yellow))
+        }
+        if (expiresTodayCount > 0) {
+            entries.add(PieEntry(expiresTodayCount))
+            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.red))
+        }
+        if (expiredCount > 0) {
+            entries.add(PieEntry(expiredCount))
+            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.expired_gray))
+        }
+
         val dataSet = PieDataSet(entries, "Inventory Status").apply {
-            colors = listOf(
-                ContextCompat.getColor(requireContext(), R.color.green),
-                ContextCompat.getColor(requireContext(), R.color.yellow),
-                ContextCompat.getColor(requireContext(), R.color.red)
-            )
+            colors = sliceColors
             setDrawValues(false)
         }
 

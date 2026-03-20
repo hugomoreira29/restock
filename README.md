@@ -78,7 +78,7 @@ Este software foi desenvolvido e submetido como **Projeto Final de Curso (PFC)**
 ---
 
 ## 👤 Autor
-- **Hugo Moreira** - [GitHub](https://github.com/hugomoreira29) (Link opcional)
+- **Hugo Moreira** - [GitHub](https://github.com/hugomoreira29) 
 
 ---
 *Este projeto foi desenvolvido com fins exclusivamente académicos.*

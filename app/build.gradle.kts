@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.example.restock_pg_dispositivo_moveis"
         minSdk = 30
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -52,21 +52,21 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    // Fragment (necessário para viewLifecycleOwner)
+    // Fragment
     implementation("androidx.fragment:fragment-ktx:1.8.2")
 
     // Navigation Component
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
-    // Lifecycle (OBRIGATÓRIO para repeatOnLifecycle)
+    // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
-    // DataStore (para guardar definições)
+    // DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     // Firebase
@@ -74,14 +74,13 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
-    // Biblioteca do Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
-    // WorkManager (Para notificações em background)
+    // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.11.1")
 
     // UI libs
@@ -94,8 +93,6 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
-    
-    // Auxiliar para CameraX futures
     implementation(libs.guava)
 
     // Tests

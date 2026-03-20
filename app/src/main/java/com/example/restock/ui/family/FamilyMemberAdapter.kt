@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.restock.R
 import com.example.restock.databinding.ItemFamilyMemberBinding
 import com.google.firebase.auth.FirebaseAuth
 
@@ -68,20 +70,25 @@ class FamilyMemberAdapter(
         fun bind(member: FamilyMember) {
             binding.memberNameTextView.text = member.user.name
 
+            // Carrega a imagem de perfil do utilizador usando Glide
+            Glide.with(itemView.context)
+                .load(member.user.photoUrl)
+                .placeholder(R.drawable.ic_avatar)
+                .circleCrop()
+                .into(binding.memberAvatar)
+
             when (mode) {
                 AdapterMode.MEMBERS -> {
                     // Modo de membros ativos: mostra cargo e opções de gestão
-                    binding.roleContainer.visibility = View.VISIBLE
+                    binding.memberRoleTextView.visibility = View.VISIBLE
                     binding.pendingActionsContainer.visibility = View.GONE
                     binding.memberRoleTextView.text = member.role
 
-                    // Só mostra o ícone de edição de cargo se o utilizador for administrador
+                    // Permite a edição de cargo se o utilizador for administrador
                     if (isAdmin) {
-                        binding.roleEditIcon.visibility = View.VISIBLE
-                        binding.roleContainer.setOnClickListener { onRoleClick(member) }
+                        binding.memberRoleTextView.setOnClickListener { onRoleClick(member) }
                     } else {
-                        binding.roleEditIcon.visibility = View.GONE
-                        binding.roleContainer.setOnClickListener(null)
+                        binding.memberRoleTextView.setOnClickListener(null)
                     }
 
                     // Só mostra o botão de remover se for administrador e não for o próprio utilizador
@@ -95,7 +102,7 @@ class FamilyMemberAdapter(
 
                 AdapterMode.PENDING -> {
                     // Modo de pedidos pendentes: mostra apenas as ações de aceitar e rejeitar
-                    binding.roleContainer.visibility = View.GONE
+                    binding.memberRoleTextView.visibility = View.GONE
                     binding.removeMemberButton.visibility = View.GONE
                     binding.pendingActionsContainer.visibility = View.VISIBLE
 
