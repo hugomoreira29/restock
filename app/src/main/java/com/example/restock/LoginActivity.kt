@@ -24,9 +24,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 
 // Firebase - autenticação, base de dados e operações em lote
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.WriteBatch
 
@@ -78,8 +77,8 @@ class LoginActivity : AppCompatActivity() {
 
         // Login com email e palavra-passe
         binding.loginBtn.setOnClickListener {
-            val email = binding.emailInput.text.toString()
-            val password = binding.passwordInput.text.toString()
+            val email = binding.emailInput.text.toString().trim()
+            val password = binding.passwordInput.text.toString().trim()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 showLoading()
@@ -93,12 +92,12 @@ class LoginActivity : AppCompatActivity() {
                                 navigateToHome()
                             } else {
                                 // Envia novo email de verificação e impede o acesso até ser confirmado
-                                Toast.makeText(this, "Por favor verifique o seu email antes de entrar.", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this, getString(R.string.verify_email_notice), Toast.LENGTH_LONG).show()
                                 user?.sendEmailVerification()
                                 auth.signOut()
                             }
                         } else {
-                            Toast.makeText(baseContext, getString(R.string.login_fail), Toast.LENGTH_SHORT).show()
+                            handleLoginError(task.exception)
                         }
                     }
             } else {
@@ -115,6 +114,58 @@ class LoginActivity : AppCompatActivity() {
         binding.googleSignInButton.setOnClickListener {
             showLoading()
             googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        }
+    }
+
+    /**
+     * Trata os erros de login e apresenta mensagens amigáveis ao utilizador.
+     */
+    private fun handleLoginError(exception: Exception?) {
+        when (exception) {
+            is FirebaseAuthMultiFactorException -> {
+                handleMfaRequirement(exception)
+            }
+            is FirebaseAuthInvalidUserException -> {
+                val errorCode = exception.errorCode
+                if (errorCode == "ERROR_USER_NOT_FOUND") {
+                    Toast.makeText(this, getString(R.string.error_user_not_found), Toast.LENGTH_LONG).show()
+                } else if (errorCode == "ERROR_USER_DISABLED") {
+                    Toast.makeText(this, getString(R.string.error_user_disabled), Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, exception.localizedMessage, Toast.LENGTH_LONG).show()
+                }
+            }
+            is FirebaseAuthInvalidCredentialsException -> {
+                // Pode ser email mal formatado ou password errada
+                Toast.makeText(this, getString(R.string.error_wrong_password), Toast.LENGTH_LONG).show()
+            }
+            is FirebaseTooManyRequestsException -> {
+                Toast.makeText(this, getString(R.string.error_too_many_requests), Toast.LENGTH_LONG).show()
+            }
+            else -> {
+                val errorMessage = exception?.localizedMessage ?: getString(R.string.login_fail)
+                Toast.makeText(baseContext, errorMessage, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun handleMfaRequirement(exception: FirebaseAuthMultiFactorException) {
+        val resolver = exception.resolver
+        val hints = resolver.hints
+        
+        // Verifica se há hints de telefone disponíveis
+        if (hints.isNotEmpty() && hints[0] is PhoneMultiFactorInfo) {
+            val phoneHint = hints[0] as PhoneMultiFactorInfo
+            
+            // Passamos o resolver através de uma variável estática para evitar problemas de serialização
+            MfaActivity.multiFactorResolver = resolver
+            
+            val intent = Intent(this, MfaActivity::class.java).apply {
+                putExtra("MFA_HINT", phoneHint)
+            }
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "Nenhum fator de autenticação secundário encontrado.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -138,8 +189,7 @@ class LoginActivity : AppCompatActivity() {
                         navigateToHome()
                     }
                 } else {
-                    hideLoading()
-                    Toast.makeText(baseContext, getString(R.string.login_fail), Toast.LENGTH_SHORT).show()
+                    handleLoginError(task.exception)
                 }
             }
     }

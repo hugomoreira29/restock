@@ -42,7 +42,13 @@
             android:name=".LoginActivity"
             android:exported="false" />
 
-        <!-- Home Activity (MUITO IMPORTANTE!) -->
+        <!-- MFA Activity -->
+        <activity
+            android:name=".MfaActivity"
+            android:exported="false"
+            android:label="@string/mfa_title" />
+
+        <!-- Home Activity -->
         <activity
             android:name=".HomeActivity"
             android:exported="false" />

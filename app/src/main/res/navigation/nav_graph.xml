@@ -74,6 +74,9 @@
         <action
             android:id="@+id/action_settings_to_gamificationFragment"
             app:destination="@id/gamificationFragment" />
+        <action
+            android:id="@+id/action_settings_to_security"
+            app:destination="@id/securityFragment" />
     </fragment>
 
     <!-- Ecrãs de Detalhe -->
@@ -82,6 +85,12 @@
         android:name="com.example.restock.ui.account.AccountFragment"
         android:label="fragment_account"
         tools:layout="@layout/fragment_account" />
+
+    <fragment
+        android:id="@+id/securityFragment"
+        android:name="com.example.restock.ui.security.SecurityFragment"
+        android:label="fragment_security"
+        tools:layout="@layout/fragment_security" />
 
     <fragment
         android:id="@+id/adicionarProdutoFragment"

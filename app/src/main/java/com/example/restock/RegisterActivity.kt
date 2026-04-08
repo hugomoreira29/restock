@@ -66,7 +66,7 @@ class RegisterActivity : AppCompatActivity() {
                                 // Envia o email de verificação antes de permitir o acesso
                                 firebaseUser.sendEmailVerification()
                                     .addOnSuccessListener {
-                                        Toast.makeText(baseContext, "Email de verificação enviado para $email", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(baseContext, getString(R.string.register_success), Toast.LENGTH_LONG).show()
                                     }
                                     .addOnFailureListener { e ->
                                         Toast.makeText(baseContext, "Erro ao enviar email de verificação: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -156,15 +156,18 @@ class RegisterActivity : AppCompatActivity() {
 
     /**
      * Executa o batch de operações no Firestore.
-     * Em caso de sucesso, navega para a HomeActivity.
-     * Em caso de falha, elimina a conta criada para evitar dados inconsistentes.
+     * Em caso de sucesso, faz logout e navega para a LoginActivity para verificação de email.
      */
     private fun commitBatch(batch: WriteBatch) {
         batch.commit().addOnCompleteListener { batchTask ->
             hideLoading()
             if (batchTask.isSuccessful) {
-                Toast.makeText(this, getString(R.string.register_success), Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, HomeActivity::class.java))
+                // Força o logout para garantir que o utilizador valide o email antes de entrar
+                auth.signOut()
+                val intent = Intent(this, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
                 finish()
             } else {
                 deleteAccountAndShowError(

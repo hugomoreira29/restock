@@ -20,7 +20,7 @@
     <string name="go_to_register">Ainda não tem conta?\nCrie uma aqui.</string>
     <string name="login_success">Login bem-sucedido.</string>
     <string name="login_fail">Falha na autenticação.</string>
-    <string name="register_success">Registo bem-sucedido!</string>
+    <string name="register_success">Registo bem-sucedido! Verifique o seu email.</string>
     <string name="register_fail">Falha no registo: %s</string>
     <string name="error_saving_data">Erro ao guardar dados: %s</string>
     <string name="invalid_invite_code">Código de convite inválido.</string>
@@ -28,6 +28,45 @@
     <string name="sign_in_with_google">Entrar com o Google</string>
     <string name="confirm_email">Confirme o seu Email</string>
     <string name="go_to_login">Já tem conta? Entre aqui.</string>
+    <string name="verify_email_notice">Por favor, verifique o seu email antes de fazer login.</string>
+
+    <!-- Mensagens de Erro de Login Específicas -->
+    <string name="error_invalid_email">O formato do email não é válido.</string>
+    <string name="error_user_not_found">Não existe nenhuma conta com este email.</string>
+    <string name="error_wrong_password">A palavra-passe está incorreta.</string>
+    <string name="error_too_many_requests">Demasiadas tentativas. Tente mais tarde.</string>
+    <string name="error_user_disabled">Esta conta foi desativada.</string>
+
+    <!-- MFA -->
+    <string name="mfa_title">Verificação em Duas Etapas</string>
+    <string name="mfa_description">Introduza o código de verificação que enviámos para o seu telemóvel terminado em %s.</string>
+    <string name="otp_hint">Código SMS</string>
+    <string name="verify_code">Verificar Código</string>
+    <string name="invalid_otp">Código inválido. Tente novamente.</string>
+    <string name="error_sending_sms">Erro ao enviar SMS.</string>
+
+    <!-- Security & Re-auth -->
+    <string name="security_title">Segurança da Conta</string>
+    <string name="security_mfa_desc">Proteja a sua conta com a autenticação de dois fatores (MFA).</string>
+    <string name="mfa_status_enabled">Estado: ATIVADO</string>
+    <string name="mfa_status_disabled">Estado: Desativado</string>
+    <string name="mfa_info_text">O MFA adiciona uma camada extra de segurança. Ao fazer login, será solicitado um código enviado por SMS.</string>
+    <string name="phone_number_hint">Número de Telemóvel (ex: +351912345678)</string>
+    <string name="btn_activate_mfa">Ativar MFA</string>
+    <string name="sms_code_hint">Código SMS de 6 dígitos</string>
+    <string name="btn_confirm_code">Confirmar Código</string>
+    <string name="mfa_enroll_success">MFA Ativado com Sucesso!</string>
+    <string name="mfa_enroll_fail">Falha ao ativar MFA: %s</string>
+    <string name="mfa_session_error">Erro ao obter sessão MFA. Verifique se fez login recentemente.</string>
+    <string name="invalid_phone_error">Insira um número válido</string>
+    <string name="sms_sent_success">Código enviado para %s</string>
+
+    <string name="reauth_title">Confirmar Identidade</string>
+    <string name="reauth_desc">Para sua segurança, introduza a sua palavra-passe para continuar.</string>
+    <string name="reauth_password_hint">Palavra-passe</string>
+    <string name="btn_confirm">Confirmar</string>
+    <string name="reauth_success">Identidade confirmada!</string>
+    <string name="reauth_fail">Palavra-passe incorreta ou erro na reautenticação.</string>
 
     <!-- Home Screen -->
     <string name="greeting_hello">Olá, %s 👋</string>

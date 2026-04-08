@@ -14,7 +14,23 @@
       },
       "oauth_client": [
         {
-          "client_id": "559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com",
+          "client_id": "559445056454-d10f7l4suk2kpgvdks9pm7592p82d572.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.restock_pg_dispositivo_moveis",
+            "certificate_hash": "72e222b83b762e914a97ddc8766b85233a0b54cf"
+          }
+        },
+        {
+          "client_id": "559445056454-j3iafn5pa2ep3259e3mr515bqd2dmqqk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.restock_pg_dispositivo_moveis",
+            "certificate_hash": "75d314397235ee383938a5f4438e1988ce160be6"
+          }
+        },
+        {
+          "client_id": "559445056454-m903e8tj0u15lj3u8kqctu6iggopsp0e.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.restock_pg_dispositivo_moveis",
