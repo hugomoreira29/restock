@@ -230,23 +230,30 @@ class HomeFragment : Fragment() {
     ) {
         val currentTime = System.currentTimeMillis()
         val threeDaysInMillis = TimeUnit.DAYS.toMillis(3)
+        val thirtyDaysInMillis = TimeUnit.DAYS.toMillis(30)
         val suggestions = mutableSetOf<String>()
 
+        // 1. Sugerir produtos próximos da data de validade (nos próximos 3 dias)
         productList.forEach { product ->
             if (product.validade != null && (product.validade - currentTime) <= threeDaysInMillis) {
                 suggestions.add(product.nome)
             }
         }
 
+        // 2. Sugerir itens frequentes com base nos últimos 30 dias (Hábitos Recentes)
+        val thirtyDaysAgo = currentTime - thirtyDaysInMillis
         val frequentItems = historyList
+            .filter { it.dataConsumo >= thirtyDaysAgo }
             .groupBy { it.produto }
             .mapValues { it.value.size }
             .toList()
             .sortedByDescending { it.second }
             .take(5)
             .map { it.first }
+        
         suggestions.addAll(frequentItems)
 
+        // 3. Filtrar itens que já estão na lista de compras
         val currentShoppingItemNames = currentShoppingList.map { it.name.lowercase() }.toSet()
         val finalSuggestions = suggestions
             .filter { !currentShoppingItemNames.contains(it.lowercase()) }
