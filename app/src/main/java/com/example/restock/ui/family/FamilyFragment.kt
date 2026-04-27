@@ -18,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 
 // Binding - para aceder às vistas do layout de forma segura
+import com.example.restock.R
 import com.example.restock.databinding.FragmentFamilyBinding
 
 // Material Design - para apresentar diálogos de confirmação e edição
@@ -82,15 +83,15 @@ class FamilyFragment : Fragment() {
             onAcceptRequest = { pendingMember ->
                 viewModel.approveJoinRequest(
                     pendingMember.user,
-                    onSuccess = { Toast.makeText(context, "${pendingMember.user.name} foi adicionado à família.", Toast.LENGTH_SHORT).show() },
-                    onError = { error -> Toast.makeText(context, "Erro: $error", Toast.LENGTH_LONG).show() }
+                    onSuccess = { Toast.makeText(context, getString(R.string.family_member_added, pendingMember.user.name), Toast.LENGTH_SHORT).show() },
+                    onError = { error -> Toast.makeText(context, getString(R.string.error_prefix, error), Toast.LENGTH_LONG).show() }
                 )
             },
             onRejectRequest = { pendingMember ->
                 viewModel.rejectJoinRequest(
                     pendingMember.user,
-                    onSuccess = { Toast.makeText(context, "Pedido de ${pendingMember.user.name} rejeitado.", Toast.LENGTH_SHORT).show() },
-                    onError = { error -> Toast.makeText(context, "Erro: $error", Toast.LENGTH_LONG).show() }
+                    onSuccess = { Toast.makeText(context, getString(R.string.family_member_rejected, pendingMember.user.name), Toast.LENGTH_SHORT).show() },
+                    onError = { error -> Toast.makeText(context, getString(R.string.error_prefix, error), Toast.LENGTH_LONG).show() }
                 )
             }
         )
@@ -111,14 +112,14 @@ class FamilyFragment : Fragment() {
      */
     private fun showRemoveMemberDialog(member: FamilyMember) {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Remover Membro")
-            .setMessage("Tem a certeza que deseja remover '${member.user.name}' da família?")
-            .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Remover") { _, _ ->
+            .setTitle(getString(R.string.family_remove_member_title))
+            .setMessage(getString(R.string.family_remove_member_message, member.user.name))
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.remove)) { _, _ ->
                 viewModel.removeMember(
                     member.user,
-                    onSuccess = { Toast.makeText(context, "${member.user.name} removido com sucesso.", Toast.LENGTH_SHORT).show() },
-                    onError = { error -> Toast.makeText(context, "Erro: $error", Toast.LENGTH_LONG).show() }
+                    onSuccess = { Toast.makeText(context, getString(R.string.family_member_removed, member.user.name), Toast.LENGTH_SHORT).show() },
+                    onError = { error -> Toast.makeText(context, getString(R.string.error_prefix, error), Toast.LENGTH_LONG).show() }
                 )
             }
             .show()
@@ -131,11 +132,11 @@ class FamilyFragment : Fragment() {
     private fun showChangeRoleDialog(member: FamilyMember) {
         val roles = arrayOf("Admin", "Editor", "Leitor")
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Alterar Cargo de ${member.user.name}")
+            .setTitle(getString(R.string.family_role_dialog_title, member.user.name))
             .setItems(roles) { _, which ->
                 val selectedRole = roles[which]
                 viewModel.updateMemberRole(member.user.uid, selectedRole)
-                Toast.makeText(context, "Cargo atualizado para $selectedRole", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.family_role_updated, selectedRole), Toast.LENGTH_SHORT).show()
             }
             .show()
     }
@@ -160,11 +161,11 @@ class FamilyFragment : Fragment() {
             val code = binding.joinFamilyCodeEditText.text.toString().trim()
             if (code.isNotEmpty()) {
                 viewModel.requestToJoinFamily(code,
-                    onSuccess = { Toast.makeText(context, "Pedido para entrar na família enviado com sucesso!", Toast.LENGTH_LONG).show() },
+                    onSuccess = { Toast.makeText(context, getString(R.string.family_request_sent), Toast.LENGTH_LONG).show() },
                     onError = { errorMsg -> Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show() }
                 )
             } else {
-                Toast.makeText(context, "Insira um código de convite válido.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.family_enter_code), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -181,18 +182,18 @@ class FamilyFragment : Fragment() {
             // Impede a saída se o utilizador for o único administrador
             if (currentUserMember?.role == "Admin" && memberAdapter.currentList.size > 1) {
                 MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Ação Negada")
-                    .setMessage("Você é o último Admin. Promova outro membro a 'Admin' antes de sair.")
-                    .setPositiveButton("OK", null)
+                    .setTitle(getString(R.string.family_denied_title))
+                    .setMessage(getString(R.string.family_denied_message))
+                    .setPositiveButton(getString(R.string.ok), null)
                     .show()
                 return@setOnClickListener
             }
 
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Sair da Família")
-                .setMessage("Tem a certeza que deseja sair desta família?")
-                .setNegativeButton("Cancelar", null)
-                .setPositiveButton("Sair") { _, _ ->
+                .setTitle(getString(R.string.family_leave_title))
+                .setMessage(getString(R.string.family_leave_message))
+                .setNegativeButton(getString(R.string.cancel), null)
+                .setPositiveButton(getString(R.string.leave)) { _, _ ->
                     currentUserMember?.let { viewModel.leaveFamily(it.user) }
                 }
                 .show()
@@ -205,7 +206,7 @@ class FamilyFragment : Fragment() {
      * Apresenta um diálogo para criar uma nova família com o nome introduzido.
      */
     private fun showCreateFamilyDialog() {
-        val input = EditText(requireContext()).apply { hint = "Nome da Família" }
+        val input = EditText(requireContext()).apply { hint = getString(R.string.family_name_hint) }
         val container = FrameLayout(requireContext()).apply {
             val margin = (16 * resources.displayMetrics.density).toInt()
             val params = FrameLayout.LayoutParams(
@@ -219,16 +220,16 @@ class FamilyFragment : Fragment() {
         }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Criar Nova Família")
+            .setTitle(getString(R.string.family_create_title))
             .setView(container)
-            .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Criar") { _, _ ->
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.create)) { _, _ ->
                 val name = input.text.toString().trim()
                 if (name.isNotEmpty()) {
                     viewModel.createFamily(name)
-                    Toast.makeText(context, "Família '$name' criada!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.family_created, name), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "O nome não pode estar vazio.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.family_name_empty), Toast.LENGTH_SHORT).show()
                 }
             }
             .show()
@@ -252,16 +253,16 @@ class FamilyFragment : Fragment() {
         }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Alterar Nome da Família")
+            .setTitle(getString(R.string.family_edit_name_title))
             .setView(container)
-            .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Guardar") { _, _ ->
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.save)) { _, _ ->
                 val newName = input.text.toString().trim()
                 if (newName.isNotEmpty()) {
                     viewModel.updateFamilyName(newName)
-                    Toast.makeText(context, "Nome atualizado!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.family_name_updated), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "O nome não pode estar vazio.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.family_name_empty), Toast.LENGTH_SHORT).show()
                 }
             }
             .show()
@@ -314,9 +315,9 @@ class FamilyFragment : Fragment() {
      */
     private fun showInviteCodeDialog(code: String) {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Código de Convite")
-            .setMessage("Partilhe este código com quem quer convidar para a sua família:\n\n$code")
-            .setPositiveButton("OK", null)
+            .setTitle(getString(R.string.invite_code_title))
+            .setMessage(getString(R.string.invite_code_message, code))
+            .setPositiveButton(getString(R.string.ok), null)
             .show()
     }
 

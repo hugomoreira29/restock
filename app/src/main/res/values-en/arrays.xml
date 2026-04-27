@@ -7,5 +7,7 @@
         <item>Vegetables</item>
         <item>Beverages</item>
         <item>Cleaning</item>
+        <item>Hygiene</item>
+        <item>Other</item>
     </string-array>
 </resources>

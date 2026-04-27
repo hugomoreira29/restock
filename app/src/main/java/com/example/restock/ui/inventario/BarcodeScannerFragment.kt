@@ -63,7 +63,7 @@ class BarcodeScannerFragment : Fragment() {
         if (isGranted) {
             startCamera()
         } else {
-            Toast.makeText(context, "Permissão de câmara negada.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
         }
     }

@@ -110,7 +110,7 @@ class SettingsFragment : Fragment() {
      * Ao selecionar um idioma, guarda a preferência e reinicia a aplicação para aplicar a mudança.
      */
     private fun showLanguageSelectionDialog() {
-        val languages = arrayOf("Português", "English", "Sistema (Padrão)")
+        val languages = arrayOf(getString(R.string.language_option_pt), getString(R.string.language_option_en), getString(R.string.language_option_system))
         val languageCodes = arrayOf("pt", "en", "system")
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -143,7 +143,7 @@ class SettingsFragment : Fragment() {
      * Ao selecionar um tema, guarda a preferência e reinicia a aplicação para aplicar a mudança.
      */
     private fun showThemeSelectionDialog() {
-        val themes = arrayOf("Claro", "Escuro", "Sistema (Padrão)")
+        val themes = arrayOf(getString(R.string.theme_option_light), getString(R.string.theme_option_dark), getString(R.string.theme_option_system))
         val themeCodes = arrayOf("light", "dark", "system")
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -152,7 +152,7 @@ class SettingsFragment : Fragment() {
             val checkedItem = themeCodes.indexOf(currentThemeCode).takeIf { it >= 0 } ?: 2
 
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Tema")
+                .setTitle(getString(R.string.theme_title))
                 .setSingleChoiceItems(themes, checkedItem) { dialog, which ->
                     val selectedTheme = themeCodes[which]
                     viewLifecycleOwner.lifecycleScope.launch {

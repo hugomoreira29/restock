@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:colorBackground"
     tools:context=".ListFragment">
 
     <!-- Header -->
@@ -11,43 +12,51 @@
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_restock_logo" />
+            android:layout_width="110dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_restock_logo"
+            android:layout_centerVertical="true" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profileImageView"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_avatar" />
+            android:src="@drawable/ic_avatar"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/primary_container" />
     </RelativeLayout>
 
     <TextView
         android:id="@+id/listTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
         android:text="@string/shopping_list_title"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
+        android:letterSpacing="-0.01"
+        android:textColor="?attr/colorOnBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
-    <!-- RecyclerView for Shopping List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/shoppingListRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
-        android:paddingBottom="88dp"
+        android:paddingBottom="100dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +64,6 @@
         app:layout_constraintTop_toBottomOf="@id/listTitle"
         tools:listitem="@layout/item_shopping_list" />
 
-    <!-- Floating Action Button for Adding Items -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/addShoppingItemButton"
         android:layout_width="wrap_content"
@@ -66,6 +74,7 @@
         app:icon="@android:drawable/ic_input_add"
         app:iconTint="@android:color/white"
         app:backgroundTint="?attr/colorPrimary"
+        app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

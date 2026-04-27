@@ -85,7 +85,7 @@ class AdicionarProdutoFragment : Fragment() {
         if (isGranted) {
             launchCamera()
         } else {
-            Toast.makeText(context, "Camera permission denied.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -110,7 +110,7 @@ class AdicionarProdutoFragment : Fragment() {
     private fun checkBarcode() {
         args.barcodeValue?.let { barcode ->
             Log.d("AdicionarProduto", "Barcode received: $barcode")
-            binding.productNameEditText.setText("A carregar...")
+            binding.productNameEditText.setText(getString(R.string.loading))
             fetchProductDetails(barcode)
         }
     }
@@ -171,8 +171,8 @@ class AdicionarProdutoFragment : Fragment() {
             // Se nenhuma API encontrou o produto, usa o código de barras como nome
             if (!productFound) {
                 withContext(Dispatchers.Main) {
-                    binding.productNameEditText.setText("Produto $barcode")
-                    Toast.makeText(context, "Produto não encontrado nas bases de dados.", Toast.LENGTH_SHORT).show()
+                    binding.productNameEditText.setText(getString(R.string.product_barcode_default, barcode))
+                    Toast.makeText(context, getString(R.string.product_not_found_db), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -185,7 +185,7 @@ class AdicionarProdutoFragment : Fragment() {
     private fun updateUIWithProductDetails(name: String, imageUrl: String, categoriesText: String, barcode: String) {
         if (!isAdded || _binding == null) return
 
-        binding.productNameEditText.setText(name.ifEmpty { "Produto $barcode" })
+        binding.productNameEditText.setText(name.ifEmpty { getString(R.string.product_barcode_default, barcode) })
 
         // Carrega a imagem do produto caso exista URL válido
         if (imageUrl.isNotEmpty()) {
@@ -230,7 +230,7 @@ class AdicionarProdutoFragment : Fragment() {
         }
 
         binding.categoryAutoCompleteTextView.setText(matchedCategory, false)
-        Toast.makeText(context, "Dados preenchidos automaticamente.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, getString(R.string.product_autofill_success), Toast.LENGTH_SHORT).show()
     }
 
     /**

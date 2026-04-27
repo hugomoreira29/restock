@@ -1,32 +1,42 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme -->
     <style name="Base.Theme.ReStock_PG_Dispositivo_Moveis" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Cores principais -->
-        <item name="colorPrimary">@color/blue</item>
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
 
-        <item name="colorSecondary">@color/purple</item>
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/secondary</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
 
-        <!-- Fundo e superfícies -->
-        <item name="colorSurface">@color/white</item>
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorTertiaryContainer">@color/tertiary_container</item>
+
+        <!-- Background and surfaces -->
+        <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/black</item>
-
-        <item name="android:colorBackground">@color/gray_lighter</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="android:colorBackground">@color/background</item>
         <item name="colorOnBackground">@color/black</item>
+        <item name="colorOutline">@color/outline</item>
 
         <!-- Atributos personalizados -->
-        <item name="productCardCornerRadius">12dp</item>
-        <item name="productCardElevation">4dp</item>
+        <item name="productCardCornerRadius">16dp</item>
+        <item name="productCardElevation">2dp</item>
     </style>
 
     <style name="Theme.ReStock_PG_Dispositivo_Moveis" parent="Base.Theme.ReStock_PG_Dispositivo_Moveis" />
 
     <!-- Splash Screen Theme -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenBackground">@color/primary_dark</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_restock_logo</item>
         <item name="windowSplashScreenIconBackgroundColor" tools:targetApi="23">@android:color/transparent</item>
         <item name="postSplashScreenTheme">@style/Theme.ReStock_PG_Dispositivo_Moveis</item>
     </style>
+
 </resources>

@@ -144,4 +144,153 @@
     <string name="new_budget_hint">New budget</string>
     <string name="invalid_value">Invalid value.</string>
     <string name="budget_updated">Budget updated!</string>
+
+    <!-- Login & Register - missing -->
+    <string name="verify_email_notice">Please verify your email before logging in.</string>
+    <string name="error_invalid_email">The email format is not valid.</string>
+    <string name="error_user_not_found">No account found with this email.</string>
+    <string name="error_wrong_password">The password is incorrect.</string>
+    <string name="error_too_many_requests">Too many attempts. Please try again later.</string>
+    <string name="error_user_disabled">This account has been disabled.</string>
+
+    <!-- MFA -->
+    <string name="mfa_title">Two-Step Verification</string>
+    <string name="mfa_description">Enter the verification code we sent to your phone ending in %s.</string>
+    <string name="otp_hint">SMS Code</string>
+    <string name="verify_code">Verify Code</string>
+    <string name="invalid_otp">Invalid code. Please try again.</string>
+    <string name="error_sending_sms">Error sending SMS.</string>
+    <string name="mfa_card_title">Enter the code</string>
+    <string name="mfa_init_error">Error starting MFA verification.</string>
+    <string name="mfa_enter_code">Please enter the 6-digit code.</string>
+    <string name="mfa_code_sent">Code sent!</string>
+    <string name="error_prefix">Error: %s</string>
+    <string name="no_mfa_factor">No secondary authentication factor found.</string>
+
+    <!-- Security -->
+    <string name="security_title">Account Security</string>
+    <string name="security_mfa_desc">Protect your account with two-factor authentication (MFA).</string>
+    <string name="mfa_status_enabled">Status: ENABLED</string>
+    <string name="mfa_status_disabled">Status: Disabled</string>
+    <string name="mfa_info_text">MFA adds an extra layer of security. When logging in, you will be asked for a code sent by SMS.</string>
+    <string name="phone_number_hint">Phone Number (e.g., +351912345678)</string>
+    <string name="btn_activate_mfa">Activate MFA</string>
+    <string name="sms_code_hint">6-digit SMS Code</string>
+    <string name="btn_confirm_code">Confirm Code</string>
+    <string name="mfa_enroll_success">MFA Activated Successfully!</string>
+    <string name="mfa_enroll_fail">Failed to activate MFA: %s</string>
+    <string name="mfa_session_error">Error getting MFA session. Please check if you logged in recently.</string>
+    <string name="invalid_phone_error">Please enter a valid number</string>
+    <string name="sms_sent_success">Code sent to %s</string>
+
+    <!-- Re-auth -->
+    <string name="reauth_title">Confirm Identity</string>
+    <string name="reauth_desc">For your security, enter your password to continue.</string>
+    <string name="reauth_password_hint">Password</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="reauth_success">Identity confirmed!</string>
+    <string name="reauth_fail">Incorrect password or re-authentication error.</string>
+
+    <!-- Gamification -->
+    <string name="gamification_title">GAMIFICATION</string>
+    <string name="your_level">Level %d</string>
+    <string name="points_total">%d Points</string>
+    <string name="next_level_progress">Progress to next level</string>
+    <string name="badges_title">Badges</string>
+    <string name="badges_subtitle">Unlock achievements by using the app</string>
+    <string name="points_earned_toast">+%d points earned!</string>
+    <string name="level_up_toast">Level up! Congratulations!</string>
+    <string name="points_to_next_level">%d points to the next level</string>
+    <string name="badge_first_steps">First Steps</string>
+    <string name="badge_first_steps_desc">Started managing your home inventory.</string>
+    <string name="badge_active_pantry">Active Pantry</string>
+    <string name="badge_active_pantry_desc">Became an active app user.</string>
+    <string name="badge_inventory_master">Pantry Master</string>
+    <string name="badge_inventory_master_desc">Mastered family inventory management.</string>
+    <string name="badge_shopper_pro">Pro Shopper</string>
+    <string name="badge_shopper_pro_desc">Showed dedication as a shopper.</string>
+    <string name="badge_budget_king">Savings King</string>
+    <string name="badge_budget_king_desc">Maintained excellent financial control.</string>
+    <string name="badge_experienced_manager">Experienced Manager</string>
+    <string name="badge_experienced_manager_desc">Became an experienced home manager.</string>
+    <string name="badge_home_legend">Home Legend</string>
+    <string name="badge_home_legend_desc">Reached the highest level of home management.</string>
+    <string name="level_up_toast_level">Level up! You are now at Level %d 🎉</string>
+    <string name="badge_req_first_steps">Reach 10 points</string>
+    <string name="badge_req_active_pantry">Reach 50 points</string>
+    <string name="badge_req_shopper_pro">Reach 200 points</string>
+    <string name="badge_req_inventory_master">Reach 500 points</string>
+    <string name="badge_req_budget_king">Reach Level 3</string>
+    <string name="badge_req_experienced_manager">Reach Level 5</string>
+    <string name="badge_req_home_legend">Reach Level 10</string>
+
+    <!-- Home screen labels -->
+    <string name="home_inventory_label">INVENTORY</string>
+    <string name="home_suggested_subtitle">Based on your consumption habits</string>
+    <string name="home_budget_label">BUDGET</string>
+    <string name="home_budget_subtitle">Monthly accumulated spending</string>
+    <string name="no_suggestions">No suggestions at the moment.</string>
+    <string name="expiration_check_periodic_work_name">ExpirationCheckPeriodic</string>
+
+    <!-- Login / Register screen text -->
+    <string name="login_tagline">Smart management for your home</string>
+    <string name="login_card_title">Sign in</string>
+    <string name="login_card_subtitle">Welcome back!</string>
+    <string name="register_tagline">Create your free account</string>
+    <string name="register_card_title">Create account</string>
+    <string name="register_card_subtitle">Fill in the details below to get started</string>
+
+    <!-- Generic actions -->
+    <!-- Family notifications -->
+    <string name="notif_family_title">New Join Request</string>
+    <string name="notif_family_single">1 user is requesting to join your family.</string>
+    <string name="notif_family_multiple">%d users are requesting to join your family.</string>
+    <string name="notif_family_channel_name">Family Requests</string>
+    <string name="notif_family_channel_desc">Notifications about family join requests</string>
+
+    <!-- Expiry notifications -->
+    <string name="notif_expiry_title">Attention! Products expiring soon</string>
+    <string name="notif_expiry_single">The product \'%s\' is about to expire.</string>
+    <string name="notif_expiry_multiple">%d products are about to expire. Check your inventory.</string>
+    <string name="notif_channel_name">Expiry Alerts</string>
+    <string name="notif_channel_desc">Notifications about products that are about to expire</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="remove">Remove</string>
+    <string name="create">Create</string>
+    <string name="leave">Leave</string>
+
+    <!-- Register errors -->
+    <string name="email_verification_error">Error sending verification email: %s</string>
+    <string name="emails_do_not_match">Emails do not match.</string>
+    <string name="family_search_error">Error searching for family. Please try again.</string>
+    <string name="google_signin_failed">Google Sign-In failed: %s</string>
+
+    <!-- Family dialogs -->
+    <string name="family_remove_member_title">Remove Member</string>
+    <string name="family_remove_member_message">Are you sure you want to remove \'%s\' from the family?</string>
+    <string name="family_role_dialog_title">Change %s\'s Role</string>
+    <string name="family_role_updated">Role updated to %s</string>
+    <string name="family_denied_title">Action Denied</string>
+    <string name="family_denied_message">You are the last Admin. Promote another member to \'Admin\' before leaving.</string>
+    <string name="family_leave_title">Leave Family</string>
+    <string name="family_leave_message">Are you sure you want to leave this family?</string>
+    <string name="family_create_title">Create New Family</string>
+    <string name="family_name_hint">Family Name</string>
+    <string name="family_created">Family \'%s\' created!</string>
+    <string name="family_name_empty">Name cannot be empty.</string>
+    <string name="family_edit_name_title">Change Family Name</string>
+    <string name="family_name_updated">Name updated!</string>
+    <string name="family_request_sent">Request to join family sent successfully!</string>
+    <string name="family_enter_code">Please enter a valid invite code.</string>
+    <string name="family_member_added">%s was added to the family.</string>
+    <string name="family_member_rejected">%s\'s request was rejected.</string>
+    <string name="family_member_removed">%s removed successfully.</string>
+
+    <!-- Product / Camera -->
+    <string name="camera_permission_denied">Camera permission denied.</string>
+    <string name="loading">Loading…</string>
+    <string name="product_not_found_db">Product not found in databases.</string>
+    <string name="product_barcode_default">Product %s</string>
+    <string name="product_autofill_success">Details filled in automatically.</string>
 </resources>

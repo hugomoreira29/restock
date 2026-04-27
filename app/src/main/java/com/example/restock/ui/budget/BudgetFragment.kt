@@ -2,12 +2,16 @@ package com.example.restock.ui.budget
 
 // Android - para gerir o ciclo de vida, cores e vistas do fragmento
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.InputType
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 
 // AndroidX - para aceder ao ViewModel, coroutines e navegação
@@ -28,7 +32,6 @@ import com.example.restock.databinding.FragmentBudgetBinding
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
 
 // Material Design - para apresentar o diálogo de edição do orçamento
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -45,6 +48,17 @@ import kotlinx.coroutines.launch
  * e um gráfico circular com os gastos distribuídos por categoria.
  */
 class BudgetFragment : Fragment() {
+
+    private val chartColors = listOf(
+        Color.parseColor("#2E7D60"),  // Esmeralda (primary)
+        Color.parseColor("#D4762A"),  // Âmbar (secondary)
+        Color.parseColor("#7B5EA7"),  // Violeta (tertiary)
+        Color.parseColor("#1565C0"),  // Azul
+        Color.parseColor("#C2185B"),  // Rosa/Vermelho
+        Color.parseColor("#00838F"),  // Teal
+        Color.parseColor("#E64A19"),  // Laranja escuro
+        Color.parseColor("#558B2F"),  // Verde oliva
+    )
 
     private var _binding: FragmentBudgetBinding? = null
     private val binding get() = _binding!!
@@ -90,17 +104,21 @@ class BudgetFragment : Fragment() {
 
     /**
      * Configura as propriedades visuais do gráfico circular.
-     * Define o furo central, percentagens e oculta a legenda e descrição.
      */
     private fun setupPieChart() {
         binding.spendingPieChart.apply {
             isDrawHoleEnabled = true
-            holeRadius = 60f
-            setUsePercentValues(true)
+            holeRadius = 58f
+            transparentCircleRadius = 62f
+            setHoleColor(Color.TRANSPARENT)
+            setTransparentCircleAlpha(40)
+            setUsePercentValues(false)
             description.isEnabled = false
             legend.isEnabled = false
-            setEntryLabelColor(Color.BLACK)
-            setEntryLabelTextSize(12f)
+            setDrawEntryLabels(false)
+            setTouchEnabled(false)
+            setCenterTextSize(15f)
+            setCenterTextColor(ContextCompat.getColor(requireContext(), R.color.primary_dark))
         }
     }
 
@@ -148,31 +166,74 @@ class BudgetFragment : Fragment() {
      * Oculta o gráfico caso não existam dados para apresentar.
      */
     private fun updatePieChartData(spendings: List<CategorySpending>) {
+        binding.legendContainer.removeAllViews()
+
         if (spendings.isEmpty()) {
             binding.spendingPieChart.visibility = View.GONE
             return
         }
         binding.spendingPieChart.visibility = View.VISIBLE
 
-        // Cria as entradas do gráfico com o total gasto por categoria
-        val entries = spendings.map { PieEntry(it.total.toFloat(), it.category) }
-        val dataSet = PieDataSet(entries, getString(R.string.spending_categories_title))
+        val entries = spendings.map { PieEntry(it.total.toFloat()) }
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = spendings.mapIndexed { i, _ -> chartColors[i % chartColors.size] }
+            sliceSpace = 3f
+            selectionShift = 6f
+            setDrawValues(false)
+        }
 
-        // Define as cores de cada fatia do gráfico
-        dataSet.colors = listOf(
-            ContextCompat.getColor(requireContext(), R.color.blue),
-            ContextCompat.getColor(requireContext(), R.color.green),
-            ContextCompat.getColor(requireContext(), R.color.yellow),
-            ContextCompat.getColor(requireContext(), R.color.red)
-        )
+        val total = spendings.sumOf { it.total }
+        binding.spendingPieChart.apply {
+            data = PieData(dataSet)
+            setCenterText("%.2f€".format(total))
+            animateY(700)
+        }
 
-        dataSet.valueFormatter = PercentFormatter(binding.spendingPieChart)
-        dataSet.valueTextSize = 12f
-        dataSet.valueTextColor = Color.BLACK
+        // Preenche a legenda com cor + categoria + valor
+        spendings.forEachIndexed { index, spending ->
+            val color = chartColors[index % chartColors.size]
+            binding.legendContainer.addView(buildLegendRow(spending.category, spending.total, color))
+        }
+    }
 
-        // Atualiza o gráfico com os novos dados
-        binding.spendingPieChart.data = PieData(dataSet)
-        binding.spendingPieChart.invalidate()
+    private fun buildLegendRow(category: String, total: Double, color: Int): LinearLayout {
+        val dp = resources.displayMetrics.density
+        return LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val vPad = (7 * dp).toInt()
+            setPadding(0, vPad, 0, vPad)
+
+            // Círculo colorido
+            addView(View(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    (12 * dp).toInt(), (12 * dp).toInt()
+                ).also { it.marginEnd = (10 * dp).toInt() }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(color)
+                }
+            })
+
+            // Nome da categoria
+            addView(TextView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                text = category
+                textSize = 13f
+                setTextColor(Color.parseColor("#555555"))
+            })
+
+            // Valor gasto
+            addView(TextView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                text = "%.2f€".format(total)
+                textSize = 13f
+                setTextColor(color)
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            })
+        }
     }
 
     /**

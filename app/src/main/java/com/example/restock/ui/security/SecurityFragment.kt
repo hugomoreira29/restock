@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.restock.R
 import com.example.restock.databinding.FragmentSecurityBinding
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
@@ -38,7 +39,7 @@ class SecurityFragment : Fragment() {
             if (phoneNumber.isNotEmpty()) {
                 startMfaEnrollment(phoneNumber)
             } else {
-                Toast.makeText(requireContext(), "Insira um número válido", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.invalid_phone_error), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -55,11 +56,11 @@ class SecurityFragment : Fragment() {
         val mfaFactors = user?.multiFactor?.enrolledFactors
         
         if (mfaFactors != null && mfaFactors.isNotEmpty()) {
-            binding.mfaStatusText.text = "Estado: ATIVADO"
+            binding.mfaStatusText.text = getString(R.string.mfa_status_enabled)
             binding.mfaStatusText.setTextColor(android.graphics.Color.parseColor("#388E3C"))
             binding.enrollSection.visibility = View.GONE
         } else {
-            binding.mfaStatusText.text = "Estado: Desativado"
+            binding.mfaStatusText.text = getString(R.string.mfa_status_disabled)
             binding.mfaStatusText.setTextColor(android.graphics.Color.parseColor("#D32F2F"))
             binding.enrollSection.visibility = View.VISIBLE
         }
@@ -84,7 +85,7 @@ class SecurityFragment : Fragment() {
                             resendingToken = token
                             binding.enrollSection.visibility = View.GONE
                             binding.verifySection.visibility = View.VISIBLE
-                            Toast.makeText(requireContext(), "Código enviado para $phoneNumber", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.sms_sent_success, phoneNumber), Toast.LENGTH_SHORT).show()
                         }
 
                         override fun onVerificationCompleted(p0: PhoneAuthCredential) {
@@ -93,14 +94,14 @@ class SecurityFragment : Fragment() {
 
                         override fun onVerificationFailed(e: FirebaseException) {
                             showLoading(false)
-                            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), getString(R.string.error_prefix, e.message), Toast.LENGTH_LONG).show()
                         }
                     })
                     .build()
                 PhoneAuthProvider.verifyPhoneNumber(options)
             } else {
                 showLoading(false)
-                Toast.makeText(requireContext(), "Erro ao obter sessão MFA", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.mfa_session_error), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -114,11 +115,11 @@ class SecurityFragment : Fragment() {
             ?.addOnCompleteListener { task ->
                 showLoading(false)
                 if (task.isSuccessful) {
-                    Toast.makeText(requireContext(), "MFA Ativado com Sucesso!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.mfa_enroll_success), Toast.LENGTH_LONG).show()
                     binding.verifySection.visibility = View.GONE
                     updateUi()
                 } else {
-                    Toast.makeText(requireContext(), "Falha ao ativar MFA: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.mfa_enroll_fail, task.exception?.message), Toast.LENGTH_LONG).show()
                 }
             }
     }

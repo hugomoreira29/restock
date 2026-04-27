@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.color.MaterialColors
 
 // AndroidX - para o RecyclerView e cálculo eficiente de diferenças na lista
 import androidx.recyclerview.widget.DiffUtil
@@ -95,7 +96,9 @@ class ProductAdapter(
                 } else {
                     productExpiryTextView.text = "Sem data de validade"
                     productExpiryTextView.setTextColor(Color.GRAY)
-                    (binding.root as MaterialCardView).setCardBackgroundColor(Color.WHITE)
+                    (binding.root as MaterialCardView).setCardBackgroundColor(
+                        MaterialColors.getColor(binding.root, com.google.android.material.R.attr.colorSurface)
+                    )
                 }
 
                 // Carrega a imagem do produto com o logótipo como placeholder
@@ -122,15 +125,21 @@ class ProductAdapter(
             }
             daysUntilExpiration == 0L -> {
                 textView.setTextColor(Color.RED)
-                card.setCardBackgroundColor(Color.WHITE)
+                card.setCardBackgroundColor(
+                    MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface)
+                )
             }
             daysUntilExpiration <= 7 -> {
                 textView.setTextColor(Color.parseColor("#FFC107"))
-                card.setCardBackgroundColor(Color.WHITE)
+                card.setCardBackgroundColor(
+                    MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface)
+                )
             }
             else -> {
-                textView.setTextColor(Color.BLACK)
-                card.setCardBackgroundColor(Color.WHITE)
+                textView.setTextColor(ContextCompat.getColor(textView.context, R.color.green))
+                card.setCardBackgroundColor(
+                    MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface)
+                )
             }
         }
     }

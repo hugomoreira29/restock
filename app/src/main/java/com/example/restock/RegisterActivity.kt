@@ -69,7 +69,7 @@ class RegisterActivity : AppCompatActivity() {
                                         Toast.makeText(baseContext, getString(R.string.register_success), Toast.LENGTH_LONG).show()
                                     }
                                     .addOnFailureListener { e ->
-                                        Toast.makeText(baseContext, "Erro ao enviar email de verificação: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(baseContext, getString(R.string.email_verification_error, e.message), Toast.LENGTH_SHORT).show()
                                     }
 
                                 // Junta-se à família existente ou cria uma nova
@@ -84,7 +84,7 @@ class RegisterActivity : AppCompatActivity() {
                             }
                         }
                 } else {
-                    Toast.makeText(this, "Os emails não coincidem.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.emails_do_not_match), Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(this, getString(R.string.fill_all_fields), Toast.LENGTH_SHORT).show()
@@ -126,7 +126,7 @@ class RegisterActivity : AppCompatActivity() {
                 commitBatch(batch)
             }
             .addOnFailureListener {
-                deleteAccountAndShowError("Erro ao procurar família. Tente novamente.")
+                deleteAccountAndShowError(getString(R.string.family_search_error))
             }
     }
 

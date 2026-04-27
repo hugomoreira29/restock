@@ -23,6 +23,7 @@ import com.example.restock.databinding.FragmentInventarioBinding
 import com.example.restock.model.Product
 
 // MPAndroidChart - para construir o gráfico circular de validade
+import android.graphics.Color
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -79,7 +80,9 @@ class InventoryFragment : Fragment() {
     private fun setupPieChart() {
         binding.pieChart.apply {
             isDrawHoleEnabled = true
-            holeRadius = 80f
+            holeRadius = 75f
+            setHoleColor(Color.TRANSPARENT)
+            setTransparentCircleAlpha(0)
             setDrawEntryLabels(false)
             description.isEnabled = false
             legend.isEnabled = false
@@ -237,27 +240,29 @@ class InventoryFragment : Fragment() {
 
         if (goodCount > 0) {
             entries.add(PieEntry(goodCount))
-            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.green))
+            sliceColors.add(Color.parseColor("#FFFFFF"))
         }
         if (expiringSoonCount > 0) {
             entries.add(PieEntry(expiringSoonCount))
-            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.yellow))
+            sliceColors.add(Color.parseColor("#FFD54F"))
         }
         if (expiresTodayCount > 0) {
             entries.add(PieEntry(expiresTodayCount))
-            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.red))
+            sliceColors.add(Color.parseColor("#FF7043"))
         }
         if (expiredCount > 0) {
             entries.add(PieEntry(expiredCount))
-            sliceColors.add(ContextCompat.getColor(requireContext(), R.color.expired_gray))
+            sliceColors.add(Color.parseColor("#B0BEC5"))
         }
 
-        val dataSet = PieDataSet(entries, "Inventory Status").apply {
+        val dataSet = PieDataSet(entries, "").apply {
             colors = sliceColors
             setDrawValues(false)
+            sliceSpace = 2f
         }
 
         binding.pieChart.data = PieData(dataSet)
+        binding.pieChart.animateY(600)
         binding.pieChart.invalidate()
     }
 

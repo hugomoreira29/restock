@@ -1,44 +1,32 @@
 package com.example.restock.ui.gamification
 
-// AndroidX - ViewModel e scope para operações assíncronas
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
-// Modelo interno da aplicação
+import com.example.restock.R
 import com.example.restock.model.User
-
-// Firebase - autenticação e base de dados em tempo real
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
-// Coroutines - para expor os dados como fluxos observáveis pela interface
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-
-/**
- * Representa um emblema de gamificação com o seu estado de desbloqueio.
- * Os textos são referências a recursos de string para suporte a múltiplos idiomas.
- */
 
 data class Badge(
     val id: String,
     val titleRes: Int,
     val descriptionRes: Int,
+    val iconRes: Int,
+    val bgRes: Int,
+    val iconTintRes: Int,
+    val requirementRes: Int,
     val isUnlocked: Boolean
 )
 
-/** HUGO MOREIRA - a22402246
- * ViewModel responsável pela lógica de gamificação do utilizador.
- * Observa os dados do utilizador em tempo real e calcula automaticamente
- * quais os emblemas desbloqueados com base nos pontos e nível acumulados.
- */
+/** HUGO MOREIRA - a22402246 */
 class GamificationViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // Fluxos de dados expostos à interface para observação
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user
 
@@ -46,14 +34,9 @@ class GamificationViewModel : ViewModel() {
     val badges: StateFlow<List<Badge>> = _badges
 
     init {
-        // Começa a observar o utilizador assim que o ViewModel é criado
         observeUser()
     }
 
-    /**
-     * Observa em tempo real o documento do utilizador no Firestore.
-     * Sempre que os dados mudam, recalcula os emblemas desbloqueados.
-     */
     private fun observeUser() {
         val userId = auth.currentUser?.uid ?: return
         db.collection("users").document(userId)
@@ -64,34 +47,80 @@ class GamificationViewModel : ViewModel() {
             }
     }
 
-    /**
-     * Calcula a lista de emblemas e o estado de desbloqueio de cada um
-     * com base nos pontos e nível atuais do utilizador.
-     * Numa aplicação real, estes critérios poderiam vir do Firestore.
-     */
     private fun calculateBadges(user: User) {
         viewModelScope.launch {
-            val badgeList = listOf(
+            _badges.value = listOf(
                 Badge(
-                    id = "inventory_master",
-                    titleRes = com.example.restock.R.string.badge_inventory_master,
-                    descriptionRes = com.example.restock.R.string.badge_inventory_master_desc,
-                    isUnlocked = user.points >= 500  // Desbloqueado ao atingir 500 pontos
+                    id = "first_steps",
+                    titleRes = R.string.badge_first_steps,
+                    descriptionRes = R.string.badge_first_steps_desc,
+                    iconRes = R.drawable.ic_home,
+                    bgRes = R.drawable.bg_icon_primary,
+                    iconTintRes = R.color.primary,
+                    requirementRes = R.string.badge_req_first_steps,
+                    isUnlocked = user.points >= 10
+                ),
+                Badge(
+                    id = "active_pantry",
+                    titleRes = R.string.badge_active_pantry,
+                    descriptionRes = R.string.badge_active_pantry_desc,
+                    iconRes = R.drawable.ic_inventory,
+                    bgRes = R.drawable.bg_icon_primary,
+                    iconTintRes = R.color.primary,
+                    requirementRes = R.string.badge_req_active_pantry,
+                    isUnlocked = user.points >= 50
                 ),
                 Badge(
                     id = "shopper_pro",
-                    titleRes = com.example.restock.R.string.badge_shopper_pro,
-                    descriptionRes = com.example.restock.R.string.badge_shopper_pro_desc,
-                    isUnlocked = user.points >= 200  // Desbloqueado ao atingir 200 pontos
+                    titleRes = R.string.badge_shopper_pro,
+                    descriptionRes = R.string.badge_shopper_pro_desc,
+                    iconRes = R.drawable.ic_list,
+                    bgRes = R.drawable.bg_icon_secondary,
+                    iconTintRes = R.color.secondary,
+                    requirementRes = R.string.badge_req_shopper_pro,
+                    isUnlocked = user.points >= 200
+                ),
+                Badge(
+                    id = "inventory_master",
+                    titleRes = R.string.badge_inventory_master,
+                    descriptionRes = R.string.badge_inventory_master_desc,
+                    iconRes = R.drawable.ic_inventory,
+                    bgRes = R.drawable.bg_icon_primary,
+                    iconTintRes = R.color.primary,
+                    requirementRes = R.string.badge_req_inventory_master,
+                    isUnlocked = user.points >= 500
                 ),
                 Badge(
                     id = "budget_king",
-                    titleRes = com.example.restock.R.string.badge_budget_king,
-                    descriptionRes = com.example.restock.R.string.badge_budget_king_desc,
-                    isUnlocked = user.level >= 3     // Desbloqueado ao atingir o nível 3
+                    titleRes = R.string.badge_budget_king,
+                    descriptionRes = R.string.badge_budget_king_desc,
+                    iconRes = R.drawable.ic_budget,
+                    bgRes = R.drawable.bg_icon_secondary,
+                    iconTintRes = R.color.secondary,
+                    requirementRes = R.string.badge_req_budget_king,
+                    isUnlocked = user.level >= 3
+                ),
+                Badge(
+                    id = "experienced_manager",
+                    titleRes = R.string.badge_experienced_manager,
+                    descriptionRes = R.string.badge_experienced_manager_desc,
+                    iconRes = R.drawable.ic_settings,
+                    bgRes = R.drawable.bg_icon_tertiary,
+                    iconTintRes = R.color.tertiary,
+                    requirementRes = R.string.badge_req_experienced_manager,
+                    isUnlocked = user.level >= 5
+                ),
+                Badge(
+                    id = "home_legend",
+                    titleRes = R.string.badge_home_legend,
+                    descriptionRes = R.string.badge_home_legend_desc,
+                    iconRes = R.drawable.ic_gamification,
+                    bgRes = R.drawable.bg_icon_tertiary,
+                    iconTintRes = R.color.tertiary,
+                    requirementRes = R.string.badge_req_home_legend,
+                    isUnlocked = user.level >= 10
                 )
             )
-            _badges.value = badgeList
         }
     }
 }

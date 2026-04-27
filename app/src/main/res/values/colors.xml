@@ -2,24 +2,50 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <color name="blue">#007AFF</color>
-    <color name="purple">#AF52DE</color>
-    <color name="gray_lighter">#F2F2F7</color>
 
-    <color name="blue_dark">#0A84FF</color>
-    <color name="purple_dark">#BF5AF2</color>
-    <color name="dark_surface">#1C1C1E</color>
-    <color name="dark_bg">#000000</color>
+    <!-- Primary: Emerald Green -->
+    <color name="primary">#2E7D60</color>
+    <color name="primary_light">#4CAF85</color>
+    <color name="primary_dark">#1A5C42</color>
+    <color name="primary_container">#C8ECD9</color>
+    <color name="on_primary_container">#003926</color>
 
-    <!-- Cores para o Gráfico -->
-    <color name="green">#34C759</color>
-    <color name="yellow">#FFCC00</color>
-    <color name="red">#FF3B30</color>
-    <color name="expired_gray">#8E8E93</color>
-    <color name="expired_card_bg">#F8D7DA</color>
+    <!-- Secondary: Warm Amber -->
+    <color name="secondary">#D4762A</color>
+    <color name="secondary_container">#FDEEDD</color>
 
-    <!-- Gamification Colors -->
-    <color name="grey_400">#BDBDBD</color>
+    <!-- Tertiary: Violet -->
+    <color name="tertiary">#7B5EA7</color>
+    <color name="tertiary_container">#EDE0FF</color>
+
+    <!-- Surfaces -->
+    <color name="background">#F5F9F7</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#EDF7F2</color>
+    <color name="outline">#719070</color>
+
+    <!-- Legacy aliases (kept for compatibility) -->
+    <color name="blue">#2E7D60</color>
+    <color name="purple">#7B5EA7</color>
+    <color name="gray_lighter">#F5F9F7</color>
+
+    <!-- Dark Mode -->
+    <color name="blue_dark">#6ECBA0</color>
+    <color name="purple_dark">#C3A8FF</color>
+    <color name="dark_surface">#1A2820</color>
+    <color name="dark_bg">#0F1812</color>
+    <color name="dark_surface_variant">#1F3226</color>
+    <color name="dark_primary_container">#0F4D32</color>
+
+    <!-- Status colors -->
+    <color name="green">#2E7D60</color>
     <color name="green_500">#4CAF50</color>
+    <color name="yellow">#E9A000</color>
+    <color name="red">#C62828</color>
+    <color name="expired_gray">#8E8E93</color>
+    <color name="expired_card_bg">#FFEBEE</color>
+
+    <!-- Gamification -->
+    <color name="grey_400">#BDBDBD</color>
+    <color name="gold">#F9A825</color>
 </resources>

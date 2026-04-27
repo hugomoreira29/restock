@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
             }
         } catch (e: ApiException) {
             hideLoading()
-            Toast.makeText(this, "Google Sign-In failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.google_signin_failed, e.statusCode), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -165,7 +165,7 @@ class LoginActivity : AppCompatActivity() {
             }
             startActivity(intent)
         } else {
-            Toast.makeText(this, "Nenhum fator de autenticação secundário encontrado.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.no_mfa_factor), Toast.LENGTH_LONG).show()
         }
     }
 

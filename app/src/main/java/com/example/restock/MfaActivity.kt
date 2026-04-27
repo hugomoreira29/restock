@@ -39,7 +39,7 @@ class MfaActivity : AppCompatActivity() {
         }
 
         if (resolver == null || hint == null) {
-            Toast.makeText(this, "Erro ao iniciar verificação MFA.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.mfa_init_error), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -53,7 +53,7 @@ class MfaActivity : AppCompatActivity() {
             if (code.length == 6 && verificationId != null) {
                 verifyCode(code, resolver)
             } else {
-                Toast.makeText(this, "Insira o código de 6 dígitos.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.mfa_enter_code), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -70,7 +70,7 @@ class MfaActivity : AppCompatActivity() {
                     hideLoading()
                     verificationId = vId
                     resendingToken = token
-                    Toast.makeText(this@MfaActivity, "Código enviado!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MfaActivity, getString(R.string.mfa_code_sent), Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -80,7 +80,7 @@ class MfaActivity : AppCompatActivity() {
 
                 override fun onVerificationFailed(e: FirebaseException) {
                     hideLoading()
-                    Toast.makeText(this@MfaActivity, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MfaActivity, getString(R.string.error_prefix, e.message), Toast.LENGTH_LONG).show()
                 }
             })
             .build()

@@ -5,28 +5,38 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/badgeIcon"
+        <!-- Icon with colored background -->
+        <LinearLayout
+            android:id="@+id/badgeIconWrapper"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_gamification"
-            android:contentDescription="@string/badges_title"
-            app:tint="@color/grey_400" />
+            android:gravity="center"
+            android:background="@drawable/bg_icon_primary">
 
+            <ImageView
+                android:id="@+id/badgeIcon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_gamification"
+                tools:ignore="ContentDescription" />
+        </LinearLayout>
+
+        <!-- Text content -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="14dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -34,7 +44,7 @@
                 android:id="@+id/badgeTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 tools:text="Mestre da Despensa" />
 
@@ -42,18 +52,34 @@
                 android:id="@+id/badgeDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                tools:text="Adicionou 50 produtos ao inventário." />
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:alpha="0.6"
+                tools:text="Dominou a gestão do inventário familiar." />
+
+            <TextView
+                android:id="@+id/badgeRequirement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textSize="11sp"
+                android:textColor="@color/secondary"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Atinge 500 pontos"
+                tools:visibility="visible" />
+
         </LinearLayout>
 
+        <!-- Status icon (check or lock) -->
         <ImageView
             android:id="@+id/badgeStatus"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="8dp"
             android:src="@drawable/ic_check"
-            android:contentDescription="@string/ok"
             android:visibility="gone"
-            app:tint="@color/green_500" />
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -192,12 +192,115 @@
     <string name="points_total">%d Pontos</string>
     <string name="next_level_progress">Progresso para o próximo nível</string>
     <string name="badges_title">Medalhas</string>
+    <string name="badges_subtitle">Desbloqueia conquistas ao usar a aplicação</string>
     <string name="points_earned_toast">+%d pontos ganhos!</string>
     <string name="level_up_toast">Subiu de nível! Parabéns!</string>
-    <string name="badge_inventory_master">Mestre da Despensa</string>
-    <string name="badge_inventory_master_desc">Adicionou 50 produtos ao inventário.</string>
+    <string name="points_to_next_level">%d pontos para o próximo nível</string>
+    <string name="badge_first_steps">Primeiros Passos</string>
+    <string name="badge_first_steps_desc">Começou a gerir o seu inventário doméstico.</string>
+    <string name="badge_active_pantry">Despensa Ativa</string>
+    <string name="badge_active_pantry_desc">Tornou-se um utilizador ativo da aplicação.</string>
     <string name="badge_shopper_pro">Comprador Pro</string>
-    <string name="badge_shopper_pro_desc">Completou 20 itens da lista de compras.</string>
+    <string name="badge_shopper_pro_desc">Demonstrou ser um comprador dedicado.</string>
+    <string name="badge_inventory_master">Mestre da Despensa</string>
+    <string name="badge_inventory_master_desc">Dominou a gestão do inventário familiar.</string>
     <string name="badge_budget_king">Rei da Poupança</string>
-    <string name="badge_budget_king_desc">Manteve-se dentro do orçamento um mês inteiro.</string>
+    <string name="badge_budget_king_desc">Manteve um controlo exemplar das finanças.</string>
+    <string name="badge_experienced_manager">Gestor Experiente</string>
+    <string name="badge_experienced_manager_desc">Tornou-se um gestor de casa experiente.</string>
+    <string name="badge_home_legend">Lenda do Lar</string>
+    <string name="badge_home_legend_desc">Atingiu o patamar máximo de gestão doméstica.</string>
+    <string name="level_up_toast_level">Subiu de nível! Agora está no Nível %d 🎉</string>
+    <string name="badge_req_first_steps">Atinge 10 pontos</string>
+    <string name="badge_req_active_pantry">Atinge 50 pontos</string>
+    <string name="badge_req_shopper_pro">Atinge 200 pontos</string>
+    <string name="badge_req_inventory_master">Atinge 500 pontos</string>
+    <string name="badge_req_budget_king">Atinge o Nível 3</string>
+    <string name="badge_req_experienced_manager">Atinge o Nível 5</string>
+    <string name="badge_req_home_legend">Atinge o Nível 10</string>
+
+    <!-- Dialogs de seleção de idioma e tema -->
+    <string name="theme_title">Tema</string>
+    <string name="language_option_pt">Português</string>
+    <string name="language_option_en">English</string>
+    <string name="language_option_system">Sistema (Padrão)</string>
+    <string name="theme_option_light">Claro</string>
+    <string name="theme_option_dark">Escuro</string>
+    <string name="theme_option_system">Sistema (Padrão)</string>
+
+    <!-- Login / Registo - textos do ecrã -->
+    <string name="login_tagline">Gestão inteligente do teu lar</string>
+    <string name="login_card_title">Entrar na conta</string>
+    <string name="login_card_subtitle">Bem-vindo de volta!</string>
+    <string name="register_tagline">Cria a tua conta gratuita</string>
+    <string name="register_card_title">Criar conta</string>
+    <string name="register_card_subtitle">Preenche os dados abaixo para começar</string>
+
+    <!-- MFA -->
+    <string name="mfa_card_title">Introduz o código</string>
+    <string name="mfa_init_error">Erro ao iniciar verificação MFA.</string>
+    <string name="mfa_enter_code">Insira o código de 6 dígitos.</string>
+    <string name="mfa_code_sent">Código enviado!</string>
+    <string name="error_prefix">Erro: %s</string>
+    <string name="no_mfa_factor">Nenhum fator de autenticação secundário encontrado.</string>
+
+    <!-- Registo -->
+    <string name="email_verification_error">Erro ao enviar email de verificação: %s</string>
+    <string name="emails_do_not_match">Os emails não coincidem.</string>
+    <string name="family_search_error">Erro ao procurar família. Tente novamente.</string>
+    <string name="google_signin_failed">Falha ao entrar com Google: %s</string>
+
+    <!-- Ações genéricas -->
+    <string name="cancel">Cancelar</string>
+    <string name="remove">Remover</string>
+    <string name="create">Criar</string>
+    <string name="leave">Sair</string>
+
+    <!-- Ecrã inicial (home) -->
+    <string name="home_inventory_label">INVENTÁRIO</string>
+    <string name="home_suggested_subtitle">Com base nos teus hábitos de consumo</string>
+    <string name="home_budget_label">ORÇAMENTO</string>
+    <string name="home_budget_subtitle">Gasto mensal acumulado</string>
+
+    <!-- Família - diálogos -->
+    <string name="family_remove_member_title">Remover Membro</string>
+    <string name="family_remove_member_message">Tem a certeza que deseja remover \'%s\' da família?</string>
+    <string name="family_role_dialog_title">Alterar Cargo de %s</string>
+    <string name="family_role_updated">Cargo atualizado para %s</string>
+    <string name="family_denied_title">Ação Negada</string>
+    <string name="family_denied_message">Você é o último Admin. Promova outro membro a \'Admin\' antes de sair.</string>
+    <string name="family_leave_title">Sair da Família</string>
+    <string name="family_leave_message">Tem a certeza que deseja sair desta família?</string>
+    <string name="family_create_title">Criar Nova Família</string>
+    <string name="family_name_hint">Nome da Família</string>
+    <string name="family_created">Família \'%s\' criada!</string>
+    <string name="family_name_empty">O nome não pode estar vazio.</string>
+    <string name="family_edit_name_title">Alterar Nome da Família</string>
+    <string name="family_name_updated">Nome atualizado!</string>
+    <string name="family_request_sent">Pedido para entrar na família enviado com sucesso!</string>
+    <string name="family_enter_code">Insira um código de convite válido.</string>
+    <string name="family_member_added">%s foi adicionado à família.</string>
+    <string name="family_member_rejected">Pedido de %s rejeitado.</string>
+    <string name="family_member_removed">%s removido com sucesso.</string>
+
+    <!-- Notificações de família -->
+    <string name="notif_family_title">Novo pedido de adesão</string>
+    <string name="notif_family_single">Tem 1 utilizador a pedir para entrar na sua família.</string>
+    <string name="notif_family_multiple">Tem %d utilizadores a pedir para entrar na sua família.</string>
+    <string name="notif_family_channel_name">Pedidos de Família</string>
+    <string name="notif_family_channel_desc">Notificações sobre pedidos de adesão à família</string>
+
+    <!-- Notificações de validade -->
+    <string name="notif_expiry_title">Atenção! Produtos a expirar</string>
+    <string name="notif_expiry_single">O produto \'%s\' vai expirar em breve.</string>
+    <string name="notif_expiry_multiple">%d produtos vão expirar em breve. Verifique o inventário.</string>
+    <string name="notif_channel_name">Avisos de Validade</string>
+    <string name="notif_channel_desc">Notificações sobre produtos prestes a expirar</string>
+
+    <!-- Produto / Câmara -->
+    <string name="camera_permission_denied">Permissão de câmara negada.</string>
+    <string name="loading">A carregar…</string>
+    <string name="product_not_found_db">Produto não encontrado nas bases de dados.</string>
+    <string name="product_barcode_default">Produto %s</string>
+    <string name="product_autofill_success">Dados preenchidos automaticamente.</string>
 </resources>

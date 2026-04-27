@@ -1,37 +1,38 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Dark Mode theme -->
     <style name="Base.Theme.ReStock_PG_Dispositivo_Moveis" parent="Theme.Material3.DayNight.NoActionBar">
-    <!-- Cores principais -->
-    <item name="colorPrimary">@color/blue_dark</item>
-    <item name="colorOnPrimary">@color/black</item>
+        <!-- Primary -->
+        <item name="colorPrimary">@color/blue_dark</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryContainer">@color/dark_primary_container</item>
+        <item name="colorOnPrimaryContainer">#A8E6C9</item>
 
-    <item name="colorSecondary">@color/purple_dark</item>
-    <item name="colorOnSecondary">@color/white</item>
+        <!-- Secondary -->
+        <item name="colorSecondary">#FFB74D</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondaryContainer">#7D4322</item>
 
-    <!-- Fundo e superfícies -->
-    <item name="colorSurface">@color/dark_surface</item>
-    <item name="colorOnSurface">@color/white</item>
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/purple_dark</item>
+        <item name="colorTertiaryContainer">#4A3570</item>
 
-    <item name="android:colorBackground">@color/dark_bg</item>
-    <item name="colorOnBackground">@color/white</item>
+        <!-- Surfaces -->
+        <item name="colorSurface">@color/dark_surface</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorSurfaceVariant">@color/dark_surface_variant</item>
+        <item name="android:colorBackground">@color/dark_bg</item>
+        <item name="colorOnBackground">@color/white</item>
 
-    <!-- Atributos personalizados -->
-    <item name="productCardCornerRadius">12dp</item>
-    <item name="productCardElevation">1dp</item>
+        <!-- Atributos personalizados -->
+        <item name="productCardCornerRadius">16dp</item>
+        <item name="productCardElevation">1dp</item>
     </style>
 
     <!-- Splash Screen Theme (Night) -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Fundo geral do ecrã -->
-        <item name="windowSplashScreenBackground">@color/white</item>   1
-        
-        <!-- O nosso logo, envolvido pelo inset para não cortar -->
+        <item name="windowSplashScreenBackground">@color/dark_bg</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_restock_logo</item>
-
-        <!-- A linha crucial para remover o círculo -->
         <item name="windowSplashScreenIconBackgroundColor" tools:targetApi="23">@android:color/transparent</item>
-
-        <!-- Tema da app após o splash screen -->
         <item name="postSplashScreenTheme">@style/Theme.ReStock_PG_Dispositivo_Moveis</item>
     </style>
 </resources>

@@ -4,117 +4,148 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:colorBackground"
     tools:context=".ui.budget.BudgetFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="100dp">
 
-        <!-- Cabeçalho -->
+        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <ImageView
                 android:id="@+id/logoImageView"
-                android:layout_width="100dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_restock_logo" />
-            <ImageView
+                android:layout_width="110dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_restock_logo"
+                android:layout_centerVertical="true" />
+
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profileImageView"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_avatar" />
+                android:src="@drawable/ic_avatar"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/primary_container" />
         </RelativeLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/budget_screen_title"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnBackground"
+            android:letterSpacing="-0.01" />
 
-        <!-- Card do Orçamento Mensal -->
+        <!-- Monthly Budget Card (gradient) -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_primary"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/monthly_budget_label" />
+                    android:text="@string/monthly_budget_label"
+                    android:textColor="#B2DFCB"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.05"
+                    android:textAllCaps="true"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/budgetTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="24sp"
+                    android:layout_marginTop="6dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="28sp"
                     android:textStyle="bold"
                     tools:text="46,5€ / 200€" />
 
-                <ProgressBar
+                <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/budgetProgressBar"
-                    style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="14dp"
                     android:max="100"
+                    app:indicatorColor="#FFFFFF"
+                    app:trackColor="#4DFFFFFF"
+                    app:trackCornerRadius="8dp"
+                    app:trackThickness="10dp"
                     tools:progress="23" />
 
-                <TextView
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/editBudgetButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="14dp"
                     android:text="@string/edit_budget_button"
-                    android:textColor="?attr/colorPrimary" />
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="#80FFFFFF" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Card das Categorias de Despesas -->
+        <!-- Spending Categories Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/spending_categories_title"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
 
                 <com.github.mikephil.charting.charts.PieChart
                     android:id="@+id/spendingPieChart"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
+                    android:layout_height="220dp"
                     android:layout_marginTop="16dp" />
 
-                 <LinearLayout
+                <LinearLayout
                     android:id="@+id/legendContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginTop="16dp" />
-
+                    android:layout_marginTop="12dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

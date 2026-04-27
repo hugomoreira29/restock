@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="?android:colorBackground"
     tools:context=".ui.inventario.InventoryFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -23,50 +23,65 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Header com Logo e Perfil -->
+                <!-- Header -->
                 <RelativeLayout
                     android:id="@+id/headerLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="8dp">
 
                     <ImageView
                         android:id="@+id/logoImageView"
-                        android:layout_width="100dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_restock_logo" />
+                        android:layout_width="110dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_restock_logo"
+                        android:layout_centerVertical="true" />
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/profileImageView"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:layout_alignParentEnd="true"
-                        android:src="@drawable/ic_avatar" />
+                        android:src="@drawable/ic_avatar"
+                        android:scaleType="centerCrop"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="@color/primary_container" />
                 </RelativeLayout>
 
-                <!-- Título e Estatísticas -->
+                <!-- Title -->
                 <TextView
                     android:id="@+id/inventoryTitleTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
+                    android:layout_marginTop="4dp"
                     android:text="INVENTÁRIO FAMÍLIA"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:letterSpacing="-0.01"
+                    android:textColor="?attr/colorOnBackground" />
 
+                <!-- Stats Card (gradient) -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/statsCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="4dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_primary"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="20dp">
@@ -78,10 +93,22 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="RESUMO"
+                                android:textAllCaps="true"
+                                android:textColor="#B2DFCB"
+                                android:textSize="11sp"
+                                android:letterSpacing="0.08"
+                                android:textStyle="bold" />
+
+                            <TextView
                                 android:id="@+id/totalItemsTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="18sp"
+                                android:layout_marginTop="6dp"
+                                android:textColor="@android:color/white"
+                                android:textSize="20sp"
                                 android:textStyle="bold"
                                 tools:text="24 itens no inventário" />
 
@@ -90,9 +117,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:alpha="0.7"
+                                android:textColor="#C8ECD9"
+                                android:textSize="13sp"
                                 tools:text="3 produtos prestes a expirar" />
-
                         </LinearLayout>
 
                         <com.github.mikephil.charting.charts.PieChart
@@ -103,22 +130,20 @@
                 </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
-
         </com.google.android.material.appbar.CollapsingToolbarLayout>
-
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Lista de Produtos -->
+    <!-- Product List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/inventarioRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="88dp"
+        android:paddingBottom="100dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_product" />
 
-    <!-- Botão Flutuante Adicionar -->
+    <!-- FAB -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/addProductButton"
         android:layout_width="wrap_content"
@@ -128,6 +153,7 @@
         android:text="+ Adicionar Produto"
         android:textColor="@android:color/white"
         app:backgroundTint="?attr/colorPrimary"
-        app:iconTint="@android:color/white" />
+        app:iconTint="@android:color/white"
+        app:cornerRadius="16dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
