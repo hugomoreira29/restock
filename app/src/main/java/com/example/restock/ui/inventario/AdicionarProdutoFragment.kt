@@ -277,7 +277,7 @@ class AdicionarProdutoFragment : Fragment() {
         )
 
         binding.unitAutoCompleteTextView.setText(product.unidade, false)
-        binding.categoryAutoCompleteTextView.setText(product.categoria, false)
+        binding.categoryAutoCompleteTextView.setText(CategoryUtils.localize(product.categoria, requireContext()), false)
         binding.priceEditText.setText(product.preco.toString())
 
         // Preenche a data de validade se existir
@@ -329,7 +329,10 @@ class AdicionarProdutoFragment : Fragment() {
         // Atualiza o rótulo do preço consoante a unidade selecionada
         binding.unitAutoCompleteTextView.setOnItemClickListener { _, _, _, _ ->
             val unit = binding.unitAutoCompleteTextView.text.toString()
-            binding.priceLabel.text = if (unit == "un") "Preço Unitário" else "Preço por $unit"
+            binding.priceLabel.text = if (unit == "un")
+                getString(R.string.price_unit_label)
+            else
+                getString(R.string.price_per_unit_label, unit)
             calculateTotal()
         }
     }
@@ -366,7 +369,7 @@ class AdicionarProdutoFragment : Fragment() {
         val name = binding.productNameEditText.text.toString().trim()
         val quantity = binding.quantityEditText.text.toString().toDoubleOrNull() ?: 0.0
         val unit = binding.unitAutoCompleteTextView.text.toString()
-        val category = binding.categoryAutoCompleteTextView.text.toString()
+        val category = CategoryUtils.toNeutralKey(binding.categoryAutoCompleteTextView.text.toString())
         val price = binding.priceEditText.text.toString().toDoubleOrNull() ?: 0.0
 
         if (name.isEmpty() || quantity <= 0 || category.isEmpty()) {

@@ -18,6 +18,10 @@
     <string name="full_name">Nome Completo</string>
     <string name="invite_code_optional">Código de Convite (Opcional)</string>
     <string name="go_to_register">Ainda não tem conta?\nCrie uma aqui.</string>
+    <string name="forgot_password">Esqueceste a palavra-passe?</string>
+    <string name="forgot_password_title">Recuperar Palavra-passe</string>
+    <string name="reset_email_sent">Email de recuperação enviado! Verifica a tua caixa de entrada.</string>
+    <string name="reset_email_error">Não foi possível enviar o email. Verifica o endereço introduzido.</string>
     <string name="login_success">Login bem-sucedido.</string>
     <string name="login_fail">Falha na autenticação.</string>
     <string name="register_success">Registo bem-sucedido! Verifique o seu email.</string>
@@ -79,8 +83,9 @@
     <string name="suggested_flour">Farinha</string>
     <string name="no_suggestions">Sem sugestões de momento.</string>
     <string name="item_added_to_list">\'%s\' adicionado à lista de compras!</string>
+    <string name="item_added_to_inventory">\'%s\' adicionado ao inventário!</string>
     <string name="budget_title">ORÇAMENTO E POUPANÇA</string>
-    <string name="budget_summary">Orçamento mensal: %s / %s</string>
+    <string name="budget_summary" formatted="false">Orçamento mensal: %s / %s</string>
     <string name="expiration_check_periodic_work_name">ExpirationCheckPeriodic</string>
 
     <!-- Plurals -->
@@ -109,7 +114,7 @@
 
     <!-- Shopping List Screen -->
     <string name="shopping_list_title">LISTA DE COMPRAS</string>
-    <string name="add_item_to_list">+ Adicionar Item</string>
+    <string name="add_item_to_list">Adicionar Item</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">DEFINIÇÕES</string>
@@ -241,6 +246,7 @@
     <string name="mfa_init_error">Erro ao iniciar verificação MFA.</string>
     <string name="mfa_enter_code">Insira o código de 6 dígitos.</string>
     <string name="mfa_code_sent">Código enviado!</string>
+    <string name="mfa_resend_code">Reenviar código</string>
     <string name="error_prefix">Erro: %s</string>
     <string name="no_mfa_factor">Nenhum fator de autenticação secundário encontrado.</string>
 
@@ -296,6 +302,57 @@
     <string name="notif_expiry_multiple">%d produtos vão expirar em breve. Verifique o inventário.</string>
     <string name="notif_channel_name">Avisos de Validade</string>
     <string name="notif_channel_desc">Notificações sobre produtos prestes a expirar</string>
+
+    <!-- Importar Fatura -->
+    <string name="import_invoice">Importar Fatura</string>
+    <string name="import_invoice_title">IMPORTAR FATURA</string>
+    <string name="import_invoice_desc">Fotografe ou selecione uma fatura para adicionar produtos automaticamente ao inventário.</string>
+    <string name="take_photo">Tirar Foto</string>
+    <string name="take_photo_desc">Abrir câmara e fotografar a fatura</string>
+    <string name="choose_gallery">Escolher da Galeria</string>
+    <string name="choose_gallery_desc">Selecionar imagem guardada no dispositivo</string>
+    <string name="processing_invoice">A processar fatura…</string>
+    <string name="invoice_no_products">Nenhum produto detetado. Tente com outra imagem.</string>
+    <string name="invoice_review_title">PRODUTOS DETETADOS</string>
+    <string name="invoice_review_subtitle">%d produto(s) encontrado(s). Remova os que não pretende adicionar.</string>
+    <string name="invoice_add_button">Adicionar %d produto(s)</string>
+    <string name="invoice_added_success">%d produto(s) adicionado(s) ao inventário!</string>
+    <string name="invoice_empty">Não há produtos para adicionar.</string>
+
+    <!-- Histórico de Orçamento -->
+    <string name="budget_history_title">Histórico de Orçamentos</string>
+    <string name="budget_history_empty">Sem histórico disponível ainda.</string>
+
+    <!-- Notificação de Lembrete de Orçamento -->
+    <string name="notif_budget_title">Atualizar Orçamento Mensal</string>
+    <string name="notif_budget_content">Já é %s! Não se esqueça de atualizar o orçamento da família para este mês.</string>
+    <string name="notif_budget_channel_name">Lembretes de Orçamento</string>
+    <string name="notif_budget_channel_desc">Notificações mensais para o admin atualizar o orçamento da família</string>
+
+    <!-- Ignorar Sugestão -->
+    <string name="snooze_suggestion_title">Não sugerir "%s"</string>
+    <string name="snooze_suggestion_desc">Ignorar sugestão temporariamente</string>
+    <string name="snooze_7_days">Por 7 dias</string>
+    <string name="snooze_30_days">Por 30 dias</string>
+    <string name="snooze_3_months">Por 3 meses</string>
+
+    <!-- ProductAdapter -->
+    <string name="no_expiry_date">Sem data de validade</string>
+    <string name="price_unit_label">Preço Unitário</string>
+    <string name="price_per_unit_label">Preço por %s</string>
+
+    <!-- Estados vazios -->
+    <string name="empty_inventory">Sem produtos no inventário.\nAdiciona o primeiro!</string>
+    <string name="empty_shopping_list">A lista de compras está vazia.</string>
+    <string name="bought_by">Comprado por %s</string>
+    <string name="invite_code_expired">O código de convite expirou. Pede um novo ao administrador.</string>
+    <string name="load_more_products">Carregar mais produtos</string>
+
+    <!-- Undo / Erros -->
+    <string name="undo">Desfazer</string>
+    <string name="product_deleted">\'%s\' eliminado</string>
+    <string name="item_removed">\'%s\' removido</string>
+    <string name="error_operation_failed">Operação falhou. Tente novamente.</string>
 
     <!-- Produto / Câmara -->
     <string name="camera_permission_denied">Permissão de câmara negada.</string>

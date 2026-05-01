@@ -271,7 +271,8 @@ class AccountFragment : Fragment() {
      */
     private fun reauthenticateUser(password: String, onSuccess: () -> Unit) {
         val user = auth.currentUser ?: return
-        val credential = EmailAuthProvider.getCredential(user.email!!, password)
+        val email = user.email ?: return
+        val credential = EmailAuthProvider.getCredential(email, password)
 
         showMfaLoading(true)
         user.reauthenticate(credential).addOnCompleteListener { task ->

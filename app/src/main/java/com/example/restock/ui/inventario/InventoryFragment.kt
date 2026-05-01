@@ -28,8 +28,9 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 
-// Material Design - para o diálogo de confirmação de eliminação
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+// Material Design - para o Snackbar de undo ao eliminar e chips de filtro
+import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 
 // Firebase - autenticação para obter os dados do utilizador atual
 import com.google.firebase.auth.FirebaseAuth
@@ -55,6 +56,8 @@ class InventoryFragment : Fragment() {
     private val viewModel: InventarioViewModel by activityViewModels()
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private lateinit var productAdapter: ProductAdapter
+    private var selectedCategory: String? = null
+    private var allProducts: List<com.example.restock.model.Product> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -110,7 +113,12 @@ class InventoryFragment : Fragment() {
      */
     private fun setupRecyclerView() {
         productAdapter = ProductAdapter(
-            onDelete = { product -> showDeleteConfirmationDialog(product) },
+            onDelete = { product ->
+                viewModel.deleteProduct(product.id)
+                Snackbar.make(requireView(), getString(R.string.product_deleted, product.nome), Snackbar.LENGTH_LONG)
+                    .setAction(getString(R.string.undo)) { viewModel.restoreProduct(product) }
+                    .show()
+            },
             onEdit = { product ->
                 val action = InventoryFragmentDirections
                     .actionInventoryFragmentToAdicionarProdutoFragment(produtoId = product.id)
@@ -120,21 +128,16 @@ class InventoryFragment : Fragment() {
         binding.inventarioRecyclerView.apply {
             adapter = productAdapter
             layoutManager = LinearLayoutManager(context)
-        }
-    }
 
-    /**
-     * Apresenta um diálogo de confirmação antes de eliminar um produto do inventário.
-     */
-    private fun showDeleteConfirmationDialog(product: Product) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.delete_product_title))
-            .setMessage(getString(R.string.delete_product_message, product.nome))
-            .setNegativeButton(getString(R.string.no), null)
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                viewModel.deleteProduct(product.id)
-            }
-            .show()
+            // Scroll infinito: carrega mais produtos ao chegar ao fim da lista
+            addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                    if (!recyclerView.canScrollVertically(1) && viewModel.hasMoreProducts.value) {
+                        viewModel.loadMoreProducts()
+                    }
+                }
+            })
+        }
     }
 
     /**
@@ -146,6 +149,11 @@ class InventoryFragment : Fragment() {
             val action = InventoryFragmentDirections
                 .actionInventoryFragmentToAdicionarProdutoFragment(null)
             findNavController().navigate(action)
+        }
+        binding.importInvoiceButton.setOnClickListener {
+            findNavController().navigate(
+                InventoryFragmentDirections.actionInventoryFragmentToInvoiceScannerFragment()
+            )
         }
         binding.profileImageView.setOnClickListener {
             findNavController().navigate(
@@ -161,15 +169,24 @@ class InventoryFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.produtos.collect { productList ->
-                productAdapter.submitList(productList)
+                allProducts = productList
+                updateFilterChips(productList)
+                applyFilter()
 
-                // Atualiza o resumo do total de itens em stock
                 val totalItems = productList.sumOf { it.quantidade }.toInt()
                 binding.totalItemsTextView.text = resources.getQuantityString(
                     R.plurals.inventory_summary_plural, totalItems, totalItems
                 )
-
                 updatePieChartData(productList)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.error.collect { message ->
+                if (message != null) {
+                    Snackbar.make(requireView(), getString(R.string.error_operation_failed), Snackbar.LENGTH_SHORT).show()
+                    viewModel.clearError()
+                }
             }
         }
 
@@ -187,6 +204,42 @@ class InventoryFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun updateFilterChips(products: List<com.example.restock.model.Product>) {
+        val group = binding.filterChipGroup
+        val categories = products
+            .map { CategoryUtils.localize(it.categoria, requireContext()) }
+            .distinct()
+            .sorted()
+
+        // Só reconstrói os chips se as categorias mudaram
+        val currentLabels = (0 until group.childCount).map { (group.getChildAt(it) as Chip).text.toString() }
+        if (currentLabels == categories) return
+
+        group.removeAllViews()
+        categories.forEach { cat ->
+            val chip = Chip(requireContext()).apply {
+                text = cat
+                isCheckable = true
+                isChecked = cat == selectedCategory
+                setOnCheckedChangeListener { _, checked ->
+                    selectedCategory = if (checked) cat else null
+                    applyFilter()
+                }
+            }
+            group.addView(chip)
+        }
+    }
+
+    private fun applyFilter() {
+        val filtered = if (selectedCategory == null) allProducts
+        else allProducts.filter {
+            CategoryUtils.localize(it.categoria, requireContext()) == selectedCategory
+        }
+        productAdapter.submitList(filtered)
+        binding.emptyInventoryTextView.visibility =
+            if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     /**

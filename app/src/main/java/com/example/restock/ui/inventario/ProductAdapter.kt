@@ -94,7 +94,7 @@ class ProductAdapter(
                     productExpiryTextView.text = "$prefix$dateFormatted"
                     setValidadeAlert(binding.root as MaterialCardView, productExpiryTextView, date)
                 } else {
-                    productExpiryTextView.text = "Sem data de validade"
+                    productExpiryTextView.text = itemView.context.getString(R.string.no_expiry_date)
                     productExpiryTextView.setTextColor(Color.GRAY)
                     (binding.root as MaterialCardView).setCardBackgroundColor(
                         MaterialColors.getColor(binding.root, com.google.android.material.R.attr.colorSurface)

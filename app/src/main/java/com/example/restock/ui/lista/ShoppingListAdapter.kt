@@ -86,6 +86,16 @@ class ShoppingListAdapter(
             } else {
                 binding.itemNameTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
+
+            // Mostra quem comprou o item (só quando marcado)
+            if (item.isChecked && item.boughtBy != null) {
+                binding.boughtByTextView.visibility = android.view.View.VISIBLE
+                binding.boughtByTextView.text = itemView.context.getString(
+                    com.example.restock.R.string.bought_by, item.boughtBy
+                )
+            } else {
+                binding.boughtByTextView.visibility = android.view.View.GONE
+            }
         }
     }
 

@@ -9,11 +9,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 
 // Coroutines - para observar e atualizar as preferências de forma assíncrona
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+
+// Java - para calcular datas de expiração do snooze
+import java.util.concurrent.TimeUnit
 
 // Cria uma instância única do DataStore associada ao contexto da aplicação,
 // com o nome "settings" para identificar o ficheiro de preferências
@@ -39,6 +43,13 @@ class SettingsManager(context: Context) {
 
         // Chave para guardar o tema selecionado pelo utilizador
         val SELECTED_THEME = stringPreferencesKey("selected_theme")
+
+        // Chave para guardar sugestões ignoradas temporariamente
+        // Formato de cada entrada: "nomeProduto:::timestampExpiracao"
+        val SNOOZED_SUGGESTIONS = stringSetPreferencesKey("snoozed_suggestions")
+
+        // Chave para guardar o último mês em que o lembrete de orçamento foi enviado (formato "AAAA-MM")
+        val LAST_BUDGET_REMINDER = stringPreferencesKey("last_budget_reminder")
     }
 
     /**
@@ -95,6 +106,49 @@ class SettingsManager(context: Context) {
     suspend fun setTheme(themeCode: String) {
         dataStore.edit {
             it[SELECTED_THEME] = themeCode
+        }
+    }
+
+    /**
+     * Fluxo com os artigos atualmente ignorados nas sugestões.
+     * Devolve um mapa de nome → timestamp de expiração, filtrando entradas já expiradas.
+     */
+    val snoozedSuggestionsFlow: Flow<Map<String, Long>> = dataStore.data
+        .map { preferences ->
+            val now = System.currentTimeMillis()
+            (preferences[SNOOZED_SUGGESTIONS] ?: emptySet())
+                .mapNotNull { entry ->
+                    val parts = entry.split(":::")
+                    if (parts.size == 2) {
+                        val expiry = parts[1].toLongOrNull() ?: 0L
+                        if (expiry > now) parts[0] to expiry else null
+                    } else null
+                }
+                .toMap()
+        }
+
+    /**
+     * Guarda um artigo como ignorado nas sugestões durante [durationDays] dias.
+     */
+    val lastBudgetReminderFlow: Flow<String> = dataStore.data
+        .map { preferences -> preferences[LAST_BUDGET_REMINDER] ?: "" }
+
+    suspend fun setLastBudgetReminder(yearMonth: String) {
+        dataStore.edit { it[LAST_BUDGET_REMINDER] = yearMonth }
+    }
+
+    suspend fun snoozeSuggestion(name: String, durationDays: Int) {
+        val expiry = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(durationDays.toLong())
+        dataStore.edit { preferences ->
+            val current = (preferences[SNOOZED_SUGGESTIONS] ?: emptySet()).toMutableSet()
+            current.removeAll { it.startsWith("$name:::") }
+            val now = System.currentTimeMillis()
+            current.removeAll { e ->
+                val p = e.split(":::")
+                p.size != 2 || (p[1].toLongOrNull() ?: 0L) <= now
+            }
+            current.add("$name:::$expiry")
+            preferences[SNOOZED_SUGGESTIONS] = current
         }
     }
 }

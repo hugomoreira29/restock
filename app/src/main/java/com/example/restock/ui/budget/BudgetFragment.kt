@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 
@@ -39,8 +40,16 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 // Firebase - autenticação para obter os dados do utilizador atual
 import com.google.firebase.auth.FirebaseAuth
 
+// Classes internas - modelo de histórico
+import com.example.restock.model.BudgetSnapshot
+
 // Coroutines - para observar os fluxos de dados do ViewModel de forma assíncrona
 import kotlinx.coroutines.launch
+
+// Java - para formatar o nome do mês
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 /** HUGO MOREIRA - a22402246
  * Fragmento responsável pela gestão do orçamento familiar.
@@ -142,6 +151,11 @@ class BudgetFragment : Fragment() {
                 updatePieChartData(spendings)
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.budgetHistory.collect { history ->
+                updateBudgetHistory(history)
+            }
+        }
     }
 
     /**
@@ -193,6 +207,93 @@ class BudgetFragment : Fragment() {
         spendings.forEachIndexed { index, spending ->
             val color = chartColors[index % chartColors.size]
             binding.legendContainer.addView(buildLegendRow(spending.category, spending.total, color))
+        }
+    }
+
+    /**
+     * Renderiza o histórico de orçamentos mensais, excluindo o mês atual
+     * (já representado no card principal).
+     */
+    private fun updateBudgetHistory(history: List<BudgetSnapshot>) {
+        binding.budgetHistoryContainer.removeAllViews()
+
+        val cal = Calendar.getInstance()
+        val currentYear = cal.get(Calendar.YEAR)
+        val currentMonth = cal.get(Calendar.MONTH) + 1
+
+        // Gera os últimos 6 meses (sem o mês atual), preenchendo com zeros se não houver dados
+        val lastSixMonths = (1..6).map { monthsAgo ->
+            val target = Calendar.getInstance().apply { add(Calendar.MONTH, -monthsAgo) }
+            val y = target.get(Calendar.YEAR)
+            val m = target.get(Calendar.MONTH) + 1
+            history.find { it.year == y && it.month == m }
+                ?: BudgetSnapshot(year = y, month = m, budget = 0.0, spent = 0.0)
+        }
+
+        binding.noHistoryTextView.visibility = View.GONE
+        lastSixMonths.forEach { snapshot ->
+            binding.budgetHistoryContainer.addView(buildHistoryRow(snapshot))
+        }
+    }
+
+    private fun buildHistoryRow(snapshot: BudgetSnapshot): LinearLayout {
+        val dp = resources.displayMetrics.density
+
+        // Formata o nome do mês no idioma atual (ex: "maio 2025" ou "May 2025")
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.YEAR, snapshot.year)
+            set(Calendar.MONTH, snapshot.month - 1)
+        }
+        val monthLabel = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(cal.time)
+            .replaceFirstChar { it.uppercaseChar() }
+
+        val percentSpent = if (snapshot.budget > 0)
+            ((snapshot.spent / snapshot.budget) * 100).toInt().coerceIn(0, 100)
+        else 0
+
+        val rowColor = when {
+            percentSpent >= 100 -> Color.parseColor("#C2185B")
+            percentSpent >= 80  -> Color.parseColor("#D4762A")
+            else                -> Color.parseColor("#2E7D60")
+        }
+
+        return LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            val vPad = (8 * dp).toInt()
+            setPadding(0, vPad, 0, vPad)
+
+            // Linha superior: mês + valor
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+
+                addView(TextView(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                    text = monthLabel
+                    textSize = 13f
+                    setTextColor(Color.parseColor("#555555"))
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                })
+
+                addView(TextView(context).apply {
+                    text = "%.2f€ / %.2f€".format(snapshot.spent, snapshot.budget)
+                    textSize = 12f
+                    setTextColor(rowColor)
+                })
+            })
+
+            // Barra de progresso
+            addView(ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, (6 * dp).toInt()
+                ).also { it.topMargin = (4 * dp).toInt() }
+                max = 100
+                progress = percentSpent
+                progressTintList = android.content.res.ColorStateList.valueOf(rowColor)
+                progressBackgroundTintList = android.content.res.ColorStateList.valueOf(
+                    Color.parseColor("#1A000000")
+                )
+            })
         }
     }
 

@@ -2,14 +2,17 @@ package com.example.restock
 
 // Android - para gerir o ciclo de vida e vistas do fragmento
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.Toast
 
 // AndroidX - para visibilidade de vistas, ViewModels partilhados, coroutines e navegação
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -21,6 +24,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 
 // Classes internas da aplicação - binding, modelos e ViewModels
+import com.example.restock.data.SettingsManager
 import com.example.restock.databinding.FragmentHomeBinding
 import com.example.restock.model.Product
 import com.example.restock.model.ShoppingListItem
@@ -61,6 +65,9 @@ class HomeFragment : Fragment() {
     private val budgetViewModel: BudgetViewModel by activityViewModels()
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
+    private lateinit var settingsManager: SettingsManager
+    private var snoozedSuggestions: Map<String, Long> = emptyMap()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,6 +78,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        settingsManager = SettingsManager(requireContext().applicationContext)
         setupUserData()
         setupPieChart()
         setupObservers()
@@ -117,6 +125,12 @@ class HomeFragment : Fragment() {
      * Configura os observadores dos fluxos de dados dos ViewModels.
      */
     private fun setupObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            settingsManager.snoozedSuggestionsFlow.collect { snoozed ->
+                snoozedSuggestions = snoozed
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             combine(
                 inventoryViewModel.produtos,
@@ -234,40 +248,56 @@ class HomeFragment : Fragment() {
     ) {
         val currentTime = System.currentTimeMillis()
         val threeDaysInMillis = TimeUnit.DAYS.toMillis(3)
-        val thirtyDaysInMillis = TimeUnit.DAYS.toMillis(30)
-        val suggestions = mutableSetOf<String>()
+        val ninetyDaysInMillis = TimeUnit.DAYS.toMillis(90)
+        val ninetyDaysAgo = currentTime - ninetyDaysInMillis
 
-        // 1. Sugerir produtos próximos da data de validade (nos próximos 3 dias)
+        // Nomes dos produtos com stock suficiente no inventário (exclui da sugestão)
+        val inStockNames = productList
+            .filter { it.quantidade > 0 && (it.validade == null || it.validade > currentTime + threeDaysInMillis) }
+            .map { it.nome.lowercase() }
+            .toSet()
+
+        val suggestions = mutableListOf<String>()
+
+        // 1. Produtos quase a expirar (nos próximos 3 dias): comprar o substituto
         productList.forEach { product ->
-            if (product.validade != null && (product.validade - currentTime) <= threeDaysInMillis) {
+            if (product.validade != null && (product.validade - currentTime) in 0..threeDaysInMillis) {
                 suggestions.add(product.nome)
             }
         }
 
-        // 2. Sugerir itens frequentes com base nos últimos 30 dias (Hábitos Recentes)
-        val thirtyDaysAgo = currentTime - thirtyDaysInMillis
-        val frequentItems = historyList
-            .filter { it.dataConsumo >= thirtyDaysAgo }
+        // 2. Histórico dos últimos 90 dias com pontuação ponderada por frequência e recência
+        val scoredItems = historyList
+            .filter { it.dataConsumo >= ninetyDaysAgo }
             .groupBy { it.produto }
-            .mapValues { it.value.size }
+            .mapValues { (_, entries) ->
+                // Cada compra vale mais quanto mais recente: 1.0 (hoje) a 0.0 (90 dias atrás)
+                entries.sumOf { entry ->
+                    val age = currentTime - entry.dataConsumo
+                    maxOf(0.0, 1.0 - age.toDouble() / ninetyDaysInMillis)
+                }
+            }
             .toList()
             .sortedByDescending { it.second }
-            .take(5)
             .map { it.first }
-        
-        suggestions.addAll(frequentItems)
 
-        // 3. Filtrar itens que já estão na lista de compras
-        val currentShoppingItemNames = currentShoppingList.map { it.name.lowercase() }.toSet()
+        suggestions.addAll(scoredItems)
+
+        // 3. Filtros: já na lista, em stock, ignorados temporariamente
+        val shoppingNames = currentShoppingList.map { it.name.lowercase() }.toSet()
+        val now = System.currentTimeMillis()
         val finalSuggestions = suggestions
-            .filter { !currentShoppingItemNames.contains(it.lowercase()) }
+            .distinctBy { it.lowercase() }
+            .filter { !shoppingNames.contains(it.lowercase()) }
+            .filter { !inStockNames.contains(it.lowercase()) }
+            .filter { name -> (snoozedSuggestions[name] ?: 0L) <= now }
             .take(5)
 
         renderSuggestions(finalSuggestions)
     }
 
     /**
-     * Apresenta as sugestões na interface.
+     * Apresenta as sugestões na interface com opção de ignorar temporariamente.
      */
     private fun renderSuggestions(suggestionNames: List<String>) {
         binding.suggestedItemsContainer.removeAllViews()
@@ -276,17 +306,61 @@ class HomeFragment : Fragment() {
         } else {
             binding.noSuggestionsTextView.isVisible = false
             suggestionNames.forEach { name ->
-                val checkBox = CheckBox(requireContext()).apply {
-                    text = name
+                val rowLayout = LinearLayout(requireContext()).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     )
-                    setOnClickListener { addSuggestedItemToList(name, this) }
                 }
-                binding.suggestedItemsContainer.addView(checkBox)
+
+                val checkBox = CheckBox(requireContext()).apply {
+                    text = name
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    setOnClickListener { addSuggestedItemToList(name, rowLayout) }
+                }
+
+                val snoozeButton = ImageButton(requireContext()).apply {
+                    setImageResource(R.drawable.ic_close)
+                    background = null
+                    contentDescription = getString(R.string.snooze_suggestion_desc)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    setOnClickListener { showSnoozeDialog(name, rowLayout) }
+                }
+
+                rowLayout.addView(checkBox)
+                rowLayout.addView(snoozeButton)
+                binding.suggestedItemsContainer.addView(rowLayout)
             }
         }
+    }
+
+    /**
+     * Mostra diálogo para o utilizador escolher durante quanto tempo ignorar a sugestão.
+     */
+    private fun showSnoozeDialog(name: String, rowView: View) {
+        val options = arrayOf(
+            getString(R.string.snooze_7_days),
+            getString(R.string.snooze_30_days),
+            getString(R.string.snooze_3_months)
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.snooze_suggestion_title, name))
+            .setItems(options) { _, which ->
+                val days = when (which) { 0 -> 7; 1 -> 30; else -> 90 }
+                viewLifecycleOwner.lifecycleScope.launch {
+                    settingsManager.snoozeSuggestion(name, days)
+                }
+                binding.suggestedItemsContainer.removeView(rowView)
+                if (binding.suggestedItemsContainer.childCount == 0)
+                    binding.noSuggestionsTextView.isVisible = true
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
     }
 
     /**
@@ -311,7 +385,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun addSuggestedItemToList(itemName: String, checkBox: CheckBox) {
+    private fun addSuggestedItemToList(itemName: String, rowView: View) {
         val newItem = ShoppingListItem(
             id = UUID.randomUUID().toString(),
             name = itemName,
@@ -320,7 +394,7 @@ class HomeFragment : Fragment() {
         )
         shoppingListViewModel.addItem(newItem)
         Toast.makeText(context, getString(R.string.item_added_to_list, itemName), Toast.LENGTH_SHORT).show()
-        binding.suggestedItemsContainer.removeView(checkBox)
+        binding.suggestedItemsContainer.removeView(rowView)
         if (binding.suggestedItemsContainer.childCount == 0) {
             binding.noSuggestionsTextView.isVisible = true
         }

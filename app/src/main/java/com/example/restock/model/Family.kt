@@ -16,5 +16,6 @@ data class Family(
     val pendingMembers: List<String> = emptyList(), // Lista dos UIDs dos utilizadores à espera de aprovação
     val roles: Map<String, String> = emptyMap(),    // Mapa de cargos: userId -> "Admin", "Editor" ou "Leitor"
     val monthlyBudget: Double = 0.0,        // Orçamento mensal definido para a família.
-    val inviteCode: String? = null  // Código de convite único para entrar na família
+    val inviteCode: String? = null,          // Código de convite único para entrar na família
+    val inviteCodeExpiry: Long? = null       // Timestamp de expiração do código (24h após geração)
 )

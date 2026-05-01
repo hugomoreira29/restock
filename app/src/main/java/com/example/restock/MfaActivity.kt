@@ -56,11 +56,23 @@ class MfaActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.mfa_enter_code), Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding.resendBtn.setOnClickListener {
+            binding.resendBtn.isEnabled = false
+            sendVerificationCode(resolver, hint, resendingToken)
+        }
     }
 
-    private fun sendVerificationCode(resolver: MultiFactorResolver, hint: PhoneMultiFactorInfo) {
+    override fun onDestroy() {
+        super.onDestroy()
+        if (!isChangingConfigurations) {
+            multiFactorResolver = null
+        }
+    }
+
+    private fun sendVerificationCode(resolver: MultiFactorResolver, hint: PhoneMultiFactorInfo, resendToken: ForceResendingToken? = null) {
         showLoading()
-        val options = PhoneAuthOptions.newBuilder()
+        val builder = PhoneAuthOptions.newBuilder()
             .setMultiFactorHint(hint)
             .setMultiFactorSession(resolver.session)
             .setTimeout(60L, TimeUnit.SECONDS)
@@ -70,6 +82,7 @@ class MfaActivity : AppCompatActivity() {
                     hideLoading()
                     verificationId = vId
                     resendingToken = token
+                    binding.resendBtn.isEnabled = true
                     Toast.makeText(this@MfaActivity, getString(R.string.mfa_code_sent), Toast.LENGTH_SHORT).show()
                 }
 
@@ -83,10 +96,10 @@ class MfaActivity : AppCompatActivity() {
                     Toast.makeText(this@MfaActivity, getString(R.string.error_prefix, e.message), Toast.LENGTH_LONG).show()
                 }
             })
-            .build()
-        FirebaseAuth.getInstance().firebaseAuthSettings
-            .setAppVerificationDisabledForTesting(true)
-        PhoneAuthProvider.verifyPhoneNumber(options)
+
+        if (resendToken != null) builder.setForceResendingToken(resendToken)
+
+        PhoneAuthProvider.verifyPhoneNumber(builder.build())
     }
 
     private fun verifyCode(code: String, resolver: MultiFactorResolver) {

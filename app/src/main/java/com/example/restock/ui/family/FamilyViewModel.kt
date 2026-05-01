@@ -12,6 +12,7 @@ import com.example.restock.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 // Coroutines - para expor os dados como fluxos observáveis pela interface
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,12 +52,14 @@ class FamilyViewModel : ViewModel() {
 
     // ID da família atual, usado para todas as operações no Firestore
     private var familyId: String? = null
+    private var userListenerRegistration: ListenerRegistration? = null
+    private var familyListenerRegistration: ListenerRegistration? = null
 
     init {
         // Observa o documento do utilizador para detetar mudanças na família
         val userId = auth.currentUser?.uid
         if (userId != null) {
-            db.collection("users").document(userId).addSnapshotListener { snapshot, _ ->
+            userListenerRegistration = db.collection("users").document(userId).addSnapshotListener { snapshot, _ ->
                 val user = snapshot?.toObject(User::class.java)
                 val newFamilyId = user?.familyId
 
@@ -66,7 +69,8 @@ class FamilyViewModel : ViewModel() {
                     if (newFamilyId != null) {
                         loadFamilyData(newFamilyId)
                     } else {
-                        // Limpa os dados se o utilizador não pertencer a nenhuma família
+                        familyListenerRegistration?.remove()
+                        familyListenerRegistration = null
                         _family.value = null
                         _members.value = emptyList()
                         _pendingMembers.value = emptyList()
@@ -88,14 +92,16 @@ class FamilyViewModel : ViewModel() {
      * Sempre que os dados mudam, recarrega os membros e pedidos pendentes.
      */
     private fun loadFamilyData(familyId: String) {
-        db.collection("families").document(familyId).addSnapshotListener { snapshot, _ ->
-            val fam = snapshot?.toObject(Family::class.java)
-            _family.value = fam
-            fam?.let {
-                loadMembersWithRoles(it, AdapterMode.MEMBERS)
-                loadMembersWithRoles(it, AdapterMode.PENDING)
+        familyListenerRegistration?.remove()
+        familyListenerRegistration = db.collection("families").document(familyId)
+            .addSnapshotListener { snapshot, _ ->
+                val fam = snapshot?.toObject(Family::class.java)
+                _family.value = fam
+                fam?.let {
+                    loadMembersWithRoles(it, AdapterMode.MEMBERS)
+                    loadMembersWithRoles(it, AdapterMode.PENDING)
+                }
             }
-        }
     }
 
     /**
@@ -130,10 +136,12 @@ class FamilyViewModel : ViewModel() {
      * Invoca o callback com o código gerado após a operação ser concluída.
      */
     fun generateInviteCode(onCodeGenerated: (String) -> Unit) {
-        familyId?.let {
+        familyId?.let { fId ->
             val allowedChars = ('A'..'Z') + ('0'..'9')
             val newCode = (1..6).map { allowedChars.random() }.joinToString("")
-            db.collection("families").document(it).update("inviteCode", newCode)
+            val expiry = System.currentTimeMillis() + 24 * 60 * 60 * 1000L // 24 horas
+            db.collection("families").document(fId)
+                .update("inviteCode", newCode, "inviteCodeExpiry", expiry)
                 .addOnSuccessListener { onCodeGenerated(newCode) }
         }
     }
@@ -150,6 +158,12 @@ class FamilyViewModel : ViewModel() {
                 if (documents.isEmpty) return@addOnSuccessListener onError("Código de convite inválido.")
 
                 val familyDoc = documents.first()
+
+                // Verifica se o código expirou (24h)
+                val expiry = familyDoc.getLong("inviteCodeExpiry")
+                if (expiry != null && System.currentTimeMillis() > expiry) {
+                    return@addOnSuccessListener onError("O código de convite expirou. Pede um novo ao administrador.")
+                }
 
                 // Impede o utilizador de enviar um pedido para a família a que já pertence
                 if (familyDoc.id == familyId) return@addOnSuccessListener onError("Você já pertence ou pediu para entrar nesta família.")
@@ -199,15 +213,15 @@ class FamilyViewModel : ViewModel() {
      */
     fun removeMember(member: User, onSuccess: () -> Unit, onError: (String) -> Unit) {
         val currentFamId = familyId ?: return onError("Família não encontrada.")
-        val batch = db.batch()
         val famRef = db.collection("families").document(currentFamId)
-
-        // Remove o membro da lista e o seu cargo do mapa de cargos
-        batch.update(famRef, "members", FieldValue.arrayRemove(member.uid))
-        batch.update(famRef, "roles.${member.uid}", FieldValue.delete())
-
-        // Limpa o familyId no documento do utilizador removido
         val userRef = db.collection("users").document(member.uid)
+        val batch = db.batch()
+
+        batch.update(
+            famRef,
+            "members", FieldValue.arrayRemove(member.uid),
+            "roles.${member.uid}", FieldValue.delete()
+        )
         batch.update(userRef, "familyId", null)
 
         batch.commit()
@@ -259,5 +273,11 @@ class FamilyViewModel : ViewModel() {
         familyId?.let { fId ->
             db.collection("families").document(fId).update("roles.$userId", newRole)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        userListenerRegistration?.remove()
+        familyListenerRegistration?.remove()
     }
 }

@@ -50,11 +50,26 @@
             android:layout_marginTop="2dp"
             android:alpha="0.6"
             android:textSize="13sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/itemNameTextView"
             app:layout_constraintStart_toStartOf="@id/itemNameTextView"
             app:layout_constraintTop_toBottomOf="@id/itemNameTextView"
             tools:text="6 unidades" />
+
+        <TextView
+            android:id="@+id/boughtByTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:alpha="0.45"
+            android:textSize="11sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/itemNameTextView"
+            app:layout_constraintStart_toStartOf="@id/itemNameTextView"
+            app:layout_constraintTop_toBottomOf="@id/itemQuantityTextView"
+            tools:text="Comprado por Hugo"
+            tools:visibility="visible" />
 
         <ImageButton
             android:id="@+id/deleteButton"

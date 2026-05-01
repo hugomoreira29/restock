@@ -14,5 +14,6 @@ data class ShoppingListItem(
     val id: String = "", // ID único do item na lista.
     val name: String = "", // Nome do item (ex: "Leite", "Pão")
     val quantity: String = "", // Quantidade desejada (ex: "6 unidades", "1 kg")
-    val isChecked: Boolean = false // Indica se o item já foi comprado (true) ou ainda está por comprar (false)
+    val isChecked: Boolean = false, // Indica se o item já foi comprado (true) ou ainda está por comprar (false)
+    val boughtBy: String? = null   // Nome do membro que marcou como comprado
 )

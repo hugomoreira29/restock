@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 
 // AndroidX - para o fragmento, ViewModels partilhados, coroutines e navegação
 import androidx.fragment.app.Fragment
@@ -93,6 +94,9 @@ class ListFragment : Fragment() {
             },
             onDelete = { item ->
                 shoppingListViewModel.deleteItem(item.id)
+                Snackbar.make(requireView(), getString(R.string.item_removed, item.name), Snackbar.LENGTH_LONG)
+                    .setAction(getString(R.string.undo)) { shoppingListViewModel.addItem(item) }
+                    .show()
             },
             onItemClick = {}
         )
@@ -119,7 +123,7 @@ class ListFragment : Fragment() {
         inventoryViewModel.addProduct(newProduct)
         shoppingListViewModel.deleteItem(item.id)
 
-        Toast.makeText(context, getString(R.string.item_added_to_list, item.name), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, getString(R.string.item_added_to_inventory, item.name), Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -129,8 +133,18 @@ class ListFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                shoppingListViewModel.items.collect {
-                    shoppingListAdapter.submitList(it)
+                shoppingListViewModel.items.collect { items ->
+                    shoppingListAdapter.submitList(items)
+                    binding.emptyListTextView.visibility =
+                        if (items.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            shoppingListViewModel.error.collect { message ->
+                if (message != null) {
+                    Snackbar.make(requireView(), getString(R.string.error_operation_failed), Snackbar.LENGTH_SHORT).show()
+                    shoppingListViewModel.clearError()
                 }
             }
         }

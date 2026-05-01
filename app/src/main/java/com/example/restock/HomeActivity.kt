@@ -19,6 +19,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.restock.workers.BudgetReminderWorker
 import com.example.restock.workers.ExpirationWorker
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -68,6 +69,7 @@ class HomeActivity : AppCompatActivity() {
         askNotificationPermission()
         createNotificationChannels()
         scheduleExpirationWorker()
+        scheduleBudgetReminderWorker()
         setupFamilyJoinRequestListener()
     }
 
@@ -96,6 +98,16 @@ class HomeActivity : AppCompatActivity() {
                     NotificationManager.IMPORTANCE_DEFAULT
                 ).apply {
                     description = getString(R.string.notif_channel_desc)
+                }
+            )
+
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    BudgetReminderWorker.CHANNEL_ID,
+                    getString(R.string.notif_budget_channel_name),
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply {
+                    description = getString(R.string.notif_budget_channel_desc)
                 }
             )
         }
@@ -183,6 +195,15 @@ class HomeActivity : AppCompatActivity() {
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
             getString(R.string.expiration_check_periodic_work_name),
             ExistingPeriodicWorkPolicy.UPDATE,
+            workRequest
+        )
+    }
+
+    private fun scheduleBudgetReminderWorker() {
+        val workRequest = PeriodicWorkRequestBuilder<BudgetReminderWorker>(12, TimeUnit.HOURS).build()
+        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
+            "BudgetReminderPeriodic",
+            ExistingPeriodicWorkPolicy.KEEP,
             workRequest
         )
     }

@@ -3,8 +3,13 @@ package com.example.restock
 // Android - para navegação entre activities e mensagens ao utilizador
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.Toast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 // AndroidX - para o lançador de resultados e a Activity base
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +40,7 @@ import com.google.firebase.firestore.WriteBatch
  * No login com email, verifica se o endereço foi confirmado antes de permitir o acesso.
  * No primeiro login com Google, cria automaticamente uma família e o perfil do utilizador.
  */
+@Suppress("DEPRECATION")
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -105,6 +111,11 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // Recuperação de palavra-passe
+        binding.forgotPasswordBtn.setOnClickListener {
+            showForgotPasswordDialog()
+        }
+
         // Navega para o ecrã de registo
         binding.goRegisterBtn.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
@@ -115,6 +126,43 @@ class LoginActivity : AppCompatActivity() {
             showLoading()
             googleSignInLauncher.launch(googleSignInClient.signInIntent)
         }
+    }
+
+    private fun showForgotPasswordDialog() {
+        val layout = TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+            hint = getString(R.string.email)
+        }
+        val input = TextInputEditText(layout.context).apply {
+            inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            setText(binding.emailInput.text)
+        }
+        layout.addView(input)
+
+        val container = FrameLayout(this).apply {
+            val horizontal = (24 * resources.displayMetrics.density).toInt()
+            setPadding(horizontal, 0, horizontal, 0)
+            addView(layout)
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.forgot_password_title)
+            .setView(container)
+            .setPositiveButton(R.string.button_send_reset_email) { _, _ ->
+                val email = input.text.toString().trim()
+                if (email.isNotEmpty()) {
+                    auth.sendPasswordResetEmail(email)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, getString(R.string.reset_email_sent), Toast.LENGTH_LONG).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, getString(R.string.reset_email_error), Toast.LENGTH_LONG).show()
+                        }
+                } else {
+                    Toast.makeText(this, getString(R.string.fill_all_fields), Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     /**
@@ -256,6 +304,7 @@ class LoginActivity : AppCompatActivity() {
         binding.emailInputLayout.isEnabled = false
         binding.passwordInputLayout.isEnabled = false
         binding.loginBtn.isEnabled = false
+        binding.forgotPasswordBtn.isEnabled = false
         binding.goRegisterBtn.isEnabled = false
         binding.googleSignInButton.isEnabled = false
     }
@@ -268,6 +317,7 @@ class LoginActivity : AppCompatActivity() {
         binding.emailInputLayout.isEnabled = true
         binding.passwordInputLayout.isEnabled = true
         binding.loginBtn.isEnabled = true
+        binding.forgotPasswordBtn.isEnabled = true
         binding.goRegisterBtn.isEnabled = true
         binding.googleSignInButton.isEnabled = true
     }

@@ -129,9 +129,38 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Filter chips por categoria -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:scrollbars="none">
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/filterChipGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="false" />
+                </HorizontalScrollView>
+
             </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Estado vazio -->
+    <TextView
+        android:id="@+id/emptyInventoryTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/empty_inventory"
+        android:textSize="15sp"
+        android:alpha="0.5"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!-- Product List -->
     <androidx.recyclerview.widget.RecyclerView
@@ -143,7 +172,21 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_product" />
 
-    <!-- FAB -->
+    <!-- FAB Importar Fatura -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/importInvoiceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="88dp"
+        android:contentDescription="@string/import_invoice"
+        app:srcCompat="@drawable/ic_receipt"
+        app:backgroundTint="?attr/colorSecondaryContainer"
+        app:tint="?attr/colorOnSecondaryContainer"
+        app:fabSize="normal" />
+
+    <!-- FAB Adicionar Produto -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/addProductButton"
         android:layout_width="wrap_content"

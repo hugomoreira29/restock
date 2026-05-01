@@ -35,6 +35,9 @@
         <action
             android:id="@+id/action_inventoryFragment_to_accountFragment"
             app:destination="@id/accountFragment" />
+        <action
+            android:id="@+id/action_inventoryFragment_to_invoiceScannerFragment"
+            app:destination="@id/invoiceScannerFragment" />
     </fragment>
 
     <fragment
@@ -141,5 +144,21 @@
         android:name="com.example.restock.ui.gamification.GamificationFragment"
         android:label="fragment_gamification"
         tools:layout="@layout/fragment_gamification" />
+
+    <fragment
+        android:id="@+id/invoiceScannerFragment"
+        android:name="com.example.restock.ui.inventario.InvoiceScannerFragment"
+        android:label="fragment_invoice_scanner"
+        tools:layout="@layout/fragment_invoice_scanner">
+        <action
+            android:id="@+id/action_invoiceScannerFragment_to_invoiceReviewFragment"
+            app:destination="@id/invoiceReviewFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/invoiceReviewFragment"
+        android:name="com.example.restock.ui.inventario.InvoiceReviewFragment"
+        android:label="fragment_invoice_review"
+        tools:layout="@layout/fragment_invoice_review" />
 
 </navigation>
