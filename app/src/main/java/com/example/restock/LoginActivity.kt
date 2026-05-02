@@ -62,7 +62,12 @@ class LoginActivity : AppCompatActivity() {
             }
         } catch (e: ApiException) {
             hideLoading()
-            Toast.makeText(this, getString(R.string.google_signin_failed, e.statusCode), Toast.LENGTH_SHORT).show()
+            val message = when (e.statusCode) {
+                7    -> getString(R.string.google_signin_no_internet)   // NETWORK_ERROR
+                12501 -> getString(R.string.google_signin_cancelled)    // SIGN_IN_CANCELLED
+                else -> getString(R.string.google_signin_error)
+            }
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         }
     }
 

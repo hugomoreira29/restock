@@ -34,7 +34,7 @@ class BudgetCalculationTest {
         val products = listOf(
             makeProduct("Leite",  1.5, 2.0, "dairy"),   // 3.00
             makeProduct("Pao",    0.8, 3.0, "grocery"),  // 2.40
-            makeProduct("Arroz",  1.2, 1.0, "grocery"),  // 1.20 (mes passado)
+            makeProduct("Arroz",  1.2, 1.0, "grocery", monthsAgo = 1),  // 1.20 (mes passado)
         ).let { all ->
             val cal = Calendar.getInstance()
             val currentMonth = cal.get(Calendar.MONTH)

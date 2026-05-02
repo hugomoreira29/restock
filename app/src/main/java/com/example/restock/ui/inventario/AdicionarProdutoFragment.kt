@@ -157,6 +157,9 @@ class AdicionarProdutoFragment : Fragment() {
                             val categoriesText = productJson.optString("categories", "")
 
                             withContext(Dispatchers.Main) {
+                                if (isAdded && _binding != null) {
+                                    binding.productNotFoundBanner.visibility = View.GONE
+                                }
                                 updateUIWithProductDetails(finalName, imageUrl, categoriesText, barcode)
                             }
                             productFound = true
@@ -168,11 +171,12 @@ class AdicionarProdutoFragment : Fragment() {
                 }
             }
 
-            // Se nenhuma API encontrou o produto, usa o código de barras como nome
+            // Se nenhuma API encontrou o produto, mostra banner de aviso e usa o código de barras como nome
             if (!productFound) {
                 withContext(Dispatchers.Main) {
+                    if (!isAdded || _binding == null) return@withContext
                     binding.productNameEditText.setText(getString(R.string.product_barcode_default, barcode))
-                    Toast.makeText(context, getString(R.string.product_not_found_db), Toast.LENGTH_SHORT).show()
+                    binding.productNotFoundBanner.visibility = View.VISIBLE
                 }
             }
         }

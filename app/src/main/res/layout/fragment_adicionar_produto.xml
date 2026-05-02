@@ -19,6 +19,34 @@
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title="@string/add_product_title" />
 
+        <!-- Banner: produto não encontrado na base de dados -->
+        <LinearLayout
+            android:id="@+id/productNotFoundBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/secondary_container"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:importantForAccessibility="no"
+                android:src="@android:drawable/ic_dialog_info"
+                android:tint="@color/secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/product_not_found_db"
+                android:textColor="@color/secondary" />
+        </LinearLayout>
+
         <!-- Nome do Produto -->
         <TextView
             android:layout_width="wrap_content"
