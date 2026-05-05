@@ -9,6 +9,10 @@
     <string name="no">No</string>
     <string name="fill_all_fields">Please fill in all fields.</string>
     <string name="fill_required_fields">Please fill in the required fields.</string>
+    <string name="summary">SUMMARY</string>
+    <string name="unit">Unit</string>
+    <string name="total">Total</string>
+    <string name="or_divider">OR</string>
 
     <!-- Login & Register -->
     <string name="login">Login</string>
@@ -132,13 +136,16 @@
     <string name="family_fragment_title">Family/Friends</string>
     <string name="family_fragment_subtitle">Share your inventory and shopping list with anyone you want</string>
     <string name="family_edit_name_description">Edit Family Name</string>
-    <string name="family_invite_button">Invite / Generate Code</string>
-    <string name="family_leave_button">Leave Family</string>
+    <string name="family_invite_button">INVITE / GENERATE CODE</string>
+    <string name="family_leave_button">LEAVE FAMILY</string>
     <string name="family_join_another_title">Join another Family</string>
     <string name="family_join_another_subtitle">If you received an invitation code, enter it here to switch families.</string>
     <string name="family_join_code_hint">Family Code</string>
-    <string name="family_join_button">Join Family</string>
+    <string name="family_join_button">JOIN FAMILY</string>
     <string name="family_pending_requests_title">Pending Join Requests</string>
+    <string name="family_members_title">Family Members</string>
+    <string name="family_invite_member">INVITE MEMBER</string>
+    <string name="family_no_family_warning">You don\'t belong to any family yet</string>
 
     <!-- Budget Screen -->
     <string name="budget_screen_title">BUDGET</string>
@@ -270,6 +277,8 @@
     <string name="email_verification_error">Error sending verification email: %s</string>
     <string name="emails_do_not_match">Emails do not match.</string>
     <string name="family_search_error">Error searching for family. Please try again.</string>
+    <string name="family_setup_title">Set Up Your Family</string>
+    <string name="family_setup_desc">Create a new family or enter a code to join an existing one.</string>
     <string name="google_signin_failed">Google Sign-In failed: %s</string>
 
     <!-- Family dialogs -->
@@ -330,6 +339,8 @@
     <string name="no_expiry_date">No expiry date</string>
     <string name="price_unit_label">Unit Price</string>
     <string name="price_per_unit_label">Price per %s</string>
+    <string name="expiry_expired">Expired on: %s</string>
+    <string name="expiry_future">Expires on: %s</string>
 
     <!-- Empty states -->
     <string name="empty_inventory">No products in inventory.\nAdd the first one!</string>

@@ -31,6 +31,7 @@ import com.google.android.gms.common.api.ApiException
 // Firebase - autenticação, base de dados e operações em lote
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.*
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.WriteBatch
 
@@ -38,7 +39,7 @@ import com.google.firebase.firestore.WriteBatch
  * Activity responsável pelo ecrã de login da aplicação.
  * Suporta autenticação com email/palavra-passe e com conta Google.
  * No login com email, verifica se o endereço foi confirmado antes de permitir o acesso.
- * No primeiro login com Google, cria automaticamente uma família e o perfil do utilizador.
+ * No login com Google, verifica se o utilizador já tem uma família configurada.
  */
 @Suppress("DEPRECATION")
 class LoginActivity : AppCompatActivity() {
@@ -224,7 +225,7 @@ class LoginActivity : AppCompatActivity() {
 
     /**
      * Conclui a autenticação com o token do Google no Firebase.
-     * Se for um novo utilizador, cria automaticamente a família e o perfil.
+     * Verifica se o utilizador já possui um perfil configurado no Firestore.
      */
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
@@ -232,15 +233,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val firebaseUser = auth.currentUser!!
-                    val isNewUser = task.result.additionalUserInfo?.isNewUser ?: false
-
-                    if (isNewUser) {
-                        // Primeiro login com Google: cria família e perfil do utilizador
-                        createNewFamilyForGoogleUser(firebaseUser)
-                    } else {
-                        hideLoading()
-                        navigateToHome()
-                    }
+                    checkUserSetup(firebaseUser)
                 } else {
                     handleLoginError(task.exception)
                 }
@@ -248,23 +241,128 @@ class LoginActivity : AppCompatActivity() {
     }
 
     /**
-     * Cria uma nova família e o perfil do utilizador no Firestore usando um batch.
-     * O utilizador é definido automaticamente como administrador da família criada.
+     * Verifica se o utilizador já tem um documento no Firestore.
+     * Se não tiver, inicia o fluxo de configuração de família.
      */
-    private fun createNewFamilyForGoogleUser(firebaseUser: FirebaseUser) {
+    private fun checkUserSetup(firebaseUser: FirebaseUser) {
+        firestore.collection("users").document(firebaseUser.uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    hideLoading()
+                    navigateToHome()
+                } else {
+                    hideLoading()
+                    showFamilySetupDialog(firebaseUser)
+                }
+            }
+            .addOnFailureListener {
+                hideLoading()
+                handleLoginError(it)
+            }
+    }
+
+    /**
+     * Mostra um diálogo para o utilizador escolher entre criar uma nova família
+     * ou entrar numa existente através de um código.
+     */
+    private fun showFamilySetupDialog(firebaseUser: FirebaseUser) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.family_setup_title)
+            .setMessage(R.string.family_setup_desc)
+            .setPositiveButton(R.string.family_create_title) { _, _ ->
+                showCreateFamilyDialog(firebaseUser)
+            }
+            .setNegativeButton(R.string.family_join_another_title) { _, _ ->
+                showJoinFamilyDialog(firebaseUser)
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Diálogo para definir o nome da nova família.
+     */
+    private fun showCreateFamilyDialog(firebaseUser: FirebaseUser) {
+        val layout = TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+            hint = getString(R.string.family_name_hint)
+        }
+        val input = TextInputEditText(layout.context).apply {
+            setText("Família ${firebaseUser.displayName}")
+        }
+        layout.addView(input)
+
+        val container = FrameLayout(this).apply {
+            val horizontal = (24 * resources.displayMetrics.density).toInt()
+            setPadding(horizontal, 16, horizontal, 0)
+            addView(layout)
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.family_create_title)
+            .setView(container)
+            .setPositiveButton(R.string.create) { _, _ ->
+                val familyName = input.text.toString().trim()
+                if (familyName.isNotEmpty()) {
+                    createFamilyForGoogleUser(firebaseUser, familyName)
+                } else {
+                    Toast.makeText(this, getString(R.string.family_name_empty), Toast.LENGTH_SHORT).show()
+                    showCreateFamilyDialog(firebaseUser)
+                }
+            }
+            .setNegativeButton(R.string.cancel) { _, _ -> showFamilySetupDialog(firebaseUser) }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Diálogo para introduzir o código de convite de uma família existente.
+     */
+    private fun showJoinFamilyDialog(firebaseUser: FirebaseUser) {
+        val layout = TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+            hint = getString(R.string.family_join_code_hint)
+        }
+        val input = TextInputEditText(layout.context)
+        layout.addView(input)
+
+        val container = FrameLayout(this).apply {
+            val horizontal = (24 * resources.displayMetrics.density).toInt()
+            setPadding(horizontal, 16, horizontal, 0)
+            addView(layout)
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.family_join_another_title)
+            .setView(container)
+            .setPositiveButton(R.string.family_join_button) { _, _ ->
+                val inviteCode = input.text.toString().trim()
+                if (inviteCode.isNotEmpty()) {
+                    joinFamilyForGoogleUser(firebaseUser, inviteCode)
+                } else {
+                    Toast.makeText(this, getString(R.string.family_enter_code), Toast.LENGTH_SHORT).show()
+                    showJoinFamilyDialog(firebaseUser)
+                }
+            }
+            .setNegativeButton(R.string.cancel) { _, _ -> showFamilySetupDialog(firebaseUser) }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Cria uma nova família com o nome fornecido e associa o utilizador Google a ela.
+     */
+    private fun createFamilyForGoogleUser(firebaseUser: FirebaseUser, familyName: String) {
+        showLoading()
         val batch = firestore.batch()
         val newFamilyRef = firestore.collection("families").document()
 
-        // Cria a família com o utilizador como único membro e administrador
         val newFamily = Family(
             id = newFamilyRef.id,
-            name = "Família ${firebaseUser.displayName}",
+            name = familyName,
             members = listOf(firebaseUser.uid),
             roles = mapOf(firebaseUser.uid to "Admin")
         )
         batch.set(newFamilyRef, newFamily)
 
-        // Cria o documento do utilizador associado à família criada
         val userRef = firestore.collection("users").document(firebaseUser.uid)
         val user = User(
             uid = firebaseUser.uid,
@@ -276,6 +374,48 @@ class LoginActivity : AppCompatActivity() {
         batch.set(userRef, user)
 
         commitBatch(batch)
+    }
+
+    /**
+     * Tenta juntar o utilizador Google a uma família existente através do código de convite.
+     */
+    private fun joinFamilyForGoogleUser(firebaseUser: FirebaseUser, inviteCode: String) {
+        showLoading()
+        firestore.collection("families").whereEqualTo("inviteCode", inviteCode).get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    hideLoading()
+                    Toast.makeText(this, getString(R.string.invalid_invite_code), Toast.LENGTH_LONG).show()
+                    showJoinFamilyDialog(firebaseUser)
+                    return@addOnSuccessListener
+                }
+
+                val familyDoc = documents.first()
+                val familyId = familyDoc.id
+                val batch = firestore.batch()
+
+                val userRef = firestore.collection("users").document(firebaseUser.uid)
+                val user = User(
+                    uid = firebaseUser.uid,
+                    name = firebaseUser.displayName ?: "",
+                    email = firebaseUser.email ?: "",
+                    familyId = familyId,
+                    photoUrl = firebaseUser.photoUrl?.toString()
+                )
+                batch.set(userRef, user)
+
+                val familyRef = firestore.collection("families").document(familyId)
+                batch.update(familyRef, "members", FieldValue.arrayUnion(firebaseUser.uid))
+                batch.update(familyRef, "roles.${firebaseUser.uid}", "Membro")
+                batch.update(familyRef, "inviteCode", null)
+
+                commitBatch(batch)
+            }
+            .addOnFailureListener {
+                hideLoading()
+                Toast.makeText(this, getString(R.string.family_search_error), Toast.LENGTH_LONG).show()
+                showJoinFamilyDialog(firebaseUser)
+            }
     }
 
     /**

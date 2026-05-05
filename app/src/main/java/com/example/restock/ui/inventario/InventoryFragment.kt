@@ -194,7 +194,7 @@ class InventoryFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.familyName.collect { name ->
                 if (name.isNotEmpty()) {
-                    binding.inventoryTitleTextView.text = "INVENTÁRIO ${name.uppercase()}"
+                    binding.inventoryTitleTextView.text = getString(R.string.inventory_family, name.uppercase())
                 } else {
                     // Usa o nome do utilizador como alternativa enquanto o nome da família não carrega
                     val userName = auth.currentUser?.displayName ?: ""

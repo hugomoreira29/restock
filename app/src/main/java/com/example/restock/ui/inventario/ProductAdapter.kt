@@ -87,11 +87,16 @@ class ProductAdapter(
                     val date = Date(product.validade!!)
                     val daysUntilExpiration = (date.time - Date().time) / (1000 * 60 * 60 * 24)
                     
-                    // Altera o prefixo conforme o produto já expirou ou não
-                    val prefix = if (daysUntilExpiration < 0) "Expirou a: " else "Expira a: "
                     val dateFormatted = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)
                     
-                    productExpiryTextView.text = "$prefix$dateFormatted"
+                    // Altera o texto conforme o produto já expirou ou não
+                    val text = if (daysUntilExpiration < 0) {
+                        itemView.context.getString(R.string.expiry_expired, dateFormatted)
+                    } else {
+                        itemView.context.getString(R.string.expiry_future, dateFormatted)
+                    }
+                    
+                    productExpiryTextView.text = text
                     setValidadeAlert(binding.root as MaterialCardView, productExpiryTextView, date)
                 } else {
                     productExpiryTextView.text = itemView.context.getString(R.string.no_expiry_date)

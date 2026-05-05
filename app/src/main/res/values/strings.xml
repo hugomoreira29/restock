@@ -9,6 +9,10 @@
     <string name="no">Não</string>
     <string name="fill_all_fields">Por favor, preencha todos os campos.</string>
     <string name="fill_required_fields">Preencha os campos obrigatórios.</string>
+    <string name="summary">RESUMO</string>
+    <string name="unit">Unidade</string>
+    <string name="total">Total</string>
+    <string name="or_divider">OU</string>
 
     <!-- Login & Register -->
     <string name="login">Login</string>
@@ -180,6 +184,9 @@
     <string name="family_join_code_hint">Código da Família</string>
     <string name="family_join_button">Entrar na Família</string>
     <string name="family_pending_requests_title">Pedidos de Adesão Pendentes</string>
+    <string name="family_members_title">Membros da Família</string>
+    <string name="family_invite_member">Convidar Membro</string>
+    <string name="family_no_family_warning">Ainda não pertences a nenhuma família</string>
 
     <!-- Budget Screen -->
     <string name="budget_screen_title">ORÇAMENTO</string>
@@ -254,6 +261,8 @@
     <string name="email_verification_error">Erro ao enviar email de verificação: %s</string>
     <string name="emails_do_not_match">Os emails não coincidem.</string>
     <string name="family_search_error">Erro ao procurar família. Tente novamente.</string>
+    <string name="family_setup_title">Configurar a tua Família</string>
+    <string name="family_setup_desc">Cria uma nova família ou introduz um código para te juntares a uma existente.</string>
     <string name="google_signin_failed">Falha ao entrar com Google: %s</string>
     <string name="google_signin_no_internet">Sem ligação à internet. Verifica a tua ligação e tenta novamente.</string>
     <string name="google_signin_cancelled">Início de sessão cancelado.</string>
@@ -343,6 +352,8 @@
     <string name="no_expiry_date">Sem data de validade</string>
     <string name="price_unit_label">Preço Unitário</string>
     <string name="price_per_unit_label">Preço por %s</string>
+    <string name="expiry_expired">Expirou a: %s</string>
+    <string name="expiry_future">Expira a: %s</string>
 
     <!-- Estados vazios -->
     <string name="empty_inventory">Sem produtos no inventário.\nAdiciona o primeiro!</string>

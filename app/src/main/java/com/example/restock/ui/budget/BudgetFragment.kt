@@ -28,6 +28,7 @@ import com.bumptech.glide.Glide
 // Classes internas da aplicação - recursos e binding
 import com.example.restock.R
 import com.example.restock.databinding.FragmentBudgetBinding
+import com.example.restock.ui.inventario.CategoryUtils
 
 // MPAndroidChart - para construir e apresentar o gráfico circular de gastos
 import com.github.mikephil.charting.data.PieData
@@ -206,7 +207,8 @@ class BudgetFragment : Fragment() {
         // Preenche a legenda com cor + categoria + valor
         spendings.forEachIndexed { index, spending ->
             val color = chartColors[index % chartColors.size]
-            binding.legendContainer.addView(buildLegendRow(spending.category, spending.total, color))
+            val localizedCategory = CategoryUtils.localize(spending.category, requireContext())
+            binding.legendContainer.addView(buildLegendRow(localizedCategory, spending.total, color))
         }
     }
 
