@@ -3,6 +3,7 @@ package com.example.restock
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -88,6 +89,7 @@ class MfaActivity : AppCompatActivity() {
 
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     hideLoading()
+                    showLoading()
                     resolveSignIn(PhoneMultiFactorGenerator.getAssertion(credential), resolver)
                 }
 
@@ -117,7 +119,10 @@ class MfaActivity : AppCompatActivity() {
                     multiFactorResolver = null
                     navigateToHome()
                 } else {
-                    Toast.makeText(this, getString(R.string.invalid_otp), Toast.LENGTH_SHORT).show()
+                    val error = task.exception
+                    Log.e("MfaActivity", "resolveSignIn falhou", error)
+                    val message = error?.localizedMessage ?: getString(R.string.invalid_otp)
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                 }
             }
     }

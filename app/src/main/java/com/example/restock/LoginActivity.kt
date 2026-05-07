@@ -128,9 +128,12 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Inicia o fluxo de autenticação com Google
+        // signOut() limpa a conta em cache para que o seletor de contas apareça sempre
         binding.googleSignInButton.setOnClickListener {
             showLoading()
-            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+            googleSignInClient.signOut().addOnCompleteListener {
+                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+            }
         }
     }
 
@@ -219,6 +222,7 @@ class LoginActivity : AppCompatActivity() {
             }
             startActivity(intent)
         } else {
+            hideLoading()
             Toast.makeText(this, getString(R.string.no_mfa_factor), Toast.LENGTH_LONG).show()
         }
     }
@@ -235,6 +239,7 @@ class LoginActivity : AppCompatActivity() {
                     val firebaseUser = auth.currentUser!!
                     checkUserSetup(firebaseUser)
                 } else {
+                    hideLoading()
                     handleLoginError(task.exception)
                 }
             }

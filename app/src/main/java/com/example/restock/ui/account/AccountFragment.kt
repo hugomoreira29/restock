@@ -16,6 +16,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 
+// Google Sign-In - para reautenticação de utilizadores Google
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+
 // Glide - para carregar e apresentar imagens de forma eficiente
 import com.bumptech.glide.Glide
 
@@ -55,13 +60,38 @@ class AccountFragment : Fragment() {
     private var verificationId: String? = null
     private var resendingToken: PhoneAuthProvider.ForceResendingToken? = null
 
+    // Callback pendente após reautenticação bem-sucedida
+    private var pendingReauthCallback: (() -> Unit)? = null
+
     // Lançador para abrir a galeria e selecionar uma imagem de perfil
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            result ->
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 uploadProfileImage(uri)
             }
+        }
+    }
+
+    // Lançador para reautenticação via Google Sign-In
+    private val googleReauthLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val credential = GoogleAuthProvider.getCredential(account.idToken!!, null)
+            val user = auth.currentUser ?: return@registerForActivityResult
+            showMfaLoading(true)
+            user.reauthenticate(credential).addOnCompleteListener { reauth ->
+                showMfaLoading(false)
+                if (reauth.isSuccessful) {
+                    Toast.makeText(requireContext(), getString(R.string.reauth_success), Toast.LENGTH_SHORT).show()
+                    pendingReauthCallback?.invoke()
+                    pendingReauthCallback = null
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.reauth_fail), Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: ApiException) {
+            Toast.makeText(requireContext(), getString(R.string.reauth_fail), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -244,32 +274,42 @@ class AccountFragment : Fragment() {
     }
 
     /**
-     * Mostra um diálogo para o utilizador introduzir a password e confirmar a identidade.
+     * Reautentica o utilizador. Para utilizadores Google usa o Google Sign-In;
+     * para utilizadores email/password mostra um diálogo de password.
      */
     private fun showReauthDialog(onSuccess: () -> Unit) {
-        val input = EditText(requireContext()).apply {
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-            hint = getString(R.string.reauth_password_hint)
-        }
+        val user = auth.currentUser ?: return
+        val isGoogleUser = user.providerData.any { it.providerId == GoogleAuthProvider.PROVIDER_ID }
 
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.reauth_title))
-            .setMessage(getString(R.string.reauth_desc))
-            .setView(input)
-            .setPositiveButton(getString(R.string.btn_confirm)) { _, _ ->
-                val password = input.text.toString()
-                if (password.isNotEmpty()) {
-                    reauthenticateUser(password, onSuccess)
-                }
+        if (isGoogleUser) {
+            pendingReauthCallback = onSuccess
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com")
+                .requestEmail()
+                .build()
+            val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+            googleReauthLauncher.launch(googleSignInClient.signInIntent)
+        } else {
+            val input = EditText(requireContext()).apply {
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                hint = getString(R.string.reauth_password_hint)
             }
-            .setNegativeButton(getString(R.string.close), null)
-            .show()
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.reauth_title))
+                .setMessage(getString(R.string.reauth_desc))
+                .setView(input)
+                .setPositiveButton(getString(R.string.btn_confirm)) { _, _ ->
+                    val password = input.text.toString()
+                    if (password.isNotEmpty()) {
+                        reauthenticateWithPassword(password, onSuccess)
+                    }
+                }
+                .setNegativeButton(getString(R.string.close), null)
+                .show()
+        }
     }
 
-    /**
-     * Reautentica o utilizador usando o email atual e a password fornecida.
-     */
-    private fun reauthenticateUser(password: String, onSuccess: () -> Unit) {
+    private fun reauthenticateWithPassword(password: String, onSuccess: () -> Unit) {
         val user = auth.currentUser ?: return
         val email = user.email ?: return
         val credential = EmailAuthProvider.getCredential(email, password)
