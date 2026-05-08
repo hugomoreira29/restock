@@ -200,6 +200,185 @@ class AccountFragment : Fragment() {
             startActivity(intent)
             requireActivity().finish()
         }
+
+        binding.deleteAccountButton.setOnClickListener {
+            showDeleteAccountConfirmation()
+        }
+    }
+
+    private fun showDeleteAccountConfirmation() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Apagar conta")
+            .setMessage("Tens a certeza que queres apagar a tua conta? Esta ação é irreversível.")
+            .setPositiveButton("Apagar") { _, _ ->
+                checkFamilyRoleAndDelete()
+            }
+            .setNegativeButton(getString(R.string.close), null)
+            .show()
+    }
+
+    private fun checkFamilyRoleAndDelete() {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { userDoc ->
+                val familyId = userDoc.getString("familyId")
+
+                if (familyId == null) {
+                    // Utilizador sem família — apagar conta diretamente
+                    confirmAndDeleteAccount(familyId = null)
+                    return@addOnSuccessListener
+                }
+
+                firestore.collection("families").document(familyId).get()
+                    .addOnSuccessListener { familyDoc ->
+                        @Suppress("UNCHECKED_CAST")
+                        val roles = familyDoc.get("roles") as? Map<String, String> ?: emptyMap()
+                        val members = familyDoc.get("members") as? List<String> ?: emptyList()
+                        val isAdmin = roles[uid] == "Admin"
+                        val otherMembers = members.filter { it != uid }
+
+                        if (isAdmin && otherMembers.isNotEmpty()) {
+                            // Admin com outros membros — bloquear e pedir transferência
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Não é possível apagar a conta")
+                                .setMessage("És o Admin da tua família e ainda existem outros membros.\n\nTransfere o papel de Admin a outro membro na página da família antes de apagar a conta.")
+                                .setPositiveButton("OK", null)
+                                .show()
+                        } else {
+                            // Admin sem outros membros (família será apagada) ou membro normal
+                            val message = if (isAdmin) {
+                                "Tens a certeza? A tua família e todos os dados associados (inventário, lista de compras, histórico) serão apagados permanentemente."
+                            } else {
+                                "Tens a certeza? Serás removido da família e a tua conta será apagada permanentemente."
+                            }
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Confirmar eliminação")
+                                .setMessage(message)
+                                .setPositiveButton("Apagar tudo") { _, _ ->
+                                    showReauthDialog { confirmAndDeleteAccount(familyId) }
+                                }
+                                .setNegativeButton(getString(R.string.close), null)
+                                .show()
+                        }
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Erro ao verificar família. Tenta novamente.", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Erro ao carregar dados. Tenta novamente.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun confirmAndDeleteAccount(familyId: String?) {
+        val uid = auth.currentUser?.uid ?: return
+        val user = auth.currentUser ?: return
+
+        if (familyId != null) {
+            firestore.collection("families").document(familyId).get()
+                .addOnSuccessListener { familyDoc ->
+                    val members = familyDoc.get("members") as? List<String> ?: emptyList()
+                    val otherMembers = members.filter { it != uid }
+
+                    if (otherMembers.isEmpty()) {
+                        // Último membro — apagar família inteira
+                        deleteFamilyAndAccount(familyId, uid, user)
+                    } else {
+                        // Membro normal — apenas remover da família
+                        removeFromFamilyAndDeleteAccount(familyId, uid, user)
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Erro ao apagar conta. Tenta novamente.", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            deleteUserDocumentAndAuthAccount(uid, user)
+        }
+    }
+
+    private fun deleteFamilyAndAccount(familyId: String, uid: String, user: FirebaseUser) {
+        val familyRef = firestore.collection("families").document(familyId)
+        val subcollections = listOf("products", "shopping_list", "history", "budgetHistory")
+
+        // Apagar todas as subcoleções e depois o documento da família
+        var pending = subcollections.size
+        if (pending == 0) {
+            familyRef.delete().addOnSuccessListener {
+                deleteUserDocumentAndAuthAccount(uid, user)
+            }
+            return
+        }
+
+        for (sub in subcollections) {
+            familyRef.collection(sub).get().addOnSuccessListener { snap ->
+                val batch = firestore.batch()
+                snap.documents.forEach { batch.delete(it.reference) }
+                batch.commit().addOnCompleteListener {
+                    pending--
+                    if (pending == 0) {
+                        familyRef.delete().addOnSuccessListener {
+                            deleteUserDocumentAndAuthAccount(uid, user)
+                        }
+                    }
+                }
+            }.addOnFailureListener {
+                pending--
+                if (pending == 0) {
+                    familyRef.delete().addOnSuccessListener {
+                        deleteUserDocumentAndAuthAccount(uid, user)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun removeFromFamilyAndDeleteAccount(familyId: String, uid: String, user: FirebaseUser) {
+        val familyRef = firestore.collection("families").document(familyId)
+        firestore.runTransaction { transaction ->
+            val familyDoc = transaction.get(familyRef)
+            @Suppress("UNCHECKED_CAST")
+            val members = (familyDoc.get("members") as? List<String> ?: emptyList()).toMutableList()
+            @Suppress("UNCHECKED_CAST")
+            val roles = (familyDoc.get("roles") as? Map<String, String> ?: emptyMap()).toMutableMap()
+            @Suppress("UNCHECKED_CAST")
+            val pending = (familyDoc.get("pendingMembers") as? List<String> ?: emptyList()).toMutableList()
+
+            members.remove(uid)
+            roles.remove(uid)
+            pending.remove(uid)
+
+            transaction.update(familyRef, mapOf(
+                "members" to members,
+                "roles" to roles,
+                "pendingMembers" to pending
+            ))
+        }.addOnSuccessListener {
+            deleteUserDocumentAndAuthAccount(uid, user)
+        }.addOnFailureListener {
+            Toast.makeText(requireContext(), "Erro ao remover da família. Tenta novamente.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun deleteUserDocumentAndAuthAccount(uid: String, user: FirebaseUser) {
+        firestore.collection("users").document(uid).delete()
+            .addOnCompleteListener {
+                user.delete().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val intent = Intent(requireActivity(), LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        requireActivity().finish()
+                    } else {
+                        val exception = task.exception
+                        if (exception is FirebaseAuthRecentLoginRequiredException) {
+                            showReauthDialog { deleteUserDocumentAndAuthAccount(uid, user) }
+                        } else {
+                            Toast.makeText(requireContext(), "Erro ao apagar conta: ${exception?.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
     }
 
     private fun startMfaEnrollment(phoneNumber: String) {

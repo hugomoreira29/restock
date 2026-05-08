@@ -8,6 +8,8 @@
         <item>Bebidas</item>
         <item>Limpeza</item>
         <item>Higiene</item>
+        <item>Talho/Peixaria</item>
+        <item>Padaria</item>
         <item>outro</item>
     </string-array>
 </resources>

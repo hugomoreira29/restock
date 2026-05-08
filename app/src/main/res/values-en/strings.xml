@@ -357,6 +357,9 @@
 
     <!-- Product / Camera -->
     <string name="camera_permission_denied">Camera permission denied.</string>
+    <string name="back">Back</string>
+    <string name="receipt_frame_hint">Align the receipt inside the frame</string>
+    <string name="photo_capture_error">Could not capture photo. Please try again.</string>
     <string name="loading">Loading…</string>
     <string name="product_not_found_db">Product not found in databases.</string>
     <string name="product_barcode_default">Product %s</string>

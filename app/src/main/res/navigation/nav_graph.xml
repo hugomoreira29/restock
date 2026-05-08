@@ -151,7 +151,20 @@
         android:label="fragment_invoice_scanner"
         tools:layout="@layout/fragment_invoice_scanner">
         <action
+            android:id="@+id/action_invoiceScannerFragment_to_invoiceCameraFragment"
+            app:destination="@id/invoiceCameraFragment" />
+        <action
             android:id="@+id/action_invoiceScannerFragment_to_invoiceReviewFragment"
+            app:destination="@id/invoiceReviewFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/invoiceCameraFragment"
+        android:name="com.example.restock.ui.inventario.InvoiceCameraFragment"
+        android:label="fragment_invoice_camera"
+        tools:layout="@layout/fragment_invoice_camera">
+        <action
+            android:id="@+id/action_invoiceCameraFragment_to_invoiceReviewFragment"
             app:destination="@id/invoiceReviewFragment" />
     </fragment>
 

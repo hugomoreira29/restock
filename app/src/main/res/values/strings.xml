@@ -370,6 +370,9 @@
 
     <!-- Produto / Câmara -->
     <string name="camera_permission_denied">Permissão de câmara negada.</string>
+    <string name="back">Voltar</string>
+    <string name="receipt_frame_hint">Enquadra a fatura dentro do rectângulo</string>
+    <string name="photo_capture_error">Erro ao tirar foto. Tenta novamente.</string>
     <string name="loading">A carregar…</string>
     <string name="product_not_found_db">Produto não encontrado nas bases de dados.</string>
     <string name="product_barcode_default">Produto %s</string>

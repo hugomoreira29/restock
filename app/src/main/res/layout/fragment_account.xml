@@ -290,5 +290,19 @@
             app:cornerRadius="14dp"
             app:strokeColor="#C62828" />
 
+        <!-- Delete Account Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/deleteAccountButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="Apagar Conta"
+            android:textColor="#9E9E9E"
+            app:cornerRadius="14dp" />
+
     </LinearLayout>
 </ScrollView>

@@ -8,6 +8,8 @@
         <item>Beverages</item>
         <item>Cleaning</item>
         <item>Hygiene</item>
+        <item>Butcher/Fish</item>
+        <item>Bakery</item>
         <item>Other</item>
     </string-array>
 </resources>

@@ -12,12 +12,14 @@ object CategoryUtils {
         "bebidas" to 4, "beverages" to 4, "beverage" to 4,
         "limpeza" to 5, "cleaning" to 5,
         "higiene" to 6, "hygiene" to 6,
-        "outro" to 7, "other" to 7
+        "talho/peixaria" to 7, "talho" to 7, "peixaria" to 7, "butcher/fish" to 7, "butcher" to 7,
+        "padaria" to 8, "bakery" to 8,
+        "outro" to 9, "other" to 9
     )
 
     private val neutralKeys = listOf(
         "grocery", "dairy", "fruit", "vegetables",
-        "beverages", "cleaning", "hygiene", "other"
+        "beverages", "cleaning", "hygiene", "butcher", "bakery", "other"
     )
 
     fun localize(category: String, context: Context): String {
