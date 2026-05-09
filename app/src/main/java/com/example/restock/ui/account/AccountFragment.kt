@@ -225,8 +225,8 @@ class AccountFragment : Fragment() {
                 val familyId = userDoc.getString("familyId")
 
                 if (familyId == null) {
-                    // Utilizador sem família — apagar conta diretamente
-                    confirmAndDeleteAccount(familyId = null)
+                    // Utilizador sem família — pedir reautenticação e só depois apagar
+                    showReauthDialog { confirmAndDeleteAccount(familyId = null) }
                     return@addOnSuccessListener
                 }
 
@@ -361,20 +361,36 @@ class AccountFragment : Fragment() {
     }
 
     private fun deleteUserDocumentAndAuthAccount(uid: String, user: FirebaseUser) {
+        // Capturar referências antes de qualquer operação assíncrona para evitar
+        // IllegalStateException se o fragmento for destruído durante a operação
+        val ctx      = context ?: return
+        val activity = activity ?: return
+
         firestore.collection("users").document(uid).delete()
             .addOnCompleteListener {
-                user.delete().addOnCompleteListener { task ->
+                // Usar sempre a referência mais recente do utilizador autenticado
+                val currentUser = auth.currentUser ?: user
+                currentUser.delete().addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        val intent = Intent(requireActivity(), LoginActivity::class.java)
+                        Toast.makeText(
+                            ctx.applicationContext,
+                            "A tua conta foi eliminada permanentemente.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        val intent = Intent(activity, LoginActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        requireActivity().finish()
+                        activity.startActivity(intent)
+                        activity.finish()
                     } else {
                         val exception = task.exception
+                        if (!isAdded) return@addOnCompleteListener
                         if (exception is FirebaseAuthRecentLoginRequiredException) {
-                            showReauthDialog { deleteUserDocumentAndAuthAccount(uid, user) }
+                            showReauthDialog {
+                                val freshUser = auth.currentUser ?: return@showReauthDialog
+                                deleteUserDocumentAndAuthAccount(freshUser.uid, freshUser)
+                            }
                         } else {
-                            Toast.makeText(requireContext(), "Erro ao apagar conta: ${exception?.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(ctx, "Erro ao apagar conta: ${exception?.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -469,26 +485,73 @@ class AccountFragment : Fragment() {
             val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
             googleReauthLauncher.launch(googleSignInClient.signInIntent)
         } else {
-            val input = EditText(requireContext()).apply {
-                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            val ctx = requireContext()
+
+            // Campo de palavra-passe + label de erro (visível apenas em caso de falha)
+            val input = EditText(ctx).apply {
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                        android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
                 hint = getString(R.string.reauth_password_hint)
             }
-            MaterialAlertDialogBuilder(requireContext())
+            val errorLabel = android.widget.TextView(ctx).apply {
+                setTextColor(android.graphics.Color.parseColor("#D32F2F"))
+                visibility = View.GONE
+                setPadding(0, 12, 0, 0)
+            }
+            val container = android.widget.LinearLayout(ctx).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                setPadding(64, 0, 64, 0)
+                addView(input)
+                addView(errorLabel)
+            }
+
+            // setPositiveButton com listener null impede o fecho automático do diálogo
+            val dialog = MaterialAlertDialogBuilder(ctx)
                 .setTitle(getString(R.string.reauth_title))
                 .setMessage(getString(R.string.reauth_desc))
-                .setView(input)
-                .setPositiveButton(getString(R.string.btn_confirm)) { _, _ ->
-                    val password = input.text.toString()
-                    if (password.isNotEmpty()) {
-                        reauthenticateWithPassword(password, onSuccess)
-                    }
-                }
+                .setView(container)
+                .setPositiveButton(getString(R.string.btn_confirm), null)
                 .setNegativeButton(getString(R.string.close), null)
                 .show()
+
+            dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                val password = input.text.toString()
+                if (password.isEmpty()) return@setOnClickListener
+
+                val confirmBtn = dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE)
+                confirmBtn.isEnabled = false
+                input.isEnabled = false
+                errorLabel.visibility = View.GONE
+
+                reauthenticateWithPassword(
+                    password = password,
+                    onSuccess = {
+                        dialog.dismiss()
+                        onSuccess()
+                    },
+                    onMfaRequired = {
+                        // Fechar o diálogo de password antes de mostrar o diálogo do código SMS
+                        dialog.dismiss()
+                    },
+                    onError = { msg ->
+                        if (isAdded) {
+                            confirmBtn.isEnabled = true
+                            input.isEnabled = true
+                            errorLabel.text = msg
+                            errorLabel.visibility = View.VISIBLE
+                        }
+                    }
+                )
+            }
         }
     }
 
-    private fun reauthenticateWithPassword(password: String, onSuccess: () -> Unit) {
+    private fun reauthenticateWithPassword(
+        password: String,
+        onSuccess: () -> Unit,
+        onMfaRequired: (() -> Unit)? = null,
+        onError: (String) -> Unit = {}
+    ) {
         val user = auth.currentUser ?: return
         val email = user.email ?: return
         val credential = EmailAuthProvider.getCredential(email, password)
@@ -497,12 +560,90 @@ class AccountFragment : Fragment() {
         user.reauthenticate(credential).addOnCompleteListener { task ->
             showMfaLoading(false)
             if (task.isSuccessful) {
-                Toast.makeText(requireContext(), getString(R.string.reauth_success), Toast.LENGTH_SHORT).show()
                 onSuccess()
             } else {
-                Toast.makeText(requireContext(), getString(R.string.reauth_fail), Toast.LENGTH_SHORT).show()
+                val exception = task.exception
+                if (exception is FirebaseAuthMultiFactorException) {
+                    // MFA ativo — fechar o diálogo de password e mostrar o de SMS
+                    onMfaRequired?.invoke()
+                    handleMfaReauth(exception.resolver, onSuccess)
+                } else {
+                    // Mensagem específica para password errada
+                    val msg = if (exception?.message?.contains("credential is incorrect", ignoreCase = true) == true
+                        || exception?.message?.contains("INVALID_PASSWORD", ignoreCase = true) == true
+                        || exception?.message?.contains("malformed", ignoreCase = true) == true) {
+                        "Palavra-passe incorreta. Verifica e tenta novamente."
+                    } else {
+                        getString(R.string.reauth_fail)
+                    }
+                    onError(msg)
+                }
             }
         }
+    }
+
+    private fun handleMfaReauth(resolver: MultiFactorResolver, onSuccess: () -> Unit) {
+        val mfaHint = resolver.hints.firstOrNull() as? PhoneMultiFactorInfo ?: run {
+            Toast.makeText(requireContext(), getString(R.string.no_mfa_factor), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        showMfaLoading(true)
+        val options = PhoneAuthOptions.newBuilder()
+            .setActivity(requireActivity())
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setMultiFactorSession(resolver.session)
+            .setMultiFactorHint(mfaHint)   // ← re-auth MFA usa hint, não phoneNumber
+            .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+                override fun onCodeSent(vId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                    showMfaLoading(false)
+                    // Mostrar diálogo para o utilizador introduzir o código SMS
+                    val input = EditText(requireContext())
+                    input.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                    input.hint = getString(R.string.sms_code_hint)
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(getString(R.string.mfa_title))
+                        .setMessage(getString(R.string.sms_sent_success, mfaHint.phoneNumber))
+                        .setView(input)
+                        .setPositiveButton(getString(R.string.btn_confirm)) { _, _ ->
+                            val code = input.text.toString().trim()
+                            if (code.isNotEmpty()) {
+                                showMfaLoading(true)
+                                val phoneCredential = PhoneAuthProvider.getCredential(vId, code)
+                                val assertion = PhoneMultiFactorGenerator.getAssertion(phoneCredential)
+                                resolver.resolveSignIn(assertion).addOnCompleteListener { resolveTask ->
+                                    showMfaLoading(false)
+                                    if (resolveTask.isSuccessful) {
+                                        Toast.makeText(requireContext(), getString(R.string.reauth_success), Toast.LENGTH_SHORT).show()
+                                        onSuccess()
+                                    } else {
+                                        Toast.makeText(requireContext(), getString(R.string.reauth_fail), Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        }
+                        .setNegativeButton(getString(R.string.close), null)
+                        .show()
+                }
+
+                override fun onVerificationCompleted(phoneCredential: PhoneAuthCredential) {
+                    // Auto-verificação (raro em re-autenticação)
+                    val assertion = PhoneMultiFactorGenerator.getAssertion(phoneCredential)
+                    resolver.resolveSignIn(assertion).addOnCompleteListener { resolveTask ->
+                        showMfaLoading(false)
+                        if (resolveTask.isSuccessful) onSuccess()
+                    }
+                }
+
+                override fun onVerificationFailed(e: FirebaseException) {
+                    showMfaLoading(false)
+                    Toast.makeText(requireContext(), "Erro MFA: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            })
+            .build()
+
+        PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
     /**
