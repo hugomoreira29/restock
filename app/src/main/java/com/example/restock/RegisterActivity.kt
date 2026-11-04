@@ -6,28 +6,34 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 
-// AndroidX - para a Activity base
+// AndroidX - para a Activity base e operações assíncronas ligadas ao seu ciclo de vida
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 
 // Binding - para aceder às vistas do layout de forma segura
 import com.example.restock.databinding.ActivityRegisterBinding
 import com.example.restock.ui.openPrivacyPolicy
 
-// Modelos internos da aplicação
+// Modelos e dados internos da aplicação
+import com.example.restock.data.FamilyRepository
 import com.example.restock.model.Family
 import com.example.restock.model.User
 
 // Firebase - autenticação, atualização de perfil, base de dados e operações em lote
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.WriteBatch
+
+// Coroutines - para consultar o convite sem bloquear a interface
+import kotlinx.coroutines.launch
 
 /** HUGO MOREIRA - a22402246
  * Activity responsável pelo registo de novos utilizadores.
  * Cria a conta com email/palavra-passe e envia um email de verificação.
- * Se for fornecido um código de convite, junta o utilizador à família existente.
+ * Se for fornecido um código de convite, envia um pedido de adesão a essa família.
  * Caso contrário, cria automaticamente uma nova família com o utilizador como administrador.
  */
 class RegisterActivity : AppCompatActivity() {
@@ -35,6 +41,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private val familyRepository by lazy { FamilyRepository(firestore) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,9 +82,9 @@ class RegisterActivity : AppCompatActivity() {
 
                                 // Junta-se à família existente ou cria uma nova
                                 if (inviteCode.isNotEmpty()) {
-                                    joinFamily(inviteCode, firebaseUser.uid, name, email)
+                                    requestToJoinFamily(inviteCode, firebaseUser.uid, name)
                                 } else {
-                                    createNewFamily(firebaseUser.uid, name, email)
+                                    createNewFamily(firebaseUser.uid, name)
                                 }
                             } else {
                                 hideLoading()
@@ -100,44 +107,37 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     /**
-     * Tenta juntar o utilizador a uma família existente através do código de convite.
-     * Adiciona o utilizador à lista de membros e invalida o código após a utilização.
+     * Cria o perfil do utilizador e envia um pedido de adesão à família do convite,
+     * que fica à espera da aprovação de um administrador.
      * Em caso de código inválido ou erro, elimina a conta criada para evitar inconsistências.
      */
-    private fun joinFamily(inviteCode: String, userId: String, name: String, email: String) {
-        firestore.collection("families").whereEqualTo("inviteCode", inviteCode).get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    deleteAccountAndShowError(getString(R.string.invalid_invite_code))
-                    return@addOnSuccessListener
-                }
-
-                val familyDoc = documents.first()
-                val familyId = familyDoc.id
-                val batch = firestore.batch()
-
-                // Cria o documento do utilizador associado à família
-                val userRef = firestore.collection("users").document(userId)
-                batch.set(userRef, User(uid = userId, name = name, email = email, familyId = familyId))
-
-                // Adiciona o utilizador à família e invalida o código de convite
-                val familyRef = firestore.collection("families").document(familyId)
-                batch.update(familyRef, "members", FieldValue.arrayUnion(userId))
-                batch.update(familyRef, "roles.$userId", "Membro")
-                batch.update(familyRef, "inviteCode", null)
-
-                commitBatch(batch)
-            }
-            .addOnFailureListener {
+    private fun requestToJoinFamily(inviteCode: String, userId: String, name: String) {
+        lifecycleScope.launch {
+            val familyId = try {
+                familyRepository.findFamilyIdByInvite(inviteCode)
+            } catch (e: FirebaseFirestoreException) {
                 deleteAccountAndShowError(getString(R.string.family_search_error))
+                return@launch
             }
+            if (familyId == null) {
+                deleteAccountAndShowError(getString(R.string.invalid_invite_code))
+                return@launch
+            }
+
+            val batch = firestore.batch()
+            val userRef = firestore.collection("users").document(userId)
+            batch.set(userRef, User(uid = userId, name = name, pendingFamilyId = familyId))
+            familyRepository.addJoinRequest(batch, familyId, userId)
+
+            commitBatch(batch, successMessage = R.string.family_request_sent)
+        }
     }
 
     /**
      * Cria uma nova família e o perfil do utilizador no Firestore usando um batch.
      * O utilizador é definido automaticamente como administrador da família criada.
      */
-    private fun createNewFamily(userId: String, name: String, email: String) {
+    private fun createNewFamily(userId: String, name: String) {
         val batch = firestore.batch()
         val newFamilyRef = firestore.collection("families").document()
 
@@ -152,7 +152,7 @@ class RegisterActivity : AppCompatActivity() {
 
         // Cria o documento do utilizador associado à nova família
         val userRef = firestore.collection("users").document(userId)
-        batch.set(userRef, User(uid = userId, name = name, email = email, familyId = newFamily.id))
+        batch.set(userRef, User(uid = userId, name = name, familyId = newFamily.id))
 
         commitBatch(batch)
     }
@@ -161,10 +161,11 @@ class RegisterActivity : AppCompatActivity() {
      * Executa o batch de operações no Firestore.
      * Em caso de sucesso, faz logout e navega para a LoginActivity para verificação de email.
      */
-    private fun commitBatch(batch: WriteBatch) {
+    private fun commitBatch(batch: WriteBatch, @StringRes successMessage: Int? = null) {
         batch.commit().addOnCompleteListener { batchTask ->
             hideLoading()
             if (batchTask.isSuccessful) {
+                successMessage?.let { Toast.makeText(baseContext, getString(it), Toast.LENGTH_LONG).show() }
                 // Força o logout para garantir que o utilizador valide o email antes de entrar
                 auth.signOut()
                 val intent = Intent(this, LoginActivity::class.java).apply {

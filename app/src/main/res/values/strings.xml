@@ -384,6 +384,9 @@
     <string name="settings_ad_privacy">Privacidade dos anúncios</string>
     <string name="register_privacy_notice">Ao criares conta, os teus dados são tratados de acordo com a Política de Privacidade.</string>
     <string name="delete_account_button">Apagar Conta</string>
+    <string name="family_leave_last_message">És o último membro. Ao sair, a família, o inventário, a lista de compras, o orçamento e as fotografias serão apagados permanentemente.</string>
+    <string name="invite_generate_error">Não foi possível gerar o convite. Tenta novamente.</string>
+    <string name="family_request_pending">O teu pedido para entrar na família está à espera da aprovação de um administrador.</string>
     <string name="open_link_error">Não foi possível abrir o link.</string>
     <string name="account_delete_error">Não foi possível apagar todos os dados, por isso a conta não foi eliminada. Tenta novamente.</string>
 </resources>

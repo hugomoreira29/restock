@@ -1,0 +1,176 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function familyPath(familyId) {
+      return /databases/$(database)/documents/families/$(familyId);
+    }
+
+    function isFamilyAdmin(familyId, userId) {
+      return familyId != null &&
+             exists(familyPath(familyId)) &&
+             get(familyPath(familyId)).data.roles[userId] == 'Admin';
+    }
+
+    function isFamilyMember(familyId, userId) {
+      return familyId != null &&
+             exists(familyPath(familyId)) &&
+             get(familyPath(familyId)).data.members.hasAny([userId]);
+    }
+
+    function isOnlyFamilyMember(familyId, userId) {
+      return familyId != null &&
+             exists(familyPath(familyId)) &&
+             get(familyPath(familyId)).data.members == [userId];
+    }
+
+    function hasPendingRequest(familyId, userId) {
+      return familyId != null &&
+             exists(familyPath(familyId)) &&
+             get(familyPath(familyId)).data.pendingMembers.hasAny([userId]);
+    }
+
+    function changesOnly(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // O email e o telemóvel ficam só no Firebase Authentication.
+    // Remover estes campos de contas antigas continua a ser permitido.
+    function privateFields() {
+      return ['email', 'phoneNumber'];
+    }
+
+    match /users/{userId} {
+      // Sem "list": ninguém consegue descarregar a coleção de utilizadores
+      allow get: if request.auth != null && (
+        request.auth.uid == userId ||
+        isFamilyMember(resource.data.get('familyId', null), request.auth.uid) ||
+        isFamilyAdmin(resource.data.get('pendingFamilyId', null), request.auth.uid)
+      );
+
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && !request.resource.data.keys().hasAny(privateFields());
+
+      allow update: if request.auth != null && (
+        (
+          request.auth.uid == userId &&
+          !request.resource.data.diff(resource.data).addedKeys().hasAny(privateFields()) &&
+          !request.resource.data.diff(resource.data).changedKeys().hasAny(privateFields())
+        )
+        ||
+        // Aprovar um pedido: só para quem pediu mesmo para entrar nesta família
+        (
+          changesOnly(['familyId', 'pendingFamilyId']) &&
+          request.resource.data.familyId != null &&
+          !request.resource.data.keys().hasAny(['pendingFamilyId']) &&
+          isFamilyAdmin(request.resource.data.familyId, request.auth.uid) &&
+          hasPendingRequest(request.resource.data.familyId, userId)
+        )
+        ||
+        // Rejeitar um pedido
+        (
+          changesOnly(['pendingFamilyId']) &&
+          !request.resource.data.keys().hasAny(['pendingFamilyId']) &&
+          isFamilyAdmin(resource.data.get('pendingFamilyId', null), request.auth.uid)
+        )
+        ||
+        // Remover um membro da família
+        (
+          changesOnly(['familyId']) &&
+          request.resource.data.familyId == null &&
+          resource.data.familyId != null &&
+          isFamilyAdmin(resource.data.familyId, request.auth.uid)
+        )
+      );
+
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // O ID de cada documento é o próprio código. Sem "list", só abre um
+    // convite quem já sabe o código, e os códigos não podem ser enumerados.
+    match /invites/{code} {
+      allow get: if request.auth != null;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['familyId', 'expiresAt'])
+        && isFamilyAdmin(request.resource.data.familyId, request.auth.uid);
+
+      allow delete: if request.auth != null && (
+        isFamilyAdmin(resource.data.familyId, request.auth.uid) ||
+        isOnlyFamilyMember(resource.data.familyId, request.auth.uid)
+      );
+    }
+
+    match /families/{familyId} {
+      // Sem "list": as famílias só podem ser abertas pelos seus membros
+      allow get: if request.auth != null && resource.data.members.hasAny([request.auth.uid]);
+
+      // Quem cria fica como único membro e administrador
+      allow create: if request.auth != null
+        && request.resource.data.members == [request.auth.uid]
+        && request.resource.data.roles.size() == 1
+        && request.resource.data.roles[request.auth.uid] == 'Admin';
+
+      allow update: if request.auth != null && (
+        isFamilyAdmin(familyId, request.auth.uid)
+        ||
+        // Pedir para entrar: só com convite válido e acrescentando apenas o próprio
+        (
+          resource.data.inviteCode != null &&
+          resource.data.inviteCodeExpiry > request.time.toMillis() &&
+          !resource.data.members.hasAny([request.auth.uid]) &&
+          changesOnly(['pendingMembers']) &&
+          request.resource.data.pendingMembers.toSet() ==
+            resource.data.pendingMembers.toSet().union([request.auth.uid].toSet())
+        )
+        ||
+        // Cancelar o próprio pedido
+        (
+          changesOnly(['pendingMembers']) &&
+          request.resource.data.pendingMembers.toSet() ==
+            resource.data.pendingMembers.toSet().difference([request.auth.uid].toSet())
+        )
+        ||
+        // Sair da família: retira apenas o próprio dos membros e dos cargos
+        (
+          resource.data.members.hasAny([request.auth.uid]) &&
+          changesOnly(['members', 'roles']) &&
+          request.resource.data.members.toSet() ==
+            resource.data.members.toSet().difference([request.auth.uid].toSet()) &&
+          !request.resource.data.roles.keys().hasAny([request.auth.uid]) &&
+          request.resource.data.roles.diff(resource.data.roles).affectedKeys().hasOnly([request.auth.uid])
+        )
+      );
+
+      // O último membro tem de poder apagar a família ao sair ou eliminar a conta,
+      // mesmo que já não exista nenhum administrador
+      allow delete: if request.auth != null && (
+        isFamilyAdmin(familyId, request.auth.uid) ||
+        isOnlyFamilyMember(familyId, request.auth.uid)
+      );
+
+      // subcoleções listadas explicitamente para evitar que o wildcard
+      // dê aos membros permissão de escrita no budgetHistory
+      match /products/{documentId} {
+        allow read, write, delete: if request.auth != null && isFamilyMember(familyId, request.auth.uid);
+      }
+      match /shopping_list/{documentId} {
+        allow read, write, delete: if request.auth != null && isFamilyMember(familyId, request.auth.uid);
+      }
+      match /history/{documentId} {
+        allow read, write, delete: if request.auth != null && isFamilyMember(familyId, request.auth.uid);
+      }
+      match /budgetHistory/{snapshotId} {
+        allow read: if request.auth != null && isFamilyMember(familyId, request.auth.uid);
+        allow create, update: if request.auth != null && isFamilyAdmin(familyId, request.auth.uid);
+        allow delete: if request.auth != null && (
+          isFamilyAdmin(familyId, request.auth.uid) ||
+          isOnlyFamilyMember(familyId, request.auth.uid)
+        );
+      }
+    }
+  }
+}

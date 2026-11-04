@@ -11,14 +11,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-// AndroidX - para o lançador de resultados e a Activity base
+// AndroidX - para o lançador de resultados, a Activity base e operações assíncronas
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 
 // Binding - para aceder às vistas do layout de forma segura
 import com.example.restock.databinding.ActivityLoginBinding
 
-// Modelos internos da aplicação
+// Modelos e dados internos da aplicação
+import com.example.restock.data.FamilyRepository
 import com.example.restock.model.Family
 import com.example.restock.model.User
 
@@ -31,9 +34,12 @@ import com.google.android.gms.common.api.ApiException
 // Firebase - autenticação, base de dados e operações em lote
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.*
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.WriteBatch
+
+// Coroutines - para consultar o convite sem bloquear a interface
+import kotlinx.coroutines.launch
 
 /** HUGO MOREIRA - a22402246
  * Activity responsável pelo ecrã de login da aplicação.
@@ -47,6 +53,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private val familyRepository by lazy { FamilyRepository(firestore) }
     private lateinit var googleSignInClient: GoogleSignInClient
 
     // Lançador para o fluxo de autenticação com Google
@@ -372,7 +379,6 @@ class LoginActivity : AppCompatActivity() {
         val user = User(
             uid = firebaseUser.uid,
             name = firebaseUser.displayName ?: "",
-            email = firebaseUser.email ?: "",
             familyId = newFamily.id,
             photoUrl = firebaseUser.photoUrl?.toString()
         )
@@ -382,56 +388,51 @@ class LoginActivity : AppCompatActivity() {
     }
 
     /**
-     * Tenta juntar o utilizador Google a uma família existente através do código de convite.
+     * Cria o perfil do utilizador Google e envia um pedido de adesão à família do convite,
+     * que fica à espera da aprovação de um administrador.
      */
     private fun joinFamilyForGoogleUser(firebaseUser: FirebaseUser, inviteCode: String) {
         showLoading()
-        firestore.collection("families").whereEqualTo("inviteCode", inviteCode).get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    hideLoading()
-                    Toast.makeText(this, getString(R.string.invalid_invite_code), Toast.LENGTH_LONG).show()
-                    showJoinFamilyDialog(firebaseUser)
-                    return@addOnSuccessListener
-                }
-
-                val familyDoc = documents.first()
-                val familyId = familyDoc.id
-                val batch = firestore.batch()
-
-                val userRef = firestore.collection("users").document(firebaseUser.uid)
-                val user = User(
-                    uid = firebaseUser.uid,
-                    name = firebaseUser.displayName ?: "",
-                    email = firebaseUser.email ?: "",
-                    familyId = familyId,
-                    photoUrl = firebaseUser.photoUrl?.toString()
-                )
-                batch.set(userRef, user)
-
-                val familyRef = firestore.collection("families").document(familyId)
-                batch.update(familyRef, "members", FieldValue.arrayUnion(firebaseUser.uid))
-                batch.update(familyRef, "roles.${firebaseUser.uid}", "Membro")
-                batch.update(familyRef, "inviteCode", null)
-
-                commitBatch(batch)
-            }
-            .addOnFailureListener {
+        lifecycleScope.launch {
+            val familyId = try {
+                familyRepository.findFamilyIdByInvite(inviteCode)
+            } catch (e: FirebaseFirestoreException) {
                 hideLoading()
-                Toast.makeText(this, getString(R.string.family_search_error), Toast.LENGTH_LONG).show()
+                Toast.makeText(this@LoginActivity, getString(R.string.family_search_error), Toast.LENGTH_LONG).show()
                 showJoinFamilyDialog(firebaseUser)
+                return@launch
             }
+            if (familyId == null) {
+                hideLoading()
+                Toast.makeText(this@LoginActivity, getString(R.string.invalid_invite_code), Toast.LENGTH_LONG).show()
+                showJoinFamilyDialog(firebaseUser)
+                return@launch
+            }
+
+            val batch = firestore.batch()
+            val userRef = firestore.collection("users").document(firebaseUser.uid)
+            val user = User(
+                uid = firebaseUser.uid,
+                name = firebaseUser.displayName ?: "",
+                pendingFamilyId = familyId,
+                photoUrl = firebaseUser.photoUrl?.toString()
+            )
+            batch.set(userRef, user)
+            familyRepository.addJoinRequest(batch, familyId, firebaseUser.uid)
+
+            commitBatch(batch, successMessage = R.string.family_request_sent)
+        }
     }
 
     /**
      * Executa o batch de operações no Firestore.
      * Em caso de falha, elimina a conta criada para evitar dados inconsistentes.
      */
-    private fun commitBatch(batch: WriteBatch) {
+    private fun commitBatch(batch: WriteBatch, @StringRes successMessage: Int = R.string.register_success) {
         batch.commit().addOnCompleteListener { batchTask ->
             hideLoading()
             if (batchTask.isSuccessful) {
-                Toast.makeText(this, getString(R.string.register_success), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(successMessage), Toast.LENGTH_SHORT).show()
                 navigateToHome()
             } else {
                 // Elimina a conta do Firebase Authentication se os dados não forem guardados

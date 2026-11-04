@@ -1,9 +1,15 @@
 package com.example.restock.ui.family
 
+// Android - para registar erros
+import android.util.Log
+
 // AndroidX - ViewModel para gerir os dados do ecrã de família
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 
-// Classes internas da aplicação - repositório e modelos
+// Classes internas da aplicação - repositórios e modelos
+import com.example.restock.data.AccountDeletionRepository
+import com.example.restock.data.FamilyRepository
 import com.example.restock.data.UserRepository
 import com.example.restock.model.Family
 import com.example.restock.model.User
@@ -12,11 +18,18 @@ import com.example.restock.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 
-// Coroutines - para expor os dados como fluxos observáveis pela interface
+// Coroutines - para operações assíncronas e para expor os dados à interface
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 /**
  * Representa um membro da família com os seus dados de utilizador e cargo.
@@ -34,6 +47,7 @@ data class FamilyMember(
 class FamilyViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val familyRepository = FamilyRepository(db)
     private val userRepository = UserRepository()
     private val auth = FirebaseAuth.getInstance()
 
@@ -119,9 +133,21 @@ class FamilyViewModel : ViewModel() {
             return
         }
 
-        // Vai buscar os utilizadores pelos seus UIDs e associa o cargo de cada um
-        db.collection("users").whereIn("uid", idList).get().addOnSuccessListener { userSnapshots ->
-            val users = userSnapshots.toObjects(User::class.java)
+        // Vai buscar cada perfil individualmente: as regras não permitem listar utilizadores.
+        // Um perfil inacessível é ignorado, para não esconder os restantes.
+        viewModelScope.launch {
+            val users = coroutineScope {
+                idList.map { uid ->
+                    async {
+                        try {
+                            db.collection("users").document(uid).get().await().toObject(User::class.java)
+                        } catch (e: FirebaseFirestoreException) {
+                            Log.w(TAG, "Perfil inacessível", e)
+                            null
+                        }
+                    }
+                }.awaitAll().filterNotNull()
+            }
             val familyMembers = users.map { user ->
                 val role = family.roles[user.uid] ?: "Membro"
                 FamilyMember(user, role)
@@ -132,17 +158,18 @@ class FamilyViewModel : ViewModel() {
     }
 
     /**
-     * Gera um código de convite aleatório de 6 caracteres e guarda-o no Firestore.
+     * Gera um novo código de convite, válido por 24 horas, e invalida o anterior.
      * Invoca o callback com o código gerado após a operação ser concluída.
      */
-    fun generateInviteCode(onCodeGenerated: (String) -> Unit) {
-        familyId?.let { fId ->
-            val allowedChars = ('A'..'Z') + ('0'..'9')
-            val newCode = (1..6).map { allowedChars.random() }.joinToString("")
-            val expiry = System.currentTimeMillis() + 24 * 60 * 60 * 1000L // 24 horas
-            db.collection("families").document(fId)
-                .update("inviteCode", newCode, "inviteCodeExpiry", expiry)
-                .addOnSuccessListener { onCodeGenerated(newCode) }
+    fun generateInviteCode(onCodeGenerated: (String) -> Unit, onError: () -> Unit) {
+        val fId = familyId ?: return
+        viewModelScope.launch {
+            try {
+                onCodeGenerated(familyRepository.createInvite(fId, _family.value?.inviteCode))
+            } catch (e: FirebaseFirestoreException) {
+                Log.w(TAG, "Falha ao gerar o convite", e)
+                onError()
+            }
         }
     }
 
@@ -153,26 +180,21 @@ class FamilyViewModel : ViewModel() {
     fun requestToJoinFamily(inviteCode: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         val userId = auth.currentUser?.uid ?: return onError("Utilizador não autenticado.")
 
-        db.collection("families").whereEqualTo("inviteCode", inviteCode).get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) return@addOnSuccessListener onError("Código de convite inválido.")
-
-                val familyDoc = documents.first()
-
-                // Verifica se o código expirou (24h)
-                val expiry = familyDoc.getLong("inviteCodeExpiry")
-                if (expiry != null && System.currentTimeMillis() > expiry) {
-                    return@addOnSuccessListener onError("O código de convite expirou. Pede um novo ao administrador.")
+        viewModelScope.launch {
+            try {
+                val targetFamilyId = familyRepository.findFamilyIdByInvite(inviteCode)
+                when (targetFamilyId) {
+                    null -> onError("Código de convite inválido ou expirado. Pede um novo ao administrador.")
+                    familyId -> onError("Você já pertence a esta família.")
+                    else -> {
+                        familyRepository.requestToJoin(targetFamilyId, userId)
+                        onSuccess()
+                    }
                 }
-
-                // Impede o utilizador de enviar um pedido para a família a que já pertence
-                if (familyDoc.id == familyId) return@addOnSuccessListener onError("Você já pertence ou pediu para entrar nesta família.")
-
-                // Adiciona o utilizador à lista de pedidos pendentes da família
-                familyDoc.reference.update("pendingMembers", FieldValue.arrayUnion(userId))
-                    .addOnSuccessListener { onSuccess() }
-                    .addOnFailureListener { e -> onError("Erro ao enviar pedido: ${e.message}") }
+            } catch (e: FirebaseFirestoreException) {
+                onError("Erro ao enviar pedido: ${e.message}")
             }
+        }
     }
 
     /**
@@ -189,7 +211,7 @@ class FamilyViewModel : ViewModel() {
             transaction.update(familyRef, "pendingMembers", FieldValue.arrayRemove(userToJoin.uid))
             transaction.update(familyRef, "members", FieldValue.arrayUnion(userToJoin.uid))
             transaction.update(familyRef, "roles.${userToJoin.uid}", "Membro")
-            transaction.update(userRef, "familyId", currentFamId)
+            transaction.update(userRef, "familyId", currentFamId, "pendingFamilyId", FieldValue.delete())
             null
         }.addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onError("Falha na aprovação: ${e.message}") }
@@ -199,12 +221,20 @@ class FamilyViewModel : ViewModel() {
      * Rejeita o pedido de adesão de um utilizador, removendo-o da lista de pendentes.
      */
     fun rejectJoinRequest(userToReject: User, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        familyId?.let {
-            db.collection("families").document(it)
-                .update("pendingMembers", FieldValue.arrayRemove(userToReject.uid))
-                .addOnSuccessListener { onSuccess() }
-                .addOnFailureListener { e -> onError("Falha ao rejeitar: ${e.message}") }
-        } ?: onError("Família não encontrada.")
+        val currentFamId = familyId ?: return onError("Família não encontrada.")
+        val batch = db.batch()
+        batch.update(
+            db.collection("families").document(currentFamId),
+            "pendingMembers", FieldValue.arrayRemove(userToReject.uid)
+        )
+        // Sem o pedido, o administrador deixa de poder ver o perfil desta pessoa
+        batch.update(
+            db.collection("users").document(userToReject.uid),
+            "pendingFamilyId", FieldValue.delete()
+        )
+        batch.commit()
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onError("Falha ao rejeitar: ${e.message}") }
     }
 
     /**
@@ -231,10 +261,28 @@ class FamilyViewModel : ViewModel() {
 
     /**
      * Permite ao utilizador autenticado sair da família.
-     * Reutiliza a lógica de remoção de membro.
+     * Se for o último membro, apaga a família e todo o seu conteúdo,
+     * que de outra forma ficaria guardado sem ninguém lhe poder aceder.
      */
-    fun leaveFamily(user: User) {
-        removeMember(user, onSuccess = {}, onError = {})
+    fun leaveFamily(user: User, onError: (String) -> Unit) {
+        val currentFamId = familyId ?: return onError("Família não encontrada.")
+        val isLastMember = _family.value?.members?.all { it == user.uid } == true
+        if (!isLastMember) {
+            removeMember(user, onSuccess = {}, onError = onError)
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                AccountDeletionRepository(db).deleteFamily(currentFamId)
+                db.collection("users").document(user.uid).update("familyId", null).await()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Falha ao apagar a família", e)
+                onError("Falha ao sair da família: ${e.message}")
+            }
+        }
     }
 
     /**
@@ -279,5 +327,9 @@ class FamilyViewModel : ViewModel() {
         super.onCleared()
         userListenerRegistration?.remove()
         familyListenerRegistration?.remove()
+    }
+
+    private companion object {
+        const val TAG = "FamilyViewModel"
     }
 }

@@ -151,9 +151,10 @@ class FamilyFragment : Fragment() {
 
         // Gera um código de convite e apresenta-o num diálogo
         binding.addMemberButton.setOnClickListener {
-            viewModel.generateInviteCode { code ->
-                showInviteCodeDialog(code)
-            }
+            viewModel.generateInviteCode(
+                onCodeGenerated = { code -> showInviteCodeDialog(code) },
+                onError = { Toast.makeText(context, getString(R.string.invite_generate_error), Toast.LENGTH_LONG).show() }
+            )
         }
 
         // Envia um pedido para entrar numa família com o código introduzido
@@ -189,12 +190,23 @@ class FamilyFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            // Avisa que, sendo o último membro, o conteúdo da família é apagado
+            val leaveMessage = if (memberAdapter.currentList.size <= 1) {
+                R.string.family_leave_last_message
+            } else {
+                R.string.family_leave_message
+            }
+
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.family_leave_title))
-                .setMessage(getString(R.string.family_leave_message))
+                .setMessage(getString(leaveMessage))
                 .setNegativeButton(getString(R.string.cancel), null)
                 .setPositiveButton(getString(R.string.leave)) { _, _ ->
-                    currentUserMember?.let { viewModel.leaveFamily(it.user) }
+                    currentUserMember?.let { member ->
+                        viewModel.leaveFamily(member.user) { error ->
+                            Toast.makeText(context, getString(R.string.error_prefix, error), Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
                 .show()
         }

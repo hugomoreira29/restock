@@ -12,10 +12,9 @@ import java.util.Date
 data class User(
     var uid: String = "",             // Identificador único do utilizador no Firebase Authentication
     var name: String = "",            // Nome do utilizador
-    var email: String = "",           // Endereço de email do utilizador
-    var phoneNumber: String? = null,  // Número de telemóvel do utilizador (MFA)
     var photoUrl: String? = null,     // URL da fotografia de perfil do utilizador, pode ser nula
     var familyId: String? = null,     // Identificador da família a que o utilizador pertence, pode ser nulo
+    var pendingFamilyId: String? = null, // Família a que pediu para aderir, enquanto aguarda aprovação
     var points: Int = 0,              // Pontos acumulados pelo utilizador no sistema de gamificação
     var level: Int = 1,               // Nível atual do utilizador, começa no nível 1
 

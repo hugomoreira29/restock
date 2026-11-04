@@ -17,7 +17,6 @@ class ModelIntegrityTest {
         val user = User(
             uid = "user_123",
             name = "Hugo Moreira",
-            email = "hugo@example.com",
             points = 150,
             level = 2,
             familyId = "fam_456"

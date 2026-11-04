@@ -30,6 +30,7 @@ import com.bumptech.glide.Glide
 import com.example.restock.LoginActivity
 import com.example.restock.R
 import com.example.restock.data.AccountDeletionRepository
+import com.example.restock.data.ImageCompressor
 import com.example.restock.databinding.FragmentAccountBinding
 
 // Bottom sheets - para editar o nome e a palavra-passe do utilizador
@@ -44,6 +45,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 
 /** HUGO MOREIRA - a22402246
@@ -396,7 +398,6 @@ class AccountFragment : Fragment() {
                 showMfaLoading(false)
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), getString(R.string.mfa_enroll_success), Toast.LENGTH_LONG).show()
-                    updatePhoneNumberInFirestore(phoneNumber)
                     binding.mfaVerifyContainer.visibility = View.GONE
                     updateMfaUi()
                 } else {
@@ -588,18 +589,6 @@ class AccountFragment : Fragment() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    /**
-     * Guarda o número de telemóvel no documento do utilizador no Firestore
-     */
-    private fun updatePhoneNumberInFirestore(phoneNumber: String) {
-        val userId = auth.currentUser?.uid ?: return
-        firestore.collection("users").document(userId)
-            .update("phoneNumber", phoneNumber)
-            .addOnFailureListener {
-                // Silencioso ou logar erro
-            }
-    }
-
     /** Para callbacks do Firebase que podem chegar depois de a vista ser destruída. */
     private fun showMfaLoadingIfVisible(isLoading: Boolean) {
         if (_binding != null) showMfaLoading(isLoading)
@@ -615,23 +604,26 @@ class AccountFragment : Fragment() {
         val user = auth.currentUser ?: return
         val storageRef = storage.reference.child("profile_images/${user.uid}")
 
-        storageRef.putFile(uri).addOnSuccessListener {
-            storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                val photoUrl = downloadUri.toString()
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val image = ImageCompressor.compress(requireContext(), uri)
+                storageRef.putBytes(image, ImageCompressor.jpegMetadata).await()
+                val downloadUri = storageRef.downloadUrl.await()
+
                 val profileUpdates = UserProfileChangeRequest.Builder().setPhotoUri(downloadUri).build()
-                user.updateProfile(profileUpdates).addOnCompleteListener { authTask ->
-                    if (authTask.isSuccessful) {
-                        firestore.collection("users").document(user.uid)
-                            .update("photoUrl", photoUrl)
-                            .addOnSuccessListener {
-                                Toast.makeText(context, "Imagem de perfil atualizada.", Toast.LENGTH_SHORT).show()
-                                loadUserData()
-                            }
-                    }
-                }
+                user.updateProfile(profileUpdates).await()
+                firestore.collection("users").document(user.uid)
+                    .update("photoUrl", downloadUri.toString())
+                    .await()
+
+                Toast.makeText(context, "Imagem de perfil atualizada.", Toast.LENGTH_SHORT).show()
+                loadUserData()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("AccountFragment", "Falha ao atualizar a imagem de perfil", e)
+                Toast.makeText(context, "Falha no upload da imagem.", Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener {
-            Toast.makeText(context, "Falha no upload da imagem.", Toast.LENGTH_SHORT).show()
         }
     }
 

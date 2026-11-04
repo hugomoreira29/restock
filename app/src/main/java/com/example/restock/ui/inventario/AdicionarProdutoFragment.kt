@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide
 
 // Classes internas da aplicação - recursos, binding e modelo do produto
 import com.example.restock.R
+import com.example.restock.data.ImageCompressor
 import com.example.restock.databinding.FragmentAdicionarProdutoBinding
 import com.example.restock.model.Product
 
@@ -34,8 +35,10 @@ import com.example.restock.model.Product
 import com.google.firebase.storage.FirebaseStorage
 
 // Coroutines - para chamadas à API em background sem bloquear a interface
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 // JSON e rede - para processar as respostas das APIs de código de barras
@@ -399,16 +402,35 @@ class AdicionarProdutoFragment : Fragment() {
      * e guarda o produto com o URL da imagem após o upload ser concluído.
      */
     private fun uploadImageAndSaveProduct(name: String, quantity: Double, unit: String, category: String, price: Double, expiryDate: Date?) {
-        val storageRef = FirebaseStorage.getInstance().reference.child("product_images/${UUID.randomUUID()}")
+        val familyId = viewModel.familyId
+        if (familyId == null) {
+            Toast.makeText(context, getString(R.string.image_upload_fail), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // As imagens ficam na pasta da família, para só os seus membros lhes poderem aceder
+        val storageRef = FirebaseStorage.getInstance().reference
+            .child("product_images/$familyId/${UUID.randomUUID()}")
         // Em edição, a nova imagem substitui a anterior, que deixaria de estar associada ao produto
         val previousImageUrl = if (isEditMode) viewModel.selectedProduct.value?.imagemUrl else null
-        storageRef.putFile(imageUri!!).addOnSuccessListener {
-            storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
+        val localImage = imageUri!!
+
+        // A compressão e o envio demoram: evita que o produto seja guardado duas vezes
+        binding.addProductButton.isEnabled = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val image = ImageCompressor.compress(requireContext(), localImage)
+                storageRef.putBytes(image, ImageCompressor.jpegMetadata).await()
+                val downloadUrl = storageRef.downloadUrl.await()
                 saveProduct(name, quantity, unit, category, price, expiryDate, downloadUrl.toString())
                 viewModel.deleteProductImage(previousImageUrl)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("AdicionarProduto", "Falha ao enviar a imagem", e)
+                binding.addProductButton.isEnabled = true
+                Toast.makeText(context, getString(R.string.image_upload_fail), Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener {
-            Toast.makeText(context, getString(R.string.image_upload_fail), Toast.LENGTH_SHORT).show()
         }
     }
 

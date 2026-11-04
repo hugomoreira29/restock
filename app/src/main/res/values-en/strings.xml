@@ -370,6 +370,9 @@
     <string name="settings_ad_privacy">Ad privacy</string>
     <string name="register_privacy_notice">By creating an account, your data is handled according to the Privacy Policy.</string>
     <string name="delete_account_button">Delete account</string>
+    <string name="family_leave_last_message">You are the last member. If you leave, the family, inventory, shopping list, budget and photos will be permanently deleted.</string>
+    <string name="invite_generate_error">Could not generate the invite. Please try again.</string>
+    <string name="family_request_pending">Your request to join the family is waiting for an admin to approve it.</string>
     <string name="open_link_error">Could not open the link.</string>
     <string name="account_delete_error">Not all data could be deleted, so your account was not removed. Please try again.</string>
 </resources>

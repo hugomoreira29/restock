@@ -27,6 +27,8 @@ import com.google.android.gms.ads.AdView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import java.util.concurrent.TimeUnit
@@ -154,7 +156,12 @@ class HomeActivity : AppCompatActivity() {
 
         userListenerReg = db.collection("users").document(userId)
             .addSnapshotListener { userSnap, _ ->
+                removeLegacyPrivateFields(userSnap)
+
                 val newFamilyId = userSnap?.getString("familyId")
+                val isWaitingApproval = newFamilyId == null && userSnap?.getString("pendingFamilyId") != null
+                findViewById<View>(R.id.pending_request_banner).visibility =
+                    if (isWaitingApproval) View.VISIBLE else View.GONE
 
                 // Sem família — remove o listener da família anterior e reset
                 if (newFamilyId == null) {
@@ -190,6 +197,12 @@ class HomeActivity : AppCompatActivity() {
                         }
                     }
             }
+    }
+
+    /** Contas antigas tinham o email e o telemóvel no perfil; agora ficam só na autenticação. */
+    private fun removeLegacyPrivateFields(userSnap: DocumentSnapshot?) {
+        if (userSnap == null || !(userSnap.contains("email") || userSnap.contains("phoneNumber"))) return
+        userSnap.reference.update("email", FieldValue.delete(), "phoneNumber", FieldValue.delete())
     }
 
     private fun sendFamilyJoinNotification(count: Int) {

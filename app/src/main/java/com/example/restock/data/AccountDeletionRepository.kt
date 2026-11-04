@@ -1,10 +1,8 @@
 package com.example.restock.data
 
-import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -14,11 +12,14 @@ import kotlinx.coroutines.tasks.await
  */
 class AccountDeletionRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance(),
+    private val familyRepository: FamilyRepository = FamilyRepository(db)
 ) {
 
     suspend fun deleteUserContent(uid: String, familyId: String?) {
-        removeFromPendingRequests(uid)
+        val user = db.collection("users").document(uid).get().await()
+        user.getString("pendingFamilyId")?.let { familyRepository.cancelJoinRequest(it, uid) }
+
         StoredImages.delete(storage.reference.child("profile_images/$uid"))
 
         if (familyId == null) return
@@ -35,28 +36,8 @@ class AccountDeletionRepository(
         }
     }
 
-    /**
-     * Retira o utilizador dos pedidos de adesão pendentes noutras famílias.
-     * Não bloqueia a eliminação: sem o documento do utilizador, um UID pendente
-     * já não corresponde a nenhum dado pessoal e deixa de aparecer ao administrador.
-     */
-    private suspend fun removeFromPendingRequests(uid: String) {
-        try {
-            val requests = db.collection("families")
-                .whereArrayContains("pendingMembers", uid)
-                .get()
-                .await()
-            requests.documents.forEach { family ->
-                family.reference.update("pendingMembers", FieldValue.arrayRemove(uid)).await()
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Log.w(TAG, "Não foi possível limpar os pedidos de adesão pendentes", e)
-        }
-    }
-
-    private suspend fun deleteFamily(familyId: String) {
+    /** Apaga a família e todo o seu conteúdo. Só o administrador ou o último membro o podem fazer. */
+    suspend fun deleteFamily(familyId: String) {
         val familyRef = db.collection("families").document(familyId)
 
         // As imagens primeiro: os URLs só existem nos documentos dos produtos.
@@ -72,6 +53,12 @@ class AccountDeletionRepository(
             }
         }
 
+        // O convite tem de sair antes da família, porque as regras dependem dela.
+        val inviteCode = familyRef.get().await().getString("inviteCode")
+        val batch = db.batch()
+        if (inviteCode != null) familyRepository.deleteInviteIfOwned(batch, inviteCode, familyId)
+        batch.commit().await()
+
         familyRef.delete().await()
     }
 
@@ -86,7 +73,6 @@ class AccountDeletionRepository(
     }
 
     private companion object {
-        const val TAG = "AccountDeletion"
         const val MAX_BATCH_SIZE = 400
         val FAMILY_SUBCOLLECTIONS = listOf("products", "shopping_list", "history", "budgetHistory")
     }

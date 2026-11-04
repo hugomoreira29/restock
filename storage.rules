@@ -1,0 +1,40 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // A app comprime as imagens antes de as enviar.
+    // O limite evita custos e o alojamento de outro tipo de ficheiros.
+    function isValidImage() {
+      return request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    function isFamilyMember(familyId) {
+      return firestore.exists(/databases/(default)/documents/families/$(familyId))
+        && firestore.get(/databases/(default)/documents/families/$(familyId)).data.members.hasAny([request.auth.uid]);
+    }
+
+    // "get" abre um ficheiro conhecido; sem "list" não é possível ver todos os ficheiros.
+    // Apagar fica à parte porque, ao apagar, request.resource não existe.
+    match /profile_images/{userId} {
+      allow get: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && isValidImage();
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Fotos de produtos: só os membros da família lhes podem mexer
+    match /product_images/{familyId}/{imageId} {
+      allow get: if request.auth != null && isFamilyMember(familyId);
+      allow create, update: if request.auth != null && isFamilyMember(familyId) && isValidImage();
+      allow delete: if request.auth != null && isFamilyMember(familyId);
+    }
+
+    // Fotos antigas, sem pasta de família: já não recebem ficheiros novos.
+    // Este bloco pode ser removido quando não restarem fotos neste formato.
+    match /product_images/{imageId} {
+      allow get, delete: if request.auth != null;
+    }
+  }
+}

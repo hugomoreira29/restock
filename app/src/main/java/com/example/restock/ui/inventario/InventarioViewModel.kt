@@ -54,6 +54,8 @@ class InventarioViewModel : ViewModel() {
     private var currentFamilyId: String? = null
     private var currentLimit = 50L
 
+    val familyId: String? get() = currentFamilyId
+
     private var userListener: ListenerRegistration? = null
     private var productsListener: ListenerRegistration? = null
     private var historyListener: ListenerRegistration? = null
