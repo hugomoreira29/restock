@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+.claude
+# Chave de assinatura e respetivas passwords
+keystore.properties
+*.jks
+*.keystore

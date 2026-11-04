@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.restock.R
+import com.example.restock.ads.AdsManager
 import com.example.restock.databinding.FragmentInvoiceReviewBinding
 import kotlinx.coroutines.launch
 
@@ -85,6 +86,7 @@ class InvoiceReviewFragment : Fragment() {
         ).show()
 
         findNavController().popBackStack(R.id.inventoryFragment, false)
+        AdsManager.showInterstitialIfDue(requireActivity())
     }
 
     override fun onDestroyView() {

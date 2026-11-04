@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restock.data.GamificationRepository
 import com.example.restock.data.InventoryRepository
+import com.example.restock.data.StoredImages
 import com.example.restock.model.HistoryItem
 import com.example.restock.model.Product
 import com.example.restock.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -169,6 +171,18 @@ class InventarioViewModel : ViewModel() {
                 Log.w("InventarioViewModel", "Error deleting product", e)
                 _error.value = e.message
             }
+    }
+
+    fun deleteProductImage(imageUrl: String?) {
+        viewModelScope.launch {
+            try {
+                StoredImages.deleteByUrl(imageUrl)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("InventarioViewModel", "Error deleting product image", e)
+            }
+        }
     }
 
     private fun addToHistory(product: Product) {

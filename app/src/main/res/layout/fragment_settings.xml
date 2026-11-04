@@ -334,6 +334,99 @@
                             android:alpha="0.4" />
                     </RelativeLayout>
 
+                    <!-- Política de privacidade -->
+                    <RelativeLayout
+                        android:id="@+id/privacyPolicyButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="14dp"
+                        android:paddingBottom="14dp">
+
+                        <LinearLayout
+                            android:id="@+id/iconPrivacyWrapper"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_centerVertical="true"
+                            android:gravity="center"
+                            android:background="@drawable/bg_icon_primary">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_lock"
+                                android:tint="@color/primary" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="14dp"
+                            android:layout_toEndOf="@id/iconPrivacyWrapper"
+                            android:text="@string/settings_privacy_policy"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_arrow_forward"
+                            android:alpha="0.4" />
+                    </RelativeLayout>
+
+                    <!-- Opções de privacidade dos anúncios -->
+                    <RelativeLayout
+                        android:id="@+id/adPrivacyButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="14dp"
+                        android:paddingBottom="14dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:id="@+id/iconAdPrivacyWrapper"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_centerVertical="true"
+                            android:gravity="center"
+                            android:background="@drawable/bg_icon_secondary">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_lock"
+                                android:tint="@color/secondary" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="14dp"
+                            android:layout_toEndOf="@id/iconAdPrivacyWrapper"
+                            android:text="@string/settings_ad_privacy"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_arrow_forward"
+                            android:alpha="0.4" />
+                    </RelativeLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

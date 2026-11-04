@@ -172,6 +172,17 @@
                     android:layout_marginTop="4dp"
                     android:text="@string/go_to_login" />
 
+                <TextView
+                    android:id="@+id/privacyNotice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:minHeight="48dp"
+                    android:text="@string/register_privacy_notice"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="13sp" />
+
                 <ProgressBar
                     android:id="@+id/progressBar"
                     android:layout_width="wrap_content"

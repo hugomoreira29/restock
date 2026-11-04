@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
@@ -19,8 +20,10 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.restock.ads.AdsManager
 import com.example.restock.workers.BudgetReminderWorker
 import com.example.restock.workers.ExpirationWorker
+import com.google.android.gms.ads.AdView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
@@ -33,6 +36,8 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
     private lateinit var fab: FloatingActionButton
+    private lateinit var adContainer: FrameLayout
+    private var bannerView: AdView? = null
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -62,15 +67,41 @@ class HomeActivity : AppCompatActivity() {
         fab = findViewById(R.id.fab_add)
         fab.setOnClickListener { showAddPopupMenu(it) }
 
+        adContainer = findViewById(R.id.ad_container)
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
             fab.visibility = if (destination.id == R.id.navigation_home) View.VISIBLE else View.GONE
+            updateBannerVisibility()
         }
+
+        AdsManager.gatherConsent(this) { showBanner() }
 
         askNotificationPermission()
         createNotificationChannels()
         scheduleExpirationWorker()
         scheduleBudgetReminderWorker()
         setupFamilyJoinRequestListener()
+    }
+
+    private fun showBanner() {
+        if (bannerView != null || isFinishing || isDestroyed) return
+        bannerView = AdsManager.createBanner(this).also { adContainer.addView(it) }
+        updateBannerVisibility()
+    }
+
+    private fun updateBannerVisibility() {
+        val showsAds = navController.currentDestination?.id in BANNER_DESTINATIONS
+        adContainer.visibility = if (bannerView != null && showsAds) View.VISIBLE else View.GONE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bannerView?.resume()
+    }
+
+    override fun onPause() {
+        bannerView?.pause()
+        super.onPause()
     }
 
     /**
@@ -240,6 +271,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        bannerView?.destroy()
         super.onDestroy()
         userListenerReg?.remove()
         familyListenerReg?.remove()
@@ -249,5 +281,12 @@ class HomeActivity : AppCompatActivity() {
         private const val CHANNEL_FAMILY = "family_channel"
         private const val CHANNEL_EXPIRY = "expiration_channel"
         private const val NOTIF_ID_FAMILY = 1002
+
+        // Nunca em ecrãs de câmara, formulários ou conta
+        private val BANNER_DESTINATIONS = setOf(
+            R.id.inventoryFragment,
+            R.id.navigation_list,
+            R.id.navigation_budget
+        )
     }
 }

@@ -57,6 +57,43 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559445056454:android:56b179c7152a73658e70c7",
+        "android_client_info": {
+          "package_name": "pt.hugomoreira.restock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "559445056454-gni03jqr14r451o4p738gg5s5aalv8j5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pt.hugomoreira.restock",
+            "certificate_hash": "72e222b83b762e914a97ddc8766b85233a0b54cf"
+          }
+        },
+        {
+          "client_id": "559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7ao3Idrp2KLKhaTkxV3hB9dHH_ykoo1A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "559445056454-5ucdor4jsgcbo41hsk5040magfskkdj4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

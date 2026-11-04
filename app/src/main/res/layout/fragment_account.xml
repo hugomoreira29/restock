@@ -300,7 +300,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:text="Apagar Conta"
+            android:text="@string/delete_account_button"
             android:textColor="#9E9E9E"
             app:cornerRadius="14dp" />
 

@@ -117,6 +117,14 @@ class InventoryFragment : Fragment() {
                 viewModel.deleteProduct(product.id)
                 Snackbar.make(requireView(), getString(R.string.product_deleted, product.nome), Snackbar.LENGTH_LONG)
                     .setAction(getString(R.string.undo)) { viewModel.restoreProduct(product) }
+                    .addCallback(object : Snackbar.Callback() {
+                        // A imagem só é apagada quando já não é possível desfazer
+                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                            if (event != DISMISS_EVENT_ACTION) {
+                                viewModel.deleteProductImage(product.imagemUrl)
+                            }
+                        }
+                    })
                     .show()
             },
             onEdit = { product ->

@@ -377,4 +377,13 @@
     <string name="product_not_found_db">Produto não encontrado nas bases de dados.</string>
     <string name="product_barcode_default">Produto %s</string>
     <string name="product_autofill_success">Dados preenchidos automaticamente.</string>
+
+    <!-- Privacidade e publicação -->
+    <string name="privacy_policy_url" translatable="false">https://restock-b9983.web.app/privacidade.html</string>
+    <string name="settings_privacy_policy">Política de privacidade</string>
+    <string name="settings_ad_privacy">Privacidade dos anúncios</string>
+    <string name="register_privacy_notice">Ao criares conta, os teus dados são tratados de acordo com a Política de Privacidade.</string>
+    <string name="delete_account_button">Apagar Conta</string>
+    <string name="open_link_error">Não foi possível abrir o link.</string>
+    <string name="account_delete_error">Não foi possível apagar todos os dados, por isso a conta não foi eliminada. Tenta novamente.</string>
 </resources>

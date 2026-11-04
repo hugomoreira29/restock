@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 // Binding - para aceder às vistas do layout de forma segura
 import com.example.restock.databinding.ActivityRegisterBinding
+import com.example.restock.ui.openPrivacyPolicy
 
 // Modelos internos da aplicação
 import com.example.restock.model.Family
@@ -94,6 +95,8 @@ class RegisterActivity : AppCompatActivity() {
         binding.goLoginBtn.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
+
+        binding.privacyNotice.setOnClickListener { openPrivacyPolicy() }
     }
 
     /**

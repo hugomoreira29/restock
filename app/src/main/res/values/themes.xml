@@ -24,6 +24,10 @@
         <item name="colorOnBackground">@color/black</item>
         <item name="colorOutline">@color/outline</item>
 
+        <!-- Ícones escuros nas barras do sistema, sobre o fundo claro -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
         <!-- Atributos personalizados -->
         <item name="productCardCornerRadius">16dp</item>
         <item name="productCardElevation">2dp</item>

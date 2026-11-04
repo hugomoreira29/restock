@@ -65,7 +65,7 @@ O projeto segue os princípios de **Clean Architecture** e o padrão de desenho 
 
 ### Configuração do Firebase
 1. Criar projeto na [Firebase Console](https://console.firebase.google.com/).
-2. Adicionar app com o package `com.example.restock`.
+2. Adicionar app com o package `pt.hugomoreira.restock`.
 3. Inserir o ficheiro `google-services.json` na pasta `/app`.
 4. **Importante (Google Sign-In):** No terminal do Android Studio, execute `./gradlew signingReport` e registe o seu **SHA-1** local nas configurações do Firebase para evitar o **Erro 10**.
 

@@ -15,6 +15,8 @@ mlkitBarcodeScanning = "17.3.0"
 mlkitTextRecognition = "16.0.1"
 camerax = "1.4.1"
 guava = "33.0.0-android"
+playServicesAds = "25.5.0"
+userMessagingPlatform = "4.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +49,10 @@ androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", 
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+
+# --- Anúncios ---
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+user-messaging-platform = { group = "com.google.android.ump", name = "user-messaging-platform", version.ref = "userMessagingPlatform" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

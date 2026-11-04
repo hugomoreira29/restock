@@ -364,4 +364,12 @@
     <string name="product_not_found_db">Product not found in databases.</string>
     <string name="product_barcode_default">Product %s</string>
     <string name="product_autofill_success">Details filled in automatically.</string>
+
+    <!-- Privacy and publishing -->
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_ad_privacy">Ad privacy</string>
+    <string name="register_privacy_notice">By creating an account, your data is handled according to the Privacy Policy.</string>
+    <string name="delete_account_button">Delete account</string>
+    <string name="open_link_error">Could not open the link.</string>
+    <string name="account_delete_error">Not all data could be deleted, so your account was not removed. Please try again.</string>
 </resources>

@@ -12,6 +12,7 @@
         android:required="false" />
 
     <application
+        android:name=".ReStockApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -20,6 +21,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ReStock_PG_Dispositivo_Moveis">
+
+        <!-- ID da app no AdMob, definido por variante em app/build.gradle.kts -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
 
         <!-- S P L A S H  → primeira a abrir -->
         <activity

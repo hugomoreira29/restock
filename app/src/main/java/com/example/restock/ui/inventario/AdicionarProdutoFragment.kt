@@ -400,9 +400,12 @@ class AdicionarProdutoFragment : Fragment() {
      */
     private fun uploadImageAndSaveProduct(name: String, quantity: Double, unit: String, category: String, price: Double, expiryDate: Date?) {
         val storageRef = FirebaseStorage.getInstance().reference.child("product_images/${UUID.randomUUID()}")
+        // Em edição, a nova imagem substitui a anterior, que deixaria de estar associada ao produto
+        val previousImageUrl = if (isEditMode) viewModel.selectedProduct.value?.imagemUrl else null
         storageRef.putFile(imageUri!!).addOnSuccessListener {
             storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
                 saveProduct(name, quantity, unit, category, price, expiryDate, downloadUrl.toString())
+                viewModel.deleteProductImage(previousImageUrl)
             }
         }.addOnFailureListener {
             Toast.makeText(context, getString(R.string.image_upload_fail), Toast.LENGTH_SHORT).show()

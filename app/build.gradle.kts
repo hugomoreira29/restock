@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,27 +7,77 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
 }
 
+// Assinatura de release: lida de keystore.properties, que nunca entra no Git.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+// IDs de teste públicos da Google: o build de debug nunca usa anúncios reais.
+val testAdmobAppId = "ca-app-pub-3940256099942544~3347511713"
+val testAdmobBannerId = "ca-app-pub-3940256099942544/9214589741"
+val testAdmobInterstitialId = "ca-app-pub-3940256099942544/1033173712"
+
+// IDs reais, definidos em gradle.properties. Sem os três, o release não mostra anúncios.
+fun admobProperty(name: String) = providers.gradleProperty(name).orNull.orEmpty().trim()
+val releaseAdmobAppId = admobProperty("RESTOCK_ADMOB_APP_ID")
+val releaseAdmobBannerId = admobProperty("RESTOCK_ADMOB_BANNER_ID")
+val releaseAdmobInterstitialId = admobProperty("RESTOCK_ADMOB_INTERSTITIAL_ID")
+val releaseAdsEnabled = listOf(
+    releaseAdmobAppId,
+    releaseAdmobBannerId,
+    releaseAdmobInterstitialId
+).all { it.isNotEmpty() }
+
 android {
     namespace = "com.example.restock"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.restock_pg_dispositivo_moveis"
+        applicationId = "pt.hugomoreira.restock"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            manifestPlaceholders["admobAppId"] = testAdmobAppId
+            buildConfigField("boolean", "ADS_ENABLED", "true")
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"$testAdmobBannerId\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$testAdmobInterstitialId\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            // O SDK de anúncios exige um App ID no manifesto mesmo com os anúncios desligados.
+            manifestPlaceholders["admobAppId"] =
+                if (releaseAdsEnabled) releaseAdmobAppId else testAdmobAppId
+            buildConfigField("boolean", "ADS_ENABLED", releaseAdsEnabled.toString())
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"$releaseAdmobBannerId\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$releaseAdmobInterstitialId\"")
         }
     }
 
@@ -76,8 +128,12 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.appcheck.playintegrity)
-    implementation(libs.firebase.appcheck.debug)
+    debugImplementation(libs.firebase.appcheck.debug)
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+
+    // Anúncios e consentimento (RGPD)
+    implementation(libs.play.services.ads)
+    implementation(libs.user.messaging.platform)
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")

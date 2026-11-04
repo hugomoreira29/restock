@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import android.widget.Toast
 // AndroidX - para registar o lançador de seleção de imagens e navegação entre fragmentos
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 
 // Google Sign-In - para reautenticação de utilizadores Google
@@ -27,6 +29,7 @@ import com.bumptech.glide.Glide
 // Classes internas da aplicação - atividade de login, recursos e binding
 import com.example.restock.LoginActivity
 import com.example.restock.R
+import com.example.restock.data.AccountDeletionRepository
 import com.example.restock.databinding.FragmentAccountBinding
 
 // Bottom sheets - para editar o nome e a palavra-passe do utilizador
@@ -39,6 +42,8 @@ import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 /** HUGO MOREIRA - a22402246
@@ -272,91 +277,22 @@ class AccountFragment : Fragment() {
     }
 
     private fun confirmAndDeleteAccount(familyId: String?) {
-        val uid = auth.currentUser?.uid ?: return
         val user = auth.currentUser ?: return
 
-        if (familyId != null) {
-            firestore.collection("families").document(familyId).get()
-                .addOnSuccessListener { familyDoc ->
-                    val members = familyDoc.get("members") as? List<String> ?: emptyList()
-                    val otherMembers = members.filter { it != uid }
-
-                    if (otherMembers.isEmpty()) {
-                        // Último membro — apagar família inteira
-                        deleteFamilyAndAccount(familyId, uid, user)
-                    } else {
-                        // Membro normal — apenas remover da família
-                        removeFromFamilyAndDeleteAccount(familyId, uid, user)
-                    }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Erro ao apagar conta. Tenta novamente.", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            deleteUserDocumentAndAuthAccount(uid, user)
-        }
-    }
-
-    private fun deleteFamilyAndAccount(familyId: String, uid: String, user: FirebaseUser) {
-        val familyRef = firestore.collection("families").document(familyId)
-        val subcollections = listOf("products", "shopping_list", "history", "budgetHistory")
-
-        // Apagar todas as subcoleções e depois o documento da família
-        var pending = subcollections.size
-        if (pending == 0) {
-            familyRef.delete().addOnSuccessListener {
-                deleteUserDocumentAndAuthAccount(uid, user)
+        showMfaLoading(true)
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                AccountDeletionRepository().deleteUserContent(user.uid, familyId)
+                showMfaLoading(false)
+                deleteUserDocumentAndAuthAccount(user.uid, user)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A conta só é eliminada depois de todos os dados terem sido apagados
+                Log.e("AccountFragment", "Falha ao apagar os dados da conta", e)
+                showMfaLoading(false)
+                Toast.makeText(requireContext(), getString(R.string.account_delete_error), Toast.LENGTH_LONG).show()
             }
-            return
-        }
-
-        for (sub in subcollections) {
-            familyRef.collection(sub).get().addOnSuccessListener { snap ->
-                val batch = firestore.batch()
-                snap.documents.forEach { batch.delete(it.reference) }
-                batch.commit().addOnCompleteListener {
-                    pending--
-                    if (pending == 0) {
-                        familyRef.delete().addOnSuccessListener {
-                            deleteUserDocumentAndAuthAccount(uid, user)
-                        }
-                    }
-                }
-            }.addOnFailureListener {
-                pending--
-                if (pending == 0) {
-                    familyRef.delete().addOnSuccessListener {
-                        deleteUserDocumentAndAuthAccount(uid, user)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun removeFromFamilyAndDeleteAccount(familyId: String, uid: String, user: FirebaseUser) {
-        val familyRef = firestore.collection("families").document(familyId)
-        firestore.runTransaction { transaction ->
-            val familyDoc = transaction.get(familyRef)
-            @Suppress("UNCHECKED_CAST")
-            val members = (familyDoc.get("members") as? List<String> ?: emptyList()).toMutableList()
-            @Suppress("UNCHECKED_CAST")
-            val roles = (familyDoc.get("roles") as? Map<String, String> ?: emptyMap()).toMutableMap()
-            @Suppress("UNCHECKED_CAST")
-            val pending = (familyDoc.get("pendingMembers") as? List<String> ?: emptyList()).toMutableList()
-
-            members.remove(uid)
-            roles.remove(uid)
-            pending.remove(uid)
-
-            transaction.update(familyRef, mapOf(
-                "members" to members,
-                "roles" to roles,
-                "pendingMembers" to pending
-            ))
-        }.addOnSuccessListener {
-            deleteUserDocumentAndAuthAccount(uid, user)
-        }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Erro ao remover da família. Tenta novamente.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -367,7 +303,13 @@ class AccountFragment : Fragment() {
         val activity = activity ?: return
 
         firestore.collection("users").document(uid).delete()
-            .addOnCompleteListener {
+            .addOnCompleteListener { userDocDeletion ->
+                if (!userDocDeletion.isSuccessful) {
+                    Log.e("AccountFragment", "Falha ao apagar o documento do utilizador", userDocDeletion.exception)
+                    showMfaLoadingIfVisible(false)
+                    Toast.makeText(ctx, ctx.getString(R.string.account_delete_error), Toast.LENGTH_LONG).show()
+                    return@addOnCompleteListener
+                }
                 // Usar sempre a referência mais recente do utilizador autenticado
                 val currentUser = auth.currentUser ?: user
                 currentUser.delete().addOnCompleteListener { task ->
@@ -656,6 +598,11 @@ class AccountFragment : Fragment() {
             .addOnFailureListener {
                 // Silencioso ou logar erro
             }
+    }
+
+    /** Para callbacks do Firebase que podem chegar depois de a vista ser destruída. */
+    private fun showMfaLoadingIfVisible(isLoading: Boolean) {
+        if (_binding != null) showMfaLoading(isLoading)
     }
 
     private fun showMfaLoading(isLoading: Boolean) {

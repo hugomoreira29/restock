@@ -16,8 +16,10 @@ import androidx.navigation.fragment.findNavController
 
 // Classes internas da aplicação - recursos, gestor de definições e binding
 import com.example.restock.R
+import com.example.restock.ads.AdsManager
 import com.example.restock.data.SettingsManager
 import com.example.restock.databinding.FragmentSettingsBinding
+import com.example.restock.ui.openPrivacyPolicy
 
 // Material Design - para os diálogos de seleção de idioma e tema
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -83,6 +85,17 @@ class SettingsFragment : Fragment() {
         // Abre o diálogo de seleção de tema
         binding.themeButton.setOnClickListener {
             showThemeSelectionDialog()
+        }
+
+        binding.privacyPolicyButton.setOnClickListener {
+            requireContext().openPrivacyPolicy()
+        }
+
+        // Só aparece quando a lei exige que o consentimento possa ser revisto (ex.: UE)
+        binding.adPrivacyButton.visibility =
+            if (AdsManager.isPrivacyOptionsRequired(requireContext())) View.VISIBLE else View.GONE
+        binding.adPrivacyButton.setOnClickListener {
+            AdsManager.showPrivacyOptions(requireActivity())
         }
 
         // Guarda o estado das notificações sempre que o switch é alterado
